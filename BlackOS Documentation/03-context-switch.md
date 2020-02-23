@@ -1,3 +1,5 @@
+<img src="https://github.com/bjornbrodtkorb/BlackOS/blob/master/BlackOS%20Graphics/black_os_logo_trim.png" width="100">
+
 # Context switch
 
 In this tutorial I will explain how the kernel switches threads
