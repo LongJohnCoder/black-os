@@ -1,3 +1,5 @@
+<img src="https://github.com/bjornbrodtkorb/BlackOS/blob/master/BlackOS%20Graphics/black_os_logo_trim.png" width="100">
+
 # Dynamic Memory Calls
 
 The dynamic memory core provides the user with functions for dynamically allocation and deleting memory. These functions are avalible though the system call layer. Since the allocation and deallocation used only a fraction of a timeslice, the whole function finishes inside the system call interrupt.
