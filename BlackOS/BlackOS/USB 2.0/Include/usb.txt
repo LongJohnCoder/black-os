@@ -1,0 +1,4 @@
+
+USB Enumeration
+
+Each control trasfer starts with a 8 byte long setup packet
