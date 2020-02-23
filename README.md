@@ -1,5 +1,5 @@
-<img src="https://github.com/bjornbrodtkorb/x-operating-system/blob/master/X%20Graphics/x_coming_soon.png" width="400">
+<img src="https://github.com/bjornbrodtkorb/BlackOS/blob/master/BlackOS%20Graphics/black_os_logo_trim.png" width="400">
 
-This is a operating system designed for ARM Cortex/M7 processors
+BlackOS is going to be a lightweight operating system, width special support for Cortex-M7 devices. With some modifications it will also work on other Cortex-M devices.
 
 # Features
