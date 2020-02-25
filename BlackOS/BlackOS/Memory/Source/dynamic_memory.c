@@ -313,7 +313,7 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 
 // The memory is cleared upon startup but the memory is
 // not cleared when memory is freed
-void* dynamic_memory_new_zero(Dynamic_memory_section memory_section, uint32_t size)
+void* dynamic_memory_new_zero(Dynamic_memory_section memory_section, uint32_t size, uint8_t data)
 {
 	void* return_value = dynamic_memory_new(memory_section, size);
 	
@@ -324,7 +324,7 @@ void* dynamic_memory_new_zero(Dynamic_memory_section memory_section, uint32_t si
 		
 		for (uint32_t i = 0; i < size; i++)
 		{
-			*tmp = 0x00;
+			*tmp = data;
 			tmp++;
 		}
 	}

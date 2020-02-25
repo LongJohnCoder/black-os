@@ -384,7 +384,7 @@ file_result_t file_system_command_line_run(char* arg)
 	}
 
 	// Before we get the data we have to allocate space for it
-	uint8_t* application = (uint8_t *)dynamic_memory_new_zero(SRAM, 2000);
+	uint8_t* application = (uint8_t *)dynamic_memory_new_zero(SRAM, 2000, 0);
 	uint8_t* application_iterator = application;
 	do
 	{

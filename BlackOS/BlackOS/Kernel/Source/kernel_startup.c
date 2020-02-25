@@ -75,9 +75,76 @@ void kernel_startup(void)
 	
 	
 	// Now we start up the kernel and its components
-	kernel_thread_config();
+	//kernel_thread_config();
 	
-	file_system_command_line_config();
+	//file_system_command_line_config();
+	SCB_CleanDCache();
+	uint32_t* test_data = dynamic_memory_new_zero(DRAM_BANK_0, 24, 0x22);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_1 = dynamic_memory_new_zero(DRAM_BANK_0, 24, 0x33);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_2 = dynamic_memory_new_zero(DRAM_BANK_0, 24, 0x44);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_3 = dynamic_memory_new_zero(DRAM_BANK_0, 24, 0x55);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_4 = dynamic_memory_new_zero(DRAM_BANK_0, 24, 0x66);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
+	SCB_CleanDCache();
+
+
+
+
+
+	// Test
+	uint32_t* test_data_5 = dynamic_memory_new_zero(DRAM_BANK_1, 24, 0x22);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_1), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_6 = dynamic_memory_new_zero(DRAM_BANK_1, 24, 0x33);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_1), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_7 = dynamic_memory_new_zero(DRAM_BANK_1, 24, 0x44);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_1), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_8 = dynamic_memory_new_zero(DRAM_BANK_1, 24, 0x55);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_1), 1);
+	SCB_CleanDCache();
+
+	uint32_t* test_data_9 = dynamic_memory_new_zero(DRAM_BANK_1, 24, 0x66);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_1), 1);
+	SCB_CleanDCache();
+	// Print hello message
+	board_serial_print("\n------------------ X Operating System ------------------\n\n");
+
+	dynamic_memory_free(test_data_6);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_1), 1);
+	SCB_CleanDCache();
+
+
+
+	dynamic_memory_free(test_data_2);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
+	SCB_CleanDCache();
+
+
+	uint32_t* test_data_10 = dynamic_memory_new_zero(DRAM_BANK_1, 16, 0xFF);
+	board_serial_print("Free memory: %d\n", dynamic_memory_get_used_size(DRAM_BANK_0));
+	SCB_CleanDCache();
+
+
+	uint32_t* test_data_11 = dynamic_memory_new_zero(DRAM_BANK_0, 16, 0xFF);
+	board_serial_print("Free memory: %d\n", dynamic_memory_get_used_size(DRAM_BANK_1));
+	SCB_CleanDCache();
 }
 
 //--------------------------------------------------------------------------------------------------//
