@@ -155,8 +155,6 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 		// Do nothing
 	}
 	
-	board_serial_print_address("\nIterator address: ", block_iterator);
-	board_serial_print_address("\nBlock address: ", (uint32_t)block);
 	// Now the block iterator points to the memory block before the insertion
 	// block_iterator->next points to the memory block after the insertion
 	// Create a pointer to the inserted block address
@@ -170,7 +168,6 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 	// In this case the block will be combined 
 	if ((addr + acctual_block_iterator_size) == ((uint8_t *)block))
 	{
-		board_serial_print("\nMerge");
 		block_iterator->size += acctual_block_size;
 		block = block_iterator;
 	}
@@ -212,7 +209,7 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 //--------------------------------------------------------------------------------------------------//
 
 void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
-{	
+{
 	// Pointer to iterators
 	dynamic_memory_descriptor* block_iterator_previous;
 	dynamic_memory_descriptor* block_iterator_current;
@@ -313,28 +310,15 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 		check(0);
 	}
 	
-	return return_value;
-}
-
-//--------------------------------------------------------------------------------------------------//
-
-// The memory is cleared upon startup but the memory is
-// not cleared when memory is freed
-void* dynamic_memory_new_zero(Dynamic_memory_section memory_section, uint32_t size, uint8_t data)
-{
-	void* return_value = dynamic_memory_new(memory_section, size);
-	
-	if (return_value != NULL)
-	{
-		// Allocation success, begin initializing
+	// Allocation success, begin initializing
 		uint8_t* tmp = (uint8_t *)return_value;
-		
-		for (uint32_t i = 0; i < size; i++)
+		SCB_CleanDCache();
+		for (uint32_t i = 0; i < (size - 8); i++)
 		{
-			*tmp = data;
+			*tmp = 0;
 			tmp++;
 		}
-	}
+	
 	return return_value;
 }
 

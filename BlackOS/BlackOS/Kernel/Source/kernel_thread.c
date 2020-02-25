@@ -69,10 +69,10 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 	
 	// First we have to allocate memory for the thread and for
 	// the stack that is going to be used by that thread
-	kernel_thread_control* new_thread = (kernel_thread_control*)dynamic_memory_new_zero(SRAM, sizeof(kernel_thread_control), 0);
+	kernel_thread_control* new_thread = (kernel_thread_control*)dynamic_memory_new(SRAM, sizeof(kernel_thread_control));
 	
 	// Allocate the stack
-	new_thread->stack_base = (uint32_t*)dynamic_memory_new_zero(SRAM, stack_size * sizeof(uint32_t), 0);
+	new_thread->stack_base = (uint32_t*)dynamic_memory_new(SRAM, stack_size * sizeof(uint32_t));
 
 	if ((new_thread == NULL) || (new_thread->stack_base == NULL))
 	{

@@ -68,8 +68,6 @@ void dynamic_memory_config(void);
 
 void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size);
 
-void* dynamic_memory_new_zero(Dynamic_memory_section memory_section, uint32_t size, uint8_t data);
-
 void dynamic_memory_free(void* memory_object);
 
 
