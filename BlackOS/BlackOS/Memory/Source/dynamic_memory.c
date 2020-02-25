@@ -32,7 +32,7 @@ Dynamic_memory_section_s dynamic_section_sram =
 Dynamic_memory_section_s dynamic_section_dram_bank_0 = 
 {
 	.start_address		= 0x70000000,
-	.end_address		= 0x7007FFFF,
+	.end_address		= 0x700000FF,//0x7007FFFF,
 	.allignment			= 8,
 	.minimum_block_size = 8,
 	.name				= "DRAM bank 0"
@@ -41,7 +41,7 @@ Dynamic_memory_section_s dynamic_section_dram_bank_0 =
 Dynamic_memory_section_s dynamic_section_dram_bank_1 =
 {
 	.start_address		= 0x70080000,
-	.end_address		= 0x700FFFFF,
+	.end_address		= 0x700800FF,//0x700FFFFF,
 	.allignment			= 8,
 	.minimum_block_size = 8,
 	.name				= "DRAM bank 1"
@@ -89,6 +89,15 @@ void dynamic_memory_config(void)
 	
 	while (it != NULL)
 	{
+		// Zero-initializes the memory sections
+		// Due to a bug the Cortex-M7 only responds to 8-bit and 32-bit accesses here
+		volatile uint8_t* start = (volatile uint8_t *)it->start_address;
+		volatile uint8_t* stop = (volatile uint8_t *)it->end_address;
+
+		while (start != stop)
+		{
+			*start++ = 0x00;
+		}
 		
 		// We must align the start and end address		
 		if (it->start_address & (it->allignment - 1))
@@ -107,17 +116,7 @@ void dynamic_memory_config(void)
 		// Calculate the total section memory
 		it->total_memory = it->end_address - it->start_address - memory_descriptor_size;
 		it->free_memory = it->total_memory;
-		
-		// Zero-initializes the memory sections
-		// Due to a bug the Cortex-M7 only responds to 8-bit and 32-bit accesses here
-		volatile uint32_t* dest = (volatile uint32_t *)it->start_address;
-		
-		for (uint32_t i = 0; i < (it->free_memory / 2); i++)
-		{
-			*dest++ = 0x00;
-		}
-		SCB_CleanDCache();
-		
+
 		// Configure the memory section descriptors
 		it->start_descriptor = &it->start_descriptor_object;
 		it->end_descriptor = (dynamic_memory_descriptor *)it->end_address;
@@ -133,9 +132,6 @@ void dynamic_memory_config(void)
 		
 		it = dynamic_memory_sections[++section_counter];
 	}
-	
-	// Not sure if this is neccesary
-	SCB_CleanInvalidateDCache();
 }
 
 //--------------------------------------------------------------------------------------------------//
