@@ -58,13 +58,11 @@ int main(void)
 {
 	kernel_startup();
 
-	//kernel_thread_control* blink_control = kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
-	//kernel_thread_control* fuck_control = kernel_add_thread("fuck", fuck, NULL, THREAD_LEVEL_6, 200);
-	//kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200);
+	kernel_thread_control* blink_control = kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
+	kernel_thread_control* fuck_control = kernel_add_thread("fuck", fuck, NULL, THREAD_LEVEL_6, 200);
+	kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200);
 	
-	board_serial_print("\n------------------ X Operating System ------------------\n\n");
-	
-	//kernel_launch_scheduler();
+	kernel_launch_scheduler();
 	
 	while (1)
 	{
