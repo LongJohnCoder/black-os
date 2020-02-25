@@ -114,7 +114,10 @@ void dynamic_memory_config(void)
 		it->end_address -= memory_descriptor_size;
 		
 		// Calculate the total section memory
-		it->total_memory = it->end_address - it->start_address - memory_descriptor_size;
+		// The total memory should be the total first block size
+		it->total_memory = it->end_address - it->start_address;
+		
+		// The total free memory is the total block size minus the descriptor
 		it->free_memory = it->total_memory;
 
 		// Configure the memory section descriptors
@@ -142,7 +145,7 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 	Dynamic_memory_section_s* current_section = dynamic_memory_sections[memory_section];
 	
 	// Check that the block is passed right
-	check(block < current_section->end_descriptor);
+	check((block < current_section->end_descriptor) && (block >= current_section->start_descriptor));
 	
 	// Make a iterator
 	dynamic_memory_descriptor* block_iterator;
@@ -152,18 +155,23 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 		// Do nothing
 	}
 	
+	board_serial_print_address("\nIterator address: ", block_iterator);
+	board_serial_print_address("\nBlock address: ", (uint32_t)block);
 	// Now the block iterator points to the memory block before the insertion
 	// block_iterator->next points to the memory block after the insertion
 	// Create a pointer to the inserted block address
 	uint8_t* addr = (uint8_t *) block_iterator;
 	
+	uint32_t acctual_block_size = MEMORY_GET_RAW_SIZE(block->size);
+	uint32_t acctual_block_iterator_size = MEMORY_GET_RAW_SIZE(block_iterator->size);
 	
 	// The algorithm rely on the fact that every element in the list contains free memory
 	// We therefore have to check whether the previous free block overlaps with the new block
 	// In this case the block will be combined 
-	if ((addr + block_iterator->size) == ((uint8_t *)block))
+	if ((addr + acctual_block_iterator_size) == ((uint8_t *)block))
 	{
-		block_iterator->size += block->size;
+		board_serial_print("\nMerge");
+		block_iterator->size += acctual_block_size;
 		block = block_iterator;
 	}
 	
@@ -172,13 +180,15 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 	
 	addr = (uint8_t *) block;
 	
-	if ((addr + block->size) == ((uint8_t *)block_iterator->next))
+	acctual_block_size = MEMORY_GET_RAW_SIZE(block->size);
+	
+	if ((addr + acctual_block_size) == ((uint8_t *)block_iterator->next))
 	{
 		// Check if the next block is the last block
 		// In this case do not merge blocks
 		if (block_iterator->next != current_section->end_descriptor)
 		{
-			block->size += block_iterator->next->size;
+			block->size += MEMORY_GET_RAW_SIZE(block_iterator->next->size);
 			block->next = block_iterator->next->next;
 		}
 		else
@@ -188,7 +198,6 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 	}
 	else
 	{
-		// Not sure if this is necessary
 		block->next = block_iterator->next;
 	}
 	
@@ -217,6 +226,12 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 	// Check that the size is greater than zero
 	check(size);
 	
+	// Make sure the size requested is greater than the minimum value
+	if (size < current_section->minimum_block_size)
+	{
+		size = current_section->minimum_block_size;
+	}
+	
 	// Allocate new memory
 	// First add the size of the descriptor and add alignment padding
 	size += memory_descriptor_size;
@@ -228,16 +243,11 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 		size = ((size + current_section->allignment - 1) & ~(current_section->allignment - 1));
 	}
 	
-	
-	// Make sure the size requested is greater than the minimum value
-	if (size < current_section->minimum_block_size)
-	{
-		size = current_section->minimum_block_size;
-	}
-	
-	// Now the correct size of the block to be allocated is determined
+	// Now the correct size of the block to be allocated is determined. This size
+	// includes the memory descriptor in the start
 	
 	// If there is enough bytes remaining in the heap section
+	// The free memory size holds the number of free bytes. That is not include
 	if (size < current_section->free_memory)
 	{
 		// Iterate through list and try to find a match
@@ -264,7 +274,7 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 			// Take out the available block of the linked list
 			block_iterator_previous->next = block_iterator_current->next;
 			
-			if ((block_iterator_current->size - size > current_section->minimum_block_size))
+			if ((MEMORY_GET_RAW_SIZE(block_iterator_current->size) - size) >= (current_section->minimum_block_size + memory_descriptor_size))
 			{
 				// The block has bigger size than the requested size 
 				// AND the remained has also a bigger size than the minimum size
@@ -302,6 +312,7 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 		// Allocation failed
 		check(0);
 	}
+	
 	return return_value;
 }
 
@@ -338,7 +349,7 @@ void dynamic_memory_free(void* memory_object)
 	{
 		// Every object has a memory descriptor right behind it
 		// on an active memory block the next pointer should be zero
-		memory_object -= memory_descriptor_size;
+		memory_object = (void *)((uint8_t *)memory_object - memory_descriptor_size);
 		
 		// Cast the address to a memory object
 		block = (dynamic_memory_descriptor *)memory_object;
@@ -359,6 +370,13 @@ void dynamic_memory_free(void* memory_object)
 				// Insert the block in the linked list of free elements
 				dynamic_memory_insert_block(sect, block);
 			}
+			
+			// If any of the below checks are hit by the processor the memory is lost
+			// The user might have lost the memory pointer or changed the two 32-bit fields
+			// right behind the memory. 
+			//
+			// TODO: Memory callback, maybe reset, maybe terminate program
+			
 			else
 			{
 				check(0);
