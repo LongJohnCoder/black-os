@@ -138,10 +138,7 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 		kernel_list_insert_first(&(new_thread->list_item), &running_list);
 	}
 	
-	// We have to clean and invalidate D-cache to avoid hard fault when
-	// we add a new thread
-	// TODO: Does noe need to invalidate the data cache here
-	SCB_CleanInvalidateDCache();
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(SRAM), 1);
 	
 	kernel_resume_scheduler();
 	
@@ -242,6 +239,19 @@ void kernel_print_running_queue(kernel_list* list)
 		board_serial_print("\n");
 		
 		
+		list_iterator = list->first;
+		board_serial_print("\n");
+		board_serial_print("Previous\t\t\t\t\t");
+
+		while (list_iterator != NULL)
+		{
+			board_serial_print("%d\t", list_iterator->thread_control->tick_to_wake);
+			board_serial_print("\t");
+			list_iterator = list_iterator->next;
+		}
+		board_serial_print("\n");
+		
+		
 		board_serial_print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
 		board_serial_print("\n\n");
 	}
@@ -255,10 +265,10 @@ void kernel_launch_scheduler(void)
 	systick_config();
 	systick_set_reload_value(300000000 / KERNEL_TICK_FREQUENCY);
 	#if KERNEL_DEBUG
-	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_1);
-	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_0);
+	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_7);
+	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_6);
 	#else
-	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_0);
+	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_6);
 	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_7);
 	#endif
 	// Start the scheduler
@@ -344,53 +354,47 @@ void kernel_scheduler(void)
 	
 	// Do not allow any context switch when the scheduler is suspended
 	if (scheduler_status == SCHEDULER_STATUS_RUNNING)
-	{
-		// This loop skips any task that have pending delay
-		/*
-		// We can not mess up the current thread pointer since we are not in the context switch
-		// we are in the SysTick exception.
-		kernel_thread_control* thread_iterator = kernel_current_thread_pointer;
-		
-		do
+	{		
+		if (kernel_current_thread_pointer != kernel_idle_thread_pointer)
 		{
-			thread_iterator = thread_iterator->next;
-		}
-		while (thread_iterator->tick_to_wake > kernel_tick);
-		
-		// Lets update the next thread to run
-		kernel_next_thread_pointer = thread_iterator;
-		
-		*/
-		
-		if (kernel_current_thread_pointer->next_list != NULL)
-		{
-			// Check which list the thread is going to be placed in
-			if (kernel_current_thread_pointer->next_list == &delay_list)
+			if (kernel_current_thread_pointer->next_list != NULL)
 			{
-				// Put the element into the delay queue
-				kernel_list_remove_last(&running_list);
-				kernel_list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_list);
-				#if KERNEL_DEBUG
-				board_serial_print("DEL ADD %d\n",  delay_list.first->thread_control->tick_to_wake);
-				#endif
+				// Check which list the thread is going to be placed in
+				if (kernel_current_thread_pointer->next_list == &delay_list)
+				{
+					// Put the element into the delay queue
+					kernel_list_remove_last(&running_list);
+					kernel_list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_list);
+					#if KERNEL_DEBUG
+					board_serial_print("DEL ADD %d\n",  delay_list.first->thread_control->tick_to_wake);
+					#endif
+					
+					// Update the kernel tick to wake
+					kernel_tick_to_wake = delay_list.first->thread_control->tick_to_wake;
+				}
 				
-				// Update the kernel tick to wake
-				kernel_tick_to_wake = delay_list.first->thread_control->tick_to_wake;
+				kernel_current_thread_pointer->next_list = NULL;
 			}
-			
-			kernel_current_thread_pointer->next_list = NULL;
+			else
+			{
+				// The thread should just be place first in the running queue
+				kernel_list_remove_last(&running_list);
+				kernel_list_insert_first(&(kernel_current_thread_pointer->list_item), &running_list);
+			}
 		}
-		else
+		
+		
+		if (kernel_tick > 510)
 		{
-			// The thread should just be place first in the running queue
-			kernel_list_remove_last(&running_list);
-			kernel_list_insert_first(&(kernel_current_thread_pointer->list_item), &running_list);
+			asm volatile("nop");
 		}
 		
 		// Now we check if some delays has expired
 		if (kernel_tick_to_wake <= kernel_tick)
 		{
 			kernel_list_item* list_iterator = delay_list.first;
+			
+			check(delay_list.first->thread_control->tick_to_wake <= kernel_tick_to_wake);
 			
 			uint16_t  i;
 			
@@ -402,6 +406,8 @@ void kernel_scheduler(void)
 				}
 				list_iterator = list_iterator->next;
 			}
+			kernel_print_running_queue(&delay_list);
+			board_serial_print("Global tick: %d\n", kernel_tick);
 			
 			for (uint16_t k = 0; k < i; k++)
 			{
@@ -434,6 +440,10 @@ void kernel_scheduler(void)
 		{
 			kernel_next_thread_pointer = running_list.last->thread_control;
 		}
+	}
+	else
+	{
+		board_serial_print("Warning error\n");
 	}
 
 	

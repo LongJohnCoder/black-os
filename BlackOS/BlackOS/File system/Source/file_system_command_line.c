@@ -56,13 +56,15 @@ static volatile uint8_t file_system_command_ready = 0;
 directory_t directory;
 file_info_t file_info;
 
+kernel_thread_control* file_thread;
+
 //--------------------------------------------------------------------------------------------------//
 
 void file_system_command_line_config(void)
 {
 	strcpy(file_system_path, "/");
 	
-	kernel_add_thread("file", file_system_command_line_thread, NULL, THREAD_LEVEL_3, 500);
+	file_thread = kernel_add_thread("file", file_system_command_line_thread, NULL, THREAD_LEVEL_3, 500);
 }
 
 void file_system_command_line_thread(void* args)
@@ -75,7 +77,7 @@ void file_system_command_line_thread(void* args)
 
 	}
 	board_serial_print("SD card detected\n\n");
-	kernel_thread_delay(2000);
+	service_thread_delay(2000);
 	
 	board_serial_print("SD card detected\n\n");
 

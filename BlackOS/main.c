@@ -42,7 +42,8 @@ void fuck(void* args)
 {
 	while(1)
 	{
-		
+		//board_serial_print("k");
+		service_thread_delay(50);
 	}
 }
 
@@ -50,7 +51,8 @@ void shit(void* args)
 {
 	while(1)
 	{
-		
+		board_serial_print("Ping\n");
+		service_thread_delay(300);
 	}
 }
 
@@ -60,7 +62,7 @@ int main(void)
 
 	kernel_thread_control* blink_control = kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
 	kernel_thread_control* fuck_control = kernel_add_thread("fuck", fuck, NULL, THREAD_LEVEL_6, 200);
-	kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200);
+	
 	
 	kernel_launch_scheduler();
 	
@@ -73,7 +75,25 @@ int main(void)
 void PIOA_Handler()
 {
 	(void)gpio_get_interrupt_status_register(PIOA);
+	kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200); 
+	
+	if (file_thread->current_list == &delay_list)
+	{
+		board_serial_print("File in delay list\n");
+	}
+	else if (file_thread->current_list == &running_list)
+	{
+		board_serial_print("File in running list\n");
+	}
+	else
+	{
+		board_serial_print("WARNING\n\n");
+	}
+	
+	
 	board_serial_print("Button pressed\n");
+	
+	
 	
 	button_pressed = 1;
 }
