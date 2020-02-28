@@ -13,6 +13,7 @@
 #include "kernel_thread.h"
 #include "file_system_command_line.h"
 #include "dram.h"
+#include "board_serial_x.h"
 #include "dma.h"
 
 #include <stddef.h>
@@ -42,7 +43,7 @@ void shit(void* args)
 {
 	while(1)
 	{
-		board_serial_print("Ping\n");
+		//board_serial_print("Ping\n");
 		service_thread_delay(300);
 	}
 }
@@ -54,8 +55,8 @@ void fuck(void* args)
 	while(1)
 	{
 		
-		board_serial_print("k");
-		service_thread_delay(50);
+		kernel_print_runtime_statistics();
+		service_thread_delay(1000);
 	}
 }
 
@@ -63,16 +64,18 @@ void fuck(void* args)
 int main(void)
 {
 	kernel_startup();
+	
+	board_serial_x_config();
 
 	kernel_thread_control* blink_control = kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
 	kernel_thread_control* fuck_control = kernel_add_thread("fuck", fuck, NULL, THREAD_LEVEL_6, 200);
 	
 	
-	kernel_launch_scheduler();
+	kernel_start();
 	
 	while (1)
 	{
-		
+
 	}
 }
 
@@ -81,11 +84,11 @@ void PIOA_Handler()
 	(void)gpio_get_interrupt_status_register(PIOA);
 	kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200); 
 	
-	if (file_thread->current_list == &delay_list)
+	if (file_thread->current_list == &delay_queue)
 	{
 		board_serial_print("File in delay list\n");
 	}
-	else if (file_thread->current_list == &running_list)
+	else if (file_thread->current_list == &running_queue)
 	{
 		board_serial_print("File in running list\n");
 	}

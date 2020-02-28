@@ -107,6 +107,7 @@ void file_system_command_line_thread(void* args)
 			file_system_command_line_print_directory();
 			
 		}
+		service_thread_delay(50);
 		
 	}
 }

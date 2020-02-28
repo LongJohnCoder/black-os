@@ -69,6 +69,8 @@ typedef struct kernel_thread_control_s
 	// Time to wake is used for the thread delay function
 	uint32_t tick_to_wake;
 	
+	// The runtime variable will hold the total ticks the last second
+	uint32_t last_runtime;
 	uint32_t runtime;
 	
 	// Store the name of the thread
@@ -76,11 +78,11 @@ typedef struct kernel_thread_control_s
 	
 } kernel_thread_control;
 
-extern kernel_list running_list;
+extern kernel_list running_queue;
 extern kernel_thread_control* kernel_current_thread_pointer;
-extern kernel_list delay_list;
+extern kernel_list delay_queue;
 
-void kernel_launch_scheduler(void);
+void kernel_start(void);
 
 void kernel_thread_config(void);
 
@@ -101,5 +103,7 @@ uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list);
 
 
 void kernel_print_running_queue(kernel_list* list);
+
+void kernel_print_runtime_statistics(void);
 
 #endif
