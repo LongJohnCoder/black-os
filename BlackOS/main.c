@@ -42,7 +42,7 @@ void fuck(void* args)
 {
 	while(1)
 	{
-		//board_serial_print("k");
+		board_serial_print("k");
 		service_thread_delay(50);
 	}
 }

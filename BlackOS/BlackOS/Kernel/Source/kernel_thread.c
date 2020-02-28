@@ -406,8 +406,6 @@ void kernel_scheduler(void)
 				}
 				list_iterator = list_iterator->next;
 			}
-			kernel_print_running_queue(&delay_list);
-			board_serial_print("Global tick: %d\n", kernel_tick);
 			
 			for (uint16_t k = 0; k < i; k++)
 			{
@@ -663,6 +661,8 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 					
 					prev_item->next = list_item;
 					list_item->previous = prev_item;
+					
+					list->size++;
 					
 					return;
 				}
