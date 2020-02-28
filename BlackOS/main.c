@@ -38,15 +38,6 @@ void blink(void* arg)
 	}
 }
 
-void fuck(void* args)
-{
-	while(1)
-	{
-		board_serial_print("k");
-		service_thread_delay(50);
-	}
-}
-
 void shit(void* args)
 {
 	while(1)
@@ -55,6 +46,19 @@ void shit(void* args)
 		service_thread_delay(300);
 	}
 }
+
+
+void fuck(void* args)
+{
+	kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200); 
+	while(1)
+	{
+		
+		board_serial_print("k");
+		service_thread_delay(50);
+	}
+}
+
 
 int main(void)
 {

@@ -441,7 +441,7 @@ void kernel_scheduler(void)
 	}
 	else
 	{
-		board_serial_print("Warning error\n");
+		
 	}
 
 	
