@@ -37,12 +37,13 @@ kernel_thread_control* kernel_idle_thread_pointer;
 // This variable will hold the current state of the scheduler
 kernel_scheduler_status scheduler_status;
 
-// Not sure wtf this does
-volatile uint8_t systick_enable_flag = 0;
-
+// Some lists that the kernel will use for the threads
 kernel_list running_list;
 kernel_list delay_list;
 
+// Global tick to wake variable. This variable gets updated every time a thread is added or removed from the delay
+// list. It holds the tick to wake value of the first thread to be put in the running queue again. This reduces the
+// overhead.
 uint32_t kernel_tick_to_wake;
 
 //--------------------------------------------------------------------------------------------------//
@@ -65,10 +66,11 @@ void kernel_resume_scheduler(void);
 
 kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
 {
+	// We do NOT want any scheduler interrupting inside here
 	kernel_suspend_scheduler();
 	
-	// First we have to allocate memory for the thread and for
-	// the stack that is going to be used by that thread
+	// First we have to allocate memory for the thread and 
+	// for the stack that is going to be used by that thread
 	kernel_thread_control* new_thread = (kernel_thread_control*)dynamic_memory_new(SRAM, sizeof(kernel_thread_control));
 	
 	// Allocate the stack
@@ -81,7 +83,7 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 		return NULL;
 	}
 	
-	// Get the stack pointer to point to the top of stack
+	// Get the stack pointer to point to top of stack
 	new_thread->stack_pointer = new_thread->stack_base + stack_size - 1;
 	
 	// Initialize the stack
@@ -99,6 +101,7 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 	}
 	
 	// Set the tick_to_wake to zero since otherwise the task will be delays
+	// TODO: This should not be nessecary
 	new_thread->tick_to_wake = 0;
 	
 	// Set the thread priority
@@ -111,26 +114,9 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 		new_thread->next = new_thread;
 		
 		kernel_idle_thread_pointer = new_thread;
-		kernel_current_thread_pointer = new_thread;
-		kernel_next_thread_pointer = new_thread;
 	}
 	else
-	{
-		// Iterate through all threads and place it last
-		// Might want to arrange them in order of priority
-		kernel_thread_control* thread_iterator = kernel_idle_thread_pointer;
-		
-		while (thread_iterator->next != kernel_idle_thread_pointer)
-		{
-			thread_iterator = thread_iterator->next;
-		}
-		
-		// The thread iterator points at the last element in the thread list
-		(void)new_thread->next;
-		(void)kernel_idle_thread_pointer;
-		new_thread->next = kernel_idle_thread_pointer;
-		thread_iterator->next = new_thread;
-		
+	{		
 		new_thread->current_list = &running_list;
 		new_thread->next_list = NULL;
 		new_thread->list_item.thread_control = new_thread;
@@ -278,7 +264,14 @@ void kernel_launch_scheduler(void)
 	kernel_tick = 0;
 	kernel_tick_to_wake = 0xffffffff;
 	
-	kernel_current_thread_pointer = running_list.last->thread_control;
+	if (running_list.last != NULL)
+	{
+		kernel_current_thread_pointer = running_list.last->thread_control;
+	}
+	else
+	{
+		kernel_current_thread_pointer = kernel_idle_thread_pointer;
+	}
 	
 	kernel_print_running_queue(&running_list);
 	kernel_print_running_queue(&delay_list);

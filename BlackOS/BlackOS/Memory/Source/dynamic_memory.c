@@ -307,17 +307,17 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 	if (return_value == NULL)
 	{
 		// Allocation failed
-		check(0);
+		// This means that the memory is full or a bug has been discovered
+		// Call the fault handler to try to fix the bug
+		check(0); // REMOVE
 	}
 	
-	// Allocation success, begin initializing
-		uint8_t* tmp = (uint8_t *)return_value;
-		SCB_CleanDCache();
-		for (uint32_t i = 0; i < (size - 8); i++)
-		{
-			*tmp = 0;
-			tmp++;
-		}
+	uint8_t* tmp = (uint8_t *)return_value;
+	for (uint32_t i = 0; i < (size - 8); i++)
+	{
+		*tmp = 0;
+		tmp++;
+	}
 	
 	return return_value;
 }
