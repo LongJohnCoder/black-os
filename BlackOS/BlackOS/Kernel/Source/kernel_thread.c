@@ -23,6 +23,7 @@ typedef enum
 
 // The kernel tick count the number of milliseconds / time-slices that the kernel has run for
 uint32_t kernel_tick;
+uint32_t kernel_statistics_timer;
 
 // We use three pointers for the kernel
 //
@@ -262,6 +263,7 @@ void kernel_launch_scheduler(void)
 	
 	// Update the kernel tick and tick to wake
 	kernel_tick = 0;
+	kernel_statistics_timer = 0;
 	kernel_tick_to_wake = 0xffffffff;
 	
 	if (running_list.last != NULL)

@@ -69,7 +69,7 @@
 #define KERNEL_IDLE_THREAD_STACK_SIZE		100			// Specifies the stack size allocated for the idle thread
 
 #define KERNEL_TICK_FREQUENCY				1000		// Frequency of the kernel interrupt
-
+#define KERNEL_STATISTICS_FREQUENCY			1000		// Statistics will be calculated every 1000 context switched
 
 
 

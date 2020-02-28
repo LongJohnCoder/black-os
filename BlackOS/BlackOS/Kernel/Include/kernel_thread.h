@@ -69,6 +69,8 @@ typedef struct kernel_thread_control_s
 	// Time to wake is used for the thread delay function
 	uint32_t tick_to_wake;
 	
+	uint32_t runtime;
+	
 	// Store the name of the thread
 	char name[KERNEL_THREAD_MAX_NAME_LENGTH];
 	
