@@ -1,35 +1,5 @@
-/**
- * \file
- *
- * \brief GCC startup file for ATSAME70Q21B
- *
- * Copyright (c) 2019 Microchip Technology Inc.
- *
- * \license_start
- *
- * \page License
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * \license_stop
- *
- */
-
 #include "same70q21b.h"
 
-/* Initialize segments */
 extern uint32_t _sfixed;
 extern uint32_t _efixed;
 extern uint32_t _etext;
@@ -40,30 +10,27 @@ extern uint32_t _ezero;
 extern uint32_t _sstack;
 extern uint32_t _estack;
 
-/** \cond DOXYGEN_SHOULD_SKIP_THIS */
 int main(void);
-/** \endcond */
 
 void __libc_init_array(void);
 
-/* Reset handler */
 void Reset_Handler(void);
 
-/* Default empty handler */
 void Dummy_Handler(void);
 
-/* Cortex-M7 core handlers */
-void NonMaskableInt_Handler ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void HardFault_Handler    ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void MemoryManagement_Handler ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void BusFault_Handler     ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void UsageFault_Handler   ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SVCall_Handler       ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void DebugMonitor_Handler ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void PendSV_Handler       ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SysTick_Handler      ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 
-/* Peripherals handlers */
+// Core handlers
+void NonMaskableInt_Handler		( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void HardFault_Handler			( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void MemoryManagement_Handler	( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void BusFault_Handler			( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void UsageFault_Handler			( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void SVCall_Handler				( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void DebugMonitor_Handler		( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void PendSV_Handler				( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void SysTick_Handler			( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+
+// Peripheral handlers
 void SUPC_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void RSTC_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void RTC_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -135,7 +102,7 @@ void GMAC_Q3_Handler      ( void ) __attribute__ ((weak, alias("Dummy_Handler"))
 void GMAC_Q4_Handler      ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void GMAC_Q5_Handler      ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 
-/* Exception Table */
+// Exception table
 __attribute__ ((section(".vectors")))
 const DeviceVectors exception_table = {
 
@@ -235,10 +202,6 @@ const DeviceVectors exception_table = {
         .pfnGMAC_Q5_Handler            = (void*) GMAC_Q5_Handler  /* 73 Gigabit Ethernet MAC */
 };
 
-/**
- * \brief This is the code that gets called on processor reset.
- * To initialize the device, and call the main() routine.
- */
 void Reset_Handler(void)
 {
         uint32_t *pSrc, *pDest;
@@ -276,9 +239,50 @@ void Reset_Handler(void)
  * \brief Default interrupt handler for unused IRQs.
  */
 uint32_t phantomISR = 9999;
+#include "board_serial.h"
 void Dummy_Handler(void)
 {
-        while (1) {
-			phantomISR = __get_IPSR();
-        }
+	uint32_t bus_fault_register = *(uint8_t *)0xE002ED29;
+	
+	board_serial_print("Bus fault handler triggered\n\n");
+	
+	board_serial_print("BFARVALID\t%d\n", (bus_fault_register & (1 << 7)) ? 1 : 0);
+	board_serial_print("LSPERR\t%d\n", (bus_fault_register & (1 << 5)) ? 1 : 0);
+	board_serial_print("STKERR\t%d\n", (bus_fault_register & (1 << 4)) ? 1 : 0);
+	board_serial_print("UNSTKERR\t%d\n", (bus_fault_register & (1 << 3)) ? 1 : 0);
+	board_serial_print("IMPRECISERR\t%d\n", (bus_fault_register & (1 << 2)) ? 1 : 0);
+	board_serial_print("PRECISERR\t%d\n", (bus_fault_register & (1 << 1)) ? 1 : 0);
+	board_serial_print("IBUSERR\t%d\n", (bus_fault_register & (1 << 0)) ? 1 : 0);
+	
+	uint32_t memory_fault_register = *(uint8_t *)0xE000ED28;
+	
+	board_serial_print("Memory manage fault handler triggered\n\n");
+	
+	board_serial_print("MMARVALID\t%d\n", (memory_fault_register & (1 << 7)) ? 1 : 0);
+	board_serial_print("MLSPERR\t%d\n", (memory_fault_register & (1 << 5)) ? 1 : 0);
+	board_serial_print("MSTKERR\t%d\n", (memory_fault_register & (1 << 4)) ? 1 : 0);
+	board_serial_print("MUNSTKERR\t%d\n", (memory_fault_register & (1 << 3)) ? 1 : 0);
+	board_serial_print("DACCVIOL\t%d\n", (memory_fault_register & (1 << 1)) ? 1 : 0);
+	board_serial_print("IACCVIOL\t%d\n", (memory_fault_register & (1 << 0)) ? 1 : 0);
+	
+	uint32_t usage_fault_register = *(uint16_t *)0xE000ED2A;
+	
+	board_serial_print("Usage fault handler triggered\n\n");
+	
+	
+	
+	board_serial_print("DIVBYZERO\t\t%d\n", (usage_fault_register & (1 << 9)) ? 1 : 0);
+	board_serial_print("UNALIGNED\t\t%d\n", (usage_fault_register & (1 << 8)) ? 1 : 0);
+	board_serial_print("NOCP\t\t\t%d\n", (usage_fault_register & (1 << 3)) ? 1 : 0);
+	board_serial_print("INVPC\t\t\t%d\n", (usage_fault_register & (1 << 2)) ? 1 : 0);
+	board_serial_print("INVSTATE\t\t%d\n", (usage_fault_register & (1 << 1)) ? 1 : 0);
+	board_serial_print("UNDEFINESTR\t%d\n", (usage_fault_register & (1 << 0)) ? 1 : 0);
+	
+	board_serial_print_register("\n\nBus: ", bus_fault_register);
+	board_serial_print_register("Mem: ", memory_fault_register);
+	board_serial_print_register("Use: ", usage_fault_register);
+	
+    while (1) {
+	    phantomISR = __get_IPSR();
+    }
 }

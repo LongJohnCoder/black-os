@@ -292,8 +292,8 @@ void kernel_start(void)
 	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_7);
 	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_6);
 	#else
-	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_1);
-	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_7);
+	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_7);
+	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_6);
 	#endif
 	
 	// This configures the kernels context switch mechanism
@@ -453,6 +453,11 @@ void kernel_scheduler(void)
 	else
 	{
 		
+	}
+	
+	if (kernel_next_thread_pointer->name[0] == 'k')	
+	{
+		asm volatile ("nop");
 	}
 
 	

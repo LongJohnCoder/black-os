@@ -71,7 +71,8 @@
 #define KERNEL_TICK_FREQUENCY				1000		// Frequency of the kernel interrupt
 #define KERNEL_STATISTICS_FREQUENCY			1000		// Statistics will be calculated every 1000 context switched
 
-
+#define KERNEL_FAULT_ENABLE_PRINT_HANDLER	1
+#define KERNEL_FAULT_PRINT_HANDLER			board_serial_print
 
 
 #define DMA_INTERRUPT_PRIORITY				IRQ_LEVEL_3

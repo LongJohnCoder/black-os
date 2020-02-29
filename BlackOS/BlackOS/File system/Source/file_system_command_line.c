@@ -414,6 +414,8 @@ file_result_t file_system_command_line_run(char* arg)
 	board_serial_print("Launching %s\n\n", arg);
 
 	uint32_t* iter = (uint32_t *)application;
+	
+	board_serial_print_address("Start: ", (uint32_t)(iter));
 
 	uint8_t* application_main = application + *iter++;
 
@@ -422,8 +424,18 @@ file_result_t file_system_command_line_run(char* arg)
 	application_main = (uint8_t*)((uint32_t)application_main | 0x01);
 	
 	//uint8_t* end_text = application + *iter++;
+	
+	
 	uint8_t* start_got = application + *iter++;
+
 	uint8_t* end_got = application + *iter++;
+
+	
+	board_serial_print("Getting the start address and GOT table info:\n\n");
+	
+	board_serial_print_address("Application entry: ", (uint32_t)application_main);
+	board_serial_print_address("GOT table start: ", (uint32_t)start_got);
+	board_serial_print_address("GOT table end: ", (uint32_t)end_got);
 	
 	/*
 	board_serial_print_address("Memory start address: ", (uint32_t)application);
@@ -442,7 +454,7 @@ file_result_t file_system_command_line_run(char* arg)
 	}
 
 	// Now the data is placed at the right place so no we can start the application
-	kernel_add_thread("Print", (thread_function_pointer)(application_main), NULL, THREAD_LEVEL_3, 300);
+	kernel_add_thread("k", (thread_function_pointer)(application_main), NULL, THREAD_LEVEL_3, 600);
 
 	return FR_OK;
 }
