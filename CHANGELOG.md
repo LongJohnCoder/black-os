@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v1.1] - Application support
+
+- Added a dynamic loader with global offset table relocation
+- Added application support
+
 ## [v1.0] - Kernel stable
 
 ### Changed
@@ -16,3 +21,4 @@ All notable changes to this project will be documented in this file.
 
 [Unreleased]: https://github.com/bjornbrodtkorb/BlackOS/compare/v1.0...HEAD
 [v1.0]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.0
+[v1.1]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.1
