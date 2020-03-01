@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ## [v1.1] - Application support
 
+### Changed
+
 - Added a dynamic loader with global offset table relocation
 - Added application support
 
