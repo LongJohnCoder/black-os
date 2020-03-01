@@ -6,13 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [v1.0] - Application working
+## [v1.1] - Application support
+
+- Added a dynamic loader with global offset table relocation
+- Added application support
+
+## [v1.0] - Kernel stable
 
 ### Changed
 
-- Program can be executed on the BlackOS
+- First stable kernel with new queue system
+- Added runtime statistics support
 
 
-[Unreleased]: https://github.com/bjornbrodtkorb/BlackOS-Example-Program/compare/v1.0...HEAD
-[v1.0]: https://github.com/bjornbrodtkorb/BlackOS-Example-Program/releases/tag/v1.0
-
+[Unreleased]: https://github.com/bjornbrodtkorb/BlackOS/compare/v1.0...HEAD
+[v1.0]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.0
+[v1.1]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.1
