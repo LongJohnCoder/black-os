@@ -107,7 +107,7 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 	}
 	
 	// Set the tick_to_wake to zero since otherwise the task will be delays
-	// TODO: This should not be nessecary
+	// TODO: This should not be necessary
 	new_thread->tick_to_wake = 0;
 	
 	// Set the thread priority
@@ -131,6 +131,8 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 	}
 	
 	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(SRAM), 1);
+	
+	SCB_CleanDCache();
 	
 	kernel_resume_scheduler();
 	
@@ -520,18 +522,19 @@ void kernel_reset_runtime(void)
 
 void kernel_print_runtime_statistics(void)
 {
-	board_serial_x_print("IDLE:\t");
-	char k = kernel_idle_thread_pointer->last_runtime / 10;
-	board_serial_x_write_percent(k, kernel_idle_thread_pointer->last_runtime - (k * 10));
+	int32_t cpu_usage = 1000 - kernel_idle_thread_pointer->last_runtime;
+	char k = cpu_usage / 10;
+	board_serial_x_write_percent(k, cpu_usage - (k * 10));
+	board_serial_x_print(" : CPU Usage");
 	board_serial_x_print("\n");
 	
 	if (running_queue.size != 0)
 	{
 		for (kernel_list_item* i = running_queue.first; i != NULL; i = i->next)
 		{
-			board_serial_x_print("%s:\t", i->thread_control->name);
 			uint8_t tmp = i->thread_control->last_runtime / 10;
 			board_serial_x_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
+			board_serial_x_print(" : %s", i->thread_control->name);
 			board_serial_x_print("\n");
 		}
 	}
@@ -539,9 +542,9 @@ void kernel_print_runtime_statistics(void)
 	{
 		for (kernel_list_item* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			board_serial_x_print("%s:\t", i->thread_control->name);
 			uint8_t tmp = i->thread_control->last_runtime / 10;
 			board_serial_x_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
+			board_serial_x_print(" : %s", i->thread_control->name);
 			board_serial_x_print("\n");
 		}
 	}

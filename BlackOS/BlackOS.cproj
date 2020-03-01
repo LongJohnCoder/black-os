@@ -30,15 +30,15 @@
     <EraseKey />
     <AsfFrameworkConfig>
       <framework-data>
-        <options />
-        <configurations />
-        <files />
-        <documentation help="" />
-        <offline-documentation help="" />
-        <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.26.0" />
-        </dependencies>
-      </framework-data>
+  <options />
+  <configurations />
+  <files />
+  <documentation help="" />
+  <offline-documentation help="" />
+  <dependencies>
+    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.39.0" />
+  </dependencies>
+</framework-data>
     </AsfFrameworkConfig>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -317,6 +317,9 @@
     <Compile Include="BlackOS\Kernel\Include\kernel.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="BlackOS\Kernel\Include\kernel_dynamic_loader.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="BlackOS\Kernel\Include\kernel_fault.h">
       <SubType>compile</SubType>
     </Compile>
@@ -330,6 +333,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\kernel_context.s">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BlackOS\Kernel\Source\kernel_dynamic_loader.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\kernel_fault.c">
