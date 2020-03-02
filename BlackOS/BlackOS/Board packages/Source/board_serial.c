@@ -3,6 +3,7 @@
 #include "clock.h"
 #include "gpio.h"
 #include "interrupt.h"
+#include "dma.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -34,6 +35,41 @@ void board_serial_config(void)
 	board_serial_port_config();
 	board_serial_clock_config();
 	board_serial_mode_config();
+}
+
+void board_print_buffer(char* buffer, uint32_t size)
+{
+	dma_microblock_transaction_descriptor dma;
+	
+	dma.burst_size = DMA_BURST_SIZE_SINGLE;
+	dma.chunk_size = DMA_CHUNK_SIZE_1;
+	dma.data_width = DMA_DATA_WIDTH_BYTE;
+	
+	dma.destination_adressing_mode = DMA_DEST_ADDRESSING_FIXED;
+	dma.destination_bus_interface = DMA_AHB_INTERFACE_1;
+	dma.destination_pointer = (uint32_t) &(((Usart *)(USART1))->US_THR);
+	
+	dma.memory_fill = DMA_MEMORY_FILL_OFF;
+	dma.peripheral_id = XDMAC_CC_PERID_USART1_TX_Val;
+	
+	dma.size = size;
+	
+	dma.dma_channel = 6;
+	
+	dma.source_addressing_mode = DMA_SOURCE_ADDRESSING_INCREMENTED;
+	dma.source_bus_inteface = DMA_AHB_INTERFACE_0;
+	dma.source_pointer = (uint32_t *)buffer;
+	
+	dma.synchronization = DMA_SYNC_MEMORY_TO_PERIPHERAL;
+	dma.transfer_type = DMA_TRANSFER_TYPE_PERIPHERAL_TRANSFER;
+	dma.trigger = DMA_TRIGGER_HARDWARE;
+	
+	uint32_t* cache_addr = (uint32_t *)((uint32_t)buffer & ~((uint32_t)32));
+	
+	// Cache can only be cleaned at 32-bytes alignment
+	SCB_CleanDCache_by_Addr(cache_addr, size + 32);
+	
+	dma_setup_transaction(XDMAC, &dma);
 }
 
 static int printu_override(char *s, unsigned u)
@@ -145,7 +181,7 @@ void board_serial_print(char* data, ...)
 	{
 		usart_write(USART1, *start);
 		start++;
-	}	
+	}
 }
 
 void board_serial_write(char data)

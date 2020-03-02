@@ -15,6 +15,7 @@
 #include "dram.h"
 #include "board_serial_x.h"
 #include "dma.h"
+#include "text.h"
 
 #include <stddef.h>
 volatile uint8_t button_pressed = 0;
@@ -33,25 +34,17 @@ void blink(void* arg)
 		service_get_pin_value(PIOA, 11, &pin_value);
 		if (pin_value)
 		{
-			gpio_toogle_pin_value(PIOC, 8);
-			service_thread_delay(500);
+			gpio_clear_pin_value(PIOC, 8);
+			service_thread_delay(30);
+			gpio_set_pin_value(PIOC, 8);
+			service_thread_delay(970);
 		}
 	}
 }
 
-void shit(void* args)
-{
-	while(1)
-	{
-		//board_serial_print("Ping\n");
-		service_thread_delay(300);
-	}
-}
 
-
-void fuck(void* args)
+void stats(void* args)
 {
-	kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200); 
 	while(1)
 	{
 		
@@ -67,11 +60,11 @@ int main(void)
 	
 	board_serial_x_config();
 
-	kernel_thread_control* blink_control = kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
-	kernel_thread_control* fuck_control = kernel_add_thread("fuck", fuck, NULL, THREAD_LEVEL_6, 200);
-	
+	kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
+	kernel_add_thread("fuck", stats, NULL, THREAD_LEVEL_6, 200);
 	
 	kernel_start();
+
 	
 	while (1)
 	{
@@ -82,7 +75,6 @@ int main(void)
 void PIOA_Handler()
 {
 	(void)gpio_get_interrupt_status_register(PIOA);
-	kernel_thread_control* shit_control = kernel_add_thread("shit", shit, NULL, THREAD_LEVEL_6, 200); 
 	
 	if (file_thread->current_list == &delay_queue)
 	{

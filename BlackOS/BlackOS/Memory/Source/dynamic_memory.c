@@ -32,7 +32,7 @@ Dynamic_memory_section_s dynamic_section_sram =
 Dynamic_memory_section_s dynamic_section_dram_bank_0 = 
 {
 	.start_address		= 0x70000000,
-	.end_address		= 0x700000FF,//0x7007FFFF,
+	.end_address		= 0x7007FFFF,
 	.allignment			= 8,
 	.minimum_block_size = 8,
 	.name				= "DRAM bank 0"
@@ -41,7 +41,7 @@ Dynamic_memory_section_s dynamic_section_dram_bank_0 =
 Dynamic_memory_section_s dynamic_section_dram_bank_1 =
 {
 	.start_address		= 0x70080000,
-	.end_address		= 0x700800FF,//0x700FFFFF,
+	.end_address		= 0x700FFFFF,
 	.allignment			= 8,
 	.minimum_block_size = 8,
 	.name				= "DRAM bank 1"

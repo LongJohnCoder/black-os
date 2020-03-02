@@ -77,10 +77,10 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 	
 	// First we have to allocate memory for the thread and 
 	// for the stack that is going to be used by that thread
-	kernel_thread_control* new_thread = (kernel_thread_control*)dynamic_memory_new(SRAM, sizeof(kernel_thread_control));
+	kernel_thread_control* new_thread = (kernel_thread_control*)dynamic_memory_new(DRAM_BANK_0, sizeof(kernel_thread_control));
 	
 	// Allocate the stack
-	new_thread->stack_base = (uint32_t*)dynamic_memory_new(SRAM, stack_size * sizeof(uint32_t));
+	new_thread->stack_base = (uint32_t*)dynamic_memory_new(DRAM_BANK_0, stack_size * sizeof(uint32_t));
 
 	if ((new_thread == NULL) || (new_thread->stack_base == NULL))
 	{
@@ -130,7 +130,7 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 		kernel_list_insert_first(&(new_thread->list_item), &running_queue);
 	}
 	
-	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(SRAM), 1);
+	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
 	
 	SCB_CleanDCache();
 	
@@ -294,8 +294,8 @@ void kernel_start(void)
 	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_7);
 	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_6);
 	#else
-	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_7);
-	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_6);
+	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_0);
+	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_7);
 	#endif
 	
 	// This configures the kernels context switch mechanism
@@ -622,6 +622,10 @@ void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 	// Check if the size is zero
 	if (list->size == 0)
 	{
+		if (list == &delay_queue)
+		{
+			board_serial_print("xxx");
+		}
 		// Update the global pointers
 		list->first = list_item;
 		list->last = list_item;

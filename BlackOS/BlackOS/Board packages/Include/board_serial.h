@@ -17,6 +17,8 @@ void board_serial_config(void);
 
 void board_serial_print(char* data, ...);
 
+void board_print_buffer(char* buffer, uint32_t size);
+
 void board_serial_write(char data);
 
 void board_serial_print_address(char* data, uint32_t addr);

@@ -108,7 +108,7 @@ void file_system_command_line_thread(void* args)
 			file_system_command_line_print_directory();
 			
 		}
-		service_thread_delay(50);
+		service_thread_delay(100);
 		
 	}
 }
@@ -274,6 +274,12 @@ file_result_t file_system_command_line_cat(char* arg)
 
 	} while (bytes_read == FILE_SYSTEM_BUFFER_SIZE);
 
+	res = f_close(&file);
+	if (res != FR_OK)
+	{
+		return res;
+	}
+
 	return FR_OK;
 }
 
@@ -325,6 +331,12 @@ file_result_t file_system_command_line_hex(char* arg)
 
 
 	} while (bytes_read == FILE_SYSTEM_BUFFER_SIZE);
+
+	res = f_close(&file);
+	if (res != FR_OK)
+	{
+		return res;
+	}
 
 	return FR_OK;
 }
@@ -543,8 +555,8 @@ void file_system_command_line_input_decode(char* data)
 
 void file_system_command_line_handler(void)
 {
-	service_serial_print(command_line_argument[0]);
-	service_serial_print(command_line_argument[1]);
+	board_serial_print(command_line_argument[0]);
+	board_serial_print(command_line_argument[1]);
 	
 	if (!strncmp(command_line_argument[0], "ls", 2))
 	{

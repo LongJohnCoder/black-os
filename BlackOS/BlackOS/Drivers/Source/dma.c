@@ -364,13 +364,27 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 	
 	int8_t current_channel = -1;
 	
-	for (uint8_t i = 0; i < DMA_NUMBER_OF_CHANNELS; i++)
+	if (dma_descriptor->dma_channel < 0)
 	{
-		if ((channel_status & (1 << i)) == 0)
+		for (uint8_t i = 0; i < DMA_NUMBER_OF_CHANNELS; i++)
 		{
-			board_serial_print("OK\n");
-			current_channel = i;
-			break;
+			if ((channel_status & (1 << i)) == 0)
+			{
+				board_serial_print("Channel #%d\n", i);
+				current_channel = i;
+				break;
+			}
+		}
+	}
+	else
+	{
+		if (channel_status & (1 << dma_descriptor->dma_channel))
+		{
+			
+		}
+		else
+		{
+			current_channel = dma_descriptor->dma_channel;
 		}
 	}
 	
@@ -378,7 +392,7 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 	{
 		// Update the descriptor
 		// This means that the application should try again
-		board_serial_print("FAIL\n");
+		board_serial_print("No channel available");
 		dma_descriptor->dma_channel = -1;
 		return;
 	}
@@ -426,7 +440,7 @@ void XDMAC_Handler()
 {
 	int8_t source_channel = -1;
 	uint32_t global_status = dma_read_global_interrupt_status_register(XDMAC);
-	
+	board_serial_print("ok");
 	// Iterate through all the channels
 	for (uint8_t i = 0; i < DMA_NUMBER_OF_CHANNELS; i++)
 	{
@@ -447,10 +461,12 @@ void XDMAC_Handler()
 	if (channel_status & (XDMAC_CIS_ROIS_Msk | XDMAC_CIS_WBEIS_Msk | XDMAC_CIS_RBEIS_Msk))
 	{
 		// An error has occurred
+		board_serial_print("DMA Error\n");
 	}
 	else if (channel_status & XDMAC_CIS_BIS_Msk)
 	{
-		// End of microblock
+		// End of micro block
+		board_serial_print("DMA End of Block on %d\n", source_channel);
 	}
 }
 
