@@ -16,6 +16,7 @@
 #include "board_serial_x.h"
 #include "dma.h"
 #include "text.h"
+#include "dynamic_memory.h"
 
 #include <stddef.h>
 volatile uint8_t button_pressed = 0;
@@ -53,6 +54,8 @@ void stats(void* args)
 	}
 }
 
+// Allocate a buffer in DRAM
+
 
 int main(void)
 {
@@ -63,6 +66,15 @@ int main(void)
 	kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
 	kernel_add_thread("fuck", stats, NULL, THREAD_LEVEL_6, 200);
 	
+
+// 	char* buffer = (char *)dynamic_memory_new(DRAM_BANK_0, 2000);
+// 	
+// 	uint32_t size;
+// 	
+// 	text_to_buffer(buffer, &size, "Heisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten tezt %d\n", 4000);
+// 	
+// 	board_print_buffer(buffer, size);
+
 	kernel_start();
 
 	

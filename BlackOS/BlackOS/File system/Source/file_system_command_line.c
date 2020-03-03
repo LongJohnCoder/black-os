@@ -70,6 +70,54 @@ void file_system_command_line_config(void)
 
 void file_system_command_line_thread(void* args)
 {
+	uint8_t card_inserted = 0;
+	
+	board_sd_card_config();
+	
+	while (1)
+	{
+		while (board_get_sd_card_status() == SD_DISCONNECTED)
+		{
+			service_thread_delay(100);
+		}
+		
+		board_serial_print("Card connected\n");
+		
+		service_thread_delay(200);
+		
+		uint8_t retry_count = 0;
+		while (retry_count++ < 5)
+		{
+			if (f_mount(&cortex_file_system, "", 1) == FR_OK)
+			{
+				file_system_command_line_print_directory();
+				break;
+			}
+			service_thread_delay(200);
+		}
+		if (retry_count >= 5)
+		{
+			board_serial_print("Mount error\n");
+		}
+		
+		while (1)
+		{
+			if (board_get_sd_card_status() == SD_DISCONNECTED)
+			{
+				board_serial_print("Card disconnected\n");
+				break;
+			}
+			if (file_system_command_ready)
+			{
+				file_system_command_line_handler();
+				file_system_command_line_print_directory();
+				
+			}
+			service_thread_delay(100);
+			
+		}
+	}
+	/*
 	// Configure the SD card
 	board_sd_card_config();
 
@@ -78,9 +126,7 @@ void file_system_command_line_thread(void* args)
 
 	}
 	board_serial_print("SD card detected\n\n");
-	service_thread_delay(2000);
-	
-	board_serial_print("SD card detected\n\n");
+	service_thread_delay(200);
 
 	// Try to mount the disk
 	interrupt_global_disable();
@@ -93,6 +139,7 @@ void file_system_command_line_thread(void* args)
 			file_system_command_line_print_directory();
 			break;
 		}
+		service_thread_delay(200);
 	}
 	if (retry_count >= 5)
 	{
@@ -111,6 +158,7 @@ void file_system_command_line_thread(void* args)
 		service_thread_delay(100);
 		
 	}
+	*/
 }
 
 //--------------------------------------------------------------------------------------------------//

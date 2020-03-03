@@ -47,7 +47,7 @@ void board_print_buffer(char* buffer, uint32_t size)
 	
 	dma.destination_adressing_mode = DMA_DEST_ADDRESSING_FIXED;
 	dma.destination_bus_interface = DMA_AHB_INTERFACE_1;
-	dma.destination_pointer = (uint32_t) &(((Usart *)(USART1))->US_THR);
+	dma.destination_pointer = (uint32_t *)(&(USART1->US_THR));
 	
 	dma.memory_fill = DMA_MEMORY_FILL_OFF;
 	dma.peripheral_id = XDMAC_CC_PERID_USART1_TX_Val;

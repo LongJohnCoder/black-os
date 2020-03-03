@@ -593,7 +593,14 @@ Sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata)
 }
 
 uint8_t sd_protocol_initialize(Sd_card* sd_card)
-{	
+{
+	HSMCI->HSMCI_CR = (1 << HSMCI_CR_SWRST_Pos);
+	
+	for (volatile uint32_t i = 0; i < 5000000; i++)
+	{
+		asm volatile ("nop");	
+	}
+		
 	// Since the local variable does not get initialized we have
 	// to manually set the relative_card_address to zero.
 	// Otherwise we will get an error on CMD55.
