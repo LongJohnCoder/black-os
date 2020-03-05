@@ -114,8 +114,8 @@
       <Value>../BlackOS/Kernel/Include</Value>
       <Value>../BlackOS/Memory/Include</Value>
       <Value>../BlackOS/SD/Include</Value>
-      <Value>../BlackOS/USB 2.0/Include</Value>
       <Value>../BlackOS/Config</Value>
+      <Value>../BlackOS/USB/Include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
@@ -377,16 +377,16 @@
     <Compile Include="BlackOS\SD\Source\sd_protocol.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\USB 2.0\Include\usb_descriptors.h">
+    <Compile Include="BlackOS\USB\Include\usb_descriptors.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\USB 2.0\Include\usb_host_core.h">
+    <Compile Include="BlackOS\USB\Include\usb_host_core.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\USB 2.0\Include\usb_info.h">
+    <Compile Include="BlackOS\USB\Include\usb_info.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\USB 2.0\Source\usb_host_core.c">
+    <Compile Include="BlackOS\USB\Source\usb_host_core.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="System startup\startup.c">
@@ -424,13 +424,13 @@
     <Folder Include="BlackOS\SD\" />
     <Folder Include="BlackOS\SD\Include\" />
     <Folder Include="BlackOS\SD\Source\" />
-    <Folder Include="BlackOS\USB 2.0\" />
-    <Folder Include="BlackOS\USB 2.0\Include\" />
-    <Folder Include="BlackOS\USB 2.0\Source\" />
+    <Folder Include="BlackOS\USB" />
+    <Folder Include="BlackOS\USB\Include" />
+    <Folder Include="BlackOS\USB\Source" />
     <Folder Include="System startup" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="BlackOS\USB 2.0\Include\usb.txt">
+    <None Include="BlackOS\USB\Include\usb.txt">
       <SubType>compile</SubType>
     </None>
     <None Include="System startup\flash.ld">
