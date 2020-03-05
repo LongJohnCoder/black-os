@@ -53,7 +53,7 @@ Before every memory block is a memory descriptor. The descriptor consists of 8 b
 
 ## Configuration
 
-After reset the kernel initializes all memory sections. The start address and end address is first alligned with the preffered allignment. 
+After reset the kernel initializes all memory sections. After the configuration all the sections should consist of one large free memory block. The start address and end address is first alligned with the preffered allignment. The whole memory section is then written to zero. The memory section descriptor should provide information about the memory. This includes a pointer to the first element in the linked list of free blocks.
 
 ## Allocation
 
