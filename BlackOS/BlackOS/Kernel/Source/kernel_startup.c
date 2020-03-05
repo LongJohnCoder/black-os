@@ -71,7 +71,7 @@ void kernel_startup(void)
 	// Print hello message
 	board_serial_print("\n------------------ X Operating System ------------------\n\n");
 		
-	//graphics_driver_config();
+	graphics_driver_config();
 
 	
 	// Now we start up the kernel and its components

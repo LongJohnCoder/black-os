@@ -17,95 +17,19 @@
 #include "dma.h"
 #include "text.h"
 #include "dynamic_memory.h"
+#include "board_led.h"
 
 #include <stddef.h>
-volatile uint8_t button_pressed = 0;
-
-void blink(void* arg)
-{
-	
-	
-	gpio_set_pin_function(PIOC, 8, PERIPHERAL_FUNCTION_OFF);
-	gpio_set_pin_direction_output(PIOC, 8);
-	
-	uint8_t pin_value;
-	
-	while (1)
-	{
-		service_get_pin_value(PIOA, 11, &pin_value);
-		if (pin_value)
-		{
-			gpio_clear_pin_value(PIOC, 8);
-			service_thread_delay(30);
-			gpio_set_pin_value(PIOC, 8);
-			service_thread_delay(970);
-		}
-	}
-}
-
-
-void stats(void* args)
-{
-	while(1)
-	{
-		
-		kernel_print_runtime_statistics();
-		service_thread_delay(1000);
-	}
-}
-
-// Allocate a buffer in DRAM
 
 
 int main(void)
 {
 	kernel_startup();
+
+	kernel_add_thread("blink", blink_thread, NULL, THREAD_LEVEL_6, 200);
+
 	
-	board_serial_x_config();
-
-	kernel_add_thread("blink", blink, NULL, THREAD_LEVEL_6, 200);
-	kernel_add_thread("fuck", stats, NULL, THREAD_LEVEL_6, 200);
-	
-
-// 	char* buffer = (char *)dynamic_memory_new(DRAM_BANK_0, 2000);
-// 	
-// 	uint32_t size;
-// 	
-// 	text_to_buffer(buffer, &size, "Heisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten teztHeisann dette er en liten tezt %d\n", 4000);
-// 	
-// 	board_print_buffer(buffer, size);
-
 	kernel_start();
-
 	
-	while (1)
-	{
-
-	}
+	while (1);
 }
-
-void PIOA_Handler()
-{
-	(void)gpio_get_interrupt_status_register(PIOA);
-	
-	if (file_thread->current_list == &delay_queue)
-	{
-		board_serial_print("File in delay list\n");
-	}
-	else if (file_thread->current_list == &running_queue)
-	{
-		board_serial_print("File in running list\n");
-	}
-	else
-	{
-		board_serial_print("WARNING\n\n");
-	}
-	
-	
-	board_serial_print("Button pressed\n");
-	
-	
-	
-	button_pressed = 1;
-}
-

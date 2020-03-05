@@ -3,6 +3,7 @@
 #include "clock.h"
 #include "interrupt.h"
 #include "config.h"
+#include "check.h"
 
 //--------------------------------------------------------------------------------------------------//
 
@@ -364,7 +365,7 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 	
 	int8_t current_channel = -1;
 	
-	if (dma_descriptor->dma_channel < 0)
+	if (dma_descriptor->channel < 0)
 	{
 		for (uint8_t i = 0; i < DMA_NUMBER_OF_CHANNELS; i++)
 		{
@@ -378,13 +379,13 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 	}
 	else
 	{
-		if (channel_status & (1 << dma_descriptor->dma_channel))
+		if (channel_status & (1 << dma_descriptor->channel))
 		{
 			
 		}
 		else
 		{
-			current_channel = dma_descriptor->dma_channel;
+			current_channel = dma_descriptor->channel;
 		}
 	}
 	
@@ -393,7 +394,7 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 		// Update the descriptor
 		// This means that the application should try again
 		board_serial_print("No channel available");
-		dma_descriptor->dma_channel = -1;
+		dma_descriptor->channel = -1;
 		return;
 	}
 	
@@ -436,6 +437,30 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 
 //--------------------------------------------------------------------------------------------------//
 
+void dma_channel_configure(Xdmac* hardware, dma_microblock_transaction_descriptor* dma_descriptor)
+{
+	uint32_t dma_config_register =	(XDMAC_CC_PERID_Msk & (dma_descriptor->peripheral_id << XDMAC_CC_PERID_Pos)) |
+									(dma_descriptor->destination_adressing_mode << XDMAC_CC_DAM_Pos) |
+									(dma_descriptor->source_addressing_mode << XDMAC_CC_SAM_Pos) |
+									(dma_descriptor->destination_bus_interface << XDMAC_CC_DIF_Pos) |
+									(dma_descriptor->source_bus_inteface << XDMAC_CC_SIF_Pos) |
+									(dma_descriptor->data_width << XDMAC_CC_DWIDTH_Pos) |
+									(dma_descriptor->chunk_size << XDMAC_CC_CSIZE_Pos) |
+									(dma_descriptor->memory_fill << XDMAC_CC_MEMSET_Pos) |
+									(dma_descriptor->trigger << XDMAC_CC_SWREQ_Pos) |
+									(dma_descriptor->synchronization << XDMAC_CC_DSYNC_Pos) |
+									(dma_descriptor->burst_size << XDMAC_CC_MBSIZE_Pos) |
+									(dma_descriptor->transfer_type << XDMAC_CC_TYPE_Pos);
+	board_serial_print("Channel: %d\n", dma_descriptor->channel);
+	check(dma_descriptor->channel >= 0);
+	
+	CRITICAL_SECTION_ENTER()
+	hardware->XdmacChid[dma_descriptor->channel].XDMAC_CC = dma_config_register;
+	CRITICAL_SECTION_LEAVE()
+}
+
+//--------------------------------------------------------------------------------------------------//
+
 void XDMAC_Handler()
 {
 	int8_t source_channel = -1;
@@ -462,6 +487,7 @@ void XDMAC_Handler()
 	{
 		// An error has occurred
 		board_serial_print("DMA Error\n");
+		board_serial_print_register("Status code: ", channel_status);
 	}
 	else if (channel_status & XDMAC_CIS_BIS_Msk)
 	{

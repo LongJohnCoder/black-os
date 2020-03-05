@@ -54,7 +54,7 @@ void board_print_buffer(char* buffer, uint32_t size)
 	
 	dma.size = size;
 	
-	dma.dma_channel = 6;
+	dma.channel = 6;
 	
 	dma.source_addressing_mode = DMA_SOURCE_ADDRESSING_INCREMENTED;
 	dma.source_bus_inteface = DMA_AHB_INTERFACE_0;

@@ -62,6 +62,7 @@ typedef struct kernel_thread_control_s
 
 	// Pointer to the stack base so that we can delete the memory
 	uint32_t* stack_base;
+	uint32_t stack_size;
 	
 	// Priority of the thread
 	kernel_thread_priority priority;

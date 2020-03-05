@@ -113,6 +113,8 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 	// Set the thread priority
 	new_thread->priority = priority;
 	
+	new_thread->stack_size = 4 * stack_size;
+	
 	// The first thread to be made is the IDLE thread
 	if (kernel_idle_thread_pointer == NULL)
 	{
@@ -532,6 +534,10 @@ void kernel_print_runtime_statistics(void)
 	{
 		for (kernel_list_item* i = running_queue.first; i != NULL; i = i->next)
 		{
+			uint32_t used_stack = i->thread_control->stack_size - ((uint32_t)i->thread_control->stack_pointer - (uint32_t)i->thread_control->stack_base);
+			board_serial_x_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
+			board_serial_x_print("\t");
+			
 			uint8_t tmp = i->thread_control->last_runtime / 10;
 			board_serial_x_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
 			board_serial_x_print(" : %s", i->thread_control->name);
@@ -542,6 +548,10 @@ void kernel_print_runtime_statistics(void)
 	{
 		for (kernel_list_item* i = delay_queue.first; i != NULL; i = i->next)
 		{
+			uint32_t used_stack = i->thread_control->stack_size - ((uint32_t)i->thread_control->stack_pointer - (uint32_t)i->thread_control->stack_base);
+			board_serial_x_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
+			board_serial_x_print("\t");
+			
 			uint8_t tmp = i->thread_control->last_runtime / 10;
 			board_serial_x_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
 			board_serial_x_print(" : %s", i->thread_control->name);

@@ -45,7 +45,7 @@ void graphics_driver_config(void)
 	spi_write_protection_disable(SPI0);
 	
 	spi_mode_config(SPI0, 0, SPI_FIXED_CHIP_SELECT_1, 0, 0, 1, 0, SPI_FIXED_PERIPHERAL, SPI_MODE_MASTER);
-	spi_chip_select_config(SPI0, SPI_CHIP_SELECT_1, 0, 0, 8, SPI_8_BIT, 0, 0, SPI_CLOCK_INACTIVE_LOW, SPI_CLOCK_CAPTURE_ON_LEADING);
+	spi_chip_select_config(SPI0, SPI_CHIP_SELECT_1, 0, 0, 3, SPI_8_BIT, 0, 0, SPI_CLOCK_INACTIVE_LOW, SPI_CLOCK_CAPTURE_ON_LEADING);
 	spi_enable(SPI0);
 	
 	graphics_driver_configuration_sequence();
@@ -302,7 +302,7 @@ void graphics_driver_configuration_sequence()
 	
 	for (uint32_t i = 0; i < GRAPHICS_DRIVER_DISPLAY_HEIGHT*GRAPHICS_DRIVER_DISPLAY_WIDTH; i++)
 	{
-		spi_trasmit_data_16_bit(SPI0, ILI9341_BLUE);
+		spi_trasmit_data_16_bit(SPI0, ILI9341_YELLOW);
 	}
 	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);
 	

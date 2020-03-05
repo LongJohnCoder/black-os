@@ -95,7 +95,7 @@ typedef struct
 	
 	// The descriptor will be passed as reference,
 	// so that this field can be updated
-	int8_t dma_channel;
+	int8_t channel;
 	
 	// Channel config
 	uint8_t peripheral_id;
@@ -198,6 +198,8 @@ void dma_channel_software_flush(Xdmac* hardware, uint8_t channel_number);
 void dma_channel_set_data_stride_memory_pattern(Xdmac* hardware, uint8_t channel_number, int16_t destination_data_stride, int16_t source_data_stride);
 
 void dma_channel_set_microblock_stride_memory_pattern(Xdmac* hardware, uint8_t channel_number, int32_t stride);
+
+void dma_channel_configure(Xdmac* hardware, dma_microblock_transaction_descriptor* dma_descriptor);
 
 //--------------------------------------------------------------------------------------------------//
 

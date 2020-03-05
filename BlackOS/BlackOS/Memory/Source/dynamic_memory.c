@@ -221,7 +221,7 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 	void* return_value = NULL;
 	
 	// Check that the size is greater than zero
-	check(size);
+	check(size != 0);
 	
 	// Make sure the size requested is greater than the minimum value
 	if (size < current_section->minimum_block_size)

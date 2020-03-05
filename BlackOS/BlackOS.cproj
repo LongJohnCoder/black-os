@@ -155,6 +155,9 @@
     <Compile Include="BlackOS\Board packages\Include\board_button.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="BlackOS\Board packages\Include\board_led.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="BlackOS\Board packages\Include\board_sd_card.h">
       <SubType>compile</SubType>
     </Compile>
@@ -165,6 +168,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Board packages\Source\board_button.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BlackOS\Board packages\Source\board_led.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Board packages\Source\board_sd_card.c">
