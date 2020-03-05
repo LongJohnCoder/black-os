@@ -69,9 +69,7 @@ void file_system_command_line_config(void)
 }
 
 void file_system_command_line_thread(void* args)
-{
-	uint8_t card_inserted = 0;
-	
+{	
 	board_sd_card_config();
 	
 	while (1)
