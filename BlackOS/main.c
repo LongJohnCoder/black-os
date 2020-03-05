@@ -11,7 +11,6 @@ int main(void)
 
 	kernel_add_thread("blink", blink_thread, NULL, THREAD_LEVEL_6, 200);
 
-
 	kernel_start();
 	
 	while (1);

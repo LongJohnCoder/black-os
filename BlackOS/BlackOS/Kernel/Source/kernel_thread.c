@@ -132,8 +132,6 @@ kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_poin
 		kernel_list_insert_first(&(new_thread->list_item), &running_queue);
 	}
 	
-	board_serial_print_percentage_symbol("Memory: ", dynamic_memory_get_used_percentage(DRAM_BANK_0), 1);
-	
 	SCB_CleanDCache();
 	
 	kernel_resume_scheduler();
@@ -268,7 +266,7 @@ void kernel_start(void)
 	kernel_tick = 0;
 	kernel_statistics_timer = 0;
 	
-	// Set the tick to wake variabe to not trigger
+	// Set the tick to wake variable to not trigger
 	kernel_tick_to_wake = 0xffffffff;
 	
 	// Set the current thread to point to the first thread to run
@@ -281,16 +279,12 @@ void kernel_start(void)
 		kernel_current_thread_pointer = kernel_idle_thread_pointer;
 	}
 	
-	// DEBUG
-	kernel_print_running_queue(&running_queue);
-	kernel_print_running_queue(&delay_queue);
-	
 	// Set the priorities for the SysTick and PendSV exception
 	//
 	// Under normal operation the SysTick exception should have the highest priority
 	// and the PendSV should have the lowest. In debug mode this will make the system
-	// crash. This is because the systick exception handler will print things to the
-	// screen, and therefore not return whithin the new timeslice. This means that
+	// crash. This is because the SysTick exception handler will phtrint things to the
+	// screen, and therefore not return within the new time slice. This means that
 	// the scheduler runs several times without a context-switch.
 	#if KERNEL_DEBUG
 	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_7);
