@@ -4,7 +4,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+//--------------------------------------------------------------------------------------------------//
+
 static const unsigned s_value[] = {1000000000u, 100000000u, 10000000u, 1000000u, 100000u, 10000u, 1000u, 100u, 10u, 1u};
+
+//--------------------------------------------------------------------------------------------------//
 
 uint32_t number_to_buffer(char* buffer, uint32_t number)
 {
@@ -53,6 +57,8 @@ uint32_t number_to_buffer(char* buffer, uint32_t number)
 	
 	return number_of_chars;
 }
+
+//--------------------------------------------------------------------------------------------------//
 
 void text_to_buffer(char* output, uint32_t* output_size, const char* input, ...)
 {
@@ -154,3 +160,4 @@ void text_to_buffer(char* output, uint32_t* output_size, const char* input, ...)
 	*output_size = count;
 }
 
+//--------------------------------------------------------------------------------------------------//

@@ -219,6 +219,8 @@ Hsmci_status_e hsmci_send_command(const void* hardware, uint32_t command, uint32
 	hsmci_read_proof_disable(hardware);
 	hsmci_write_proof_disable(hardware);
 	
+	HSMCI->HSMCI_DMA = 0;
+	
 	// Erase DMA and BLOCK register
 	CRITICAL_SECTION_ENTER()
 	((Hsmci *)hardware)->HSMCI_DMA = 0;
@@ -297,6 +299,8 @@ Hsmci_status_e hsmci_send_addressed_data_transfer_command(	const void* const har
 	// Enable read and write proof
 	hsmci_write_proof_enable(hardware);
 	hsmci_read_proof_enable(hardware);
+	
+	HSMCI->HSMCI_DMA = 0;
 	
 	if (block_size & 0b11)
 	{

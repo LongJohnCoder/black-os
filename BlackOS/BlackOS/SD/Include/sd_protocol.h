@@ -4,7 +4,7 @@
 #include "sam.h"
 #include "hsmci.h"
 
-//========================================== S D   S T R U C T U R E ==========================================//
+//--------------------------------------------------------------------------------------------------//
 
 typedef enum
 {
@@ -18,6 +18,8 @@ typedef enum
 	SD_PROTOCOL_OK,
 	SD_PROTOCOL_ERROR
 } Sd_protocol_status;
+
+//--------------------------------------------------------------------------------------------------//
 
 // The CSD structure depends on the Physical Specification Version and on the SD card capacity
 typedef struct  
@@ -52,6 +54,8 @@ typedef struct
 	uint8_t		file_format;
 } Sd_protocol_csd_1_0;
 
+//--------------------------------------------------------------------------------------------------//
+
 typedef struct 
 {
 	uint8_t		csd_structure;
@@ -79,6 +83,7 @@ typedef struct
 	uint8_t		file_format;
 } Sd_protocol_csd_2_0;
 
+//--------------------------------------------------------------------------------------------------//
 
 // The byte field for application ID and name are one byte longer
 // than the actual data, because of the \0 character
@@ -92,6 +97,8 @@ typedef struct
 	uint16_t	manifacturer_date;
 } Sd_protocol_cid;
 
+//--------------------------------------------------------------------------------------------------//
+
 // This is the struct that contains all information of the SD card
 // It uses union to save RAM space
 typedef struct  
@@ -99,6 +106,7 @@ typedef struct
 	uint8_t card_initialized;
 	
 	Sd_protocol_cid card_identification;
+	
 	union
 	{
 		Sd_protocol_csd_1_0 card_specific_data_1_0;
@@ -116,8 +124,7 @@ typedef struct
 	Hsmci_sd_slot_select_e	slot;
 } Sd_card;
 
-
-//============================================= R E S P O N S E S =============================================//
+//--------------------------------------------------------------------------------------------------//
 
 // R1
 // 48-bit response
@@ -151,23 +158,19 @@ typedef struct
 #define SD_PROTOCOL_RESPONSE_7		HSMCI_CMDR_MAXLAT_64 | HSMCI_CMDR_RSPTYP_48_BIT
 
 
-//=================================== H O S T   S U P P L Y   V O L T A G E ===================================//
+//--------------------------------------------------------------------------------------------------//
 
 // These define the host supply voltage
 #define SD_PROTOCOL_VOLTAGE_SUPPLIED		0b1
 #define SD_PROTOCOL_VOLTAGE_CHECK_PATTERN	0b10101010
 #define SD_PROTOCOL_VOLTAGE_ARGUMENT		((SD_PROTOCOL_VOLTAGE_SUPPLIED << 8) | SD_PROTOCOL_VOLTAGE_CHECK_PATTERN)
 
-
-
-//============================================== T R A N S F E R ==============================================//
+//--------------------------------------------------------------------------------------------------//
 
 #define SD_PROTOCOL_ADDRESSED_DATA_TRANSFER_WRITE	(HSMCI_CMDR_TRCMD_START_DATA | HSMCI_CMDR_TRDIR_WRITE)
 #define SD_PROTOCOL_ADDRESSED_DATA_TRANSFER_READ	(HSMCI_CMDR_TRCMD_START_DATA | HSMCI_CMDR_TRDIR_READ)
 
-
-
-//=============================== S W I T C H   F U N C T I O N   D E F I N E S ===============================//
+//--------------------------------------------------------------------------------------------------//
 
 // These define the switch functions used in CMD6
 #define SD_PROTOCOL_ACCESS_MODE_SDR_12		(0x0 << 0)
@@ -198,7 +201,7 @@ typedef struct
 #define SD_PROTOCOL_RESPONSE_1_ERROR_MASK (0b1111111111111 << 19)
 
 
-//======================================= C O N F I G   C O M M A N D S =======================================//
+//--------------------------------------------------------------------------------------------------//
 
 // CMD0 GO_IDLE_STATE
 // This command brings the SD card to IDLE state
@@ -331,9 +334,7 @@ uint8_t sd_protocol_send_cmd_13(Sd_card* sd_card);
 // send 74 dummy cycles according to the SD Specification due to VDD ramp-up delay
 uint8_t sd_protocol_boot(void);
 
-
-
-//================================================ D E C O D E ================================================//
+//--------------------------------------------------------------------------------------------------//
 
 Sd_protocol_csd_1_0 sd_protocol_csd_decode_version_1_0(uint8_t* raw_data);
 
@@ -341,9 +342,7 @@ Sd_protocol_csd_2_0 sd_protocol_csd_decode_version_2_0(uint8_t* raw_data);
 
 Sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata);
 
-
-
-//================================================= D E B U G =================================================//
+//--------------------------------------------------------------------------------------------------//
 
 // just a temporarily function used for debug
 void sd_protocol_print_reg(char* description, uint32_t data, uint8_t number_of_bits);
@@ -352,16 +351,16 @@ void sd_protocol_print_csd(const Sd_card* sd_card);
 
 void sd_protocol_print_card_info(const Sd_card* sd_card);
 
-
-
-//==================================== A P P L I C A T I O N   B R I D G E ====================================//
+//--------------------------------------------------------------------------------------------------//
 
 uint8_t sd_protocol_initialize(Sd_card* sd_card);
 
 uint8_t sd_protocol_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
 
+uint8_t sd_protocol_dma_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
+
 uint8_t sd_protocol_write(Sd_card* sd_card, const uint8_t *data, uint32_t sector, uint32_t count);
 
-
+//--------------------------------------------------------------------------------------------------//
 
 #endif
