@@ -11,3 +11,14 @@ BlackOS is a lightweight operating system designed for ARM processors. It comes 
 - Multiple kernel queues supported
 - No overhead when threads are waiting
 - Task manager which keeps track of CPU, memory and stack
+
+# Coming soon
+
+- Graphics card support
+- Support for up to 7" TFT LCD
+- High speed SD card support with DMA
+- USB interface for HID mouse and keyboard
+- Real-time improvement on kernel
+- Streaming support using hardware
+- System calls for all basic functinality
+- Non-blocking peripheral interfacing
