@@ -1,6 +1,9 @@
 #include "kernel_dynamic_loader.h"
 #include "kernel_thread.h"
 #include "config.h"
+#include "board_serial.h"
+#include "dynamic_memory.h"
+#include "usart.h"
 
 #include <stddef.h>
 
@@ -84,4 +87,86 @@ void kernel_dynamic_loader_relocate(uint32_t* data)
 		// Add the global offset to each entry
 		*relocate_interator += (uint32_t)program_start;
 	}
+}
+
+typedef enum
+{
+	FAST_PROGRAMMING_IDLE,
+	FAST_PROGRAMMING_SIZE,
+	FAST_PROGRAMMING_SIZE_PLUS,
+	FAST_PROGRAMMING_DATA,
+	FAST_PROGRAMMING_CHECK
+} kernel_fast_programming_state;
+
+volatile kernel_fast_programming_state fast_programming_state;
+uint8_t program_size_index;
+uint32_t program_size;
+uint32_t program_index;
+uint32_t program_size_total;
+
+uint8_t* program_buffer;
+
+void USART0_Handler()
+{
+	// The RXRDY flag is cleared upon read of RHR
+	char data = (char)usart_read(USART0);
+	
+	if (fast_programming_state == FAST_PROGRAMMING_IDLE)
+	{
+		if (data == 'P')
+		{
+			// Start byte received
+			board_serial_print("Programming started\n");
+			fast_programming_state = FAST_PROGRAMMING_SIZE;
+			program_size_index = 0;
+			program_size = 0;
+			program_index = 0;
+			program_size_total = 0;
+		}
+	}
+	else if (fast_programming_state == FAST_PROGRAMMING_SIZE)
+	{
+		program_size |= (data << (8 * program_size_index++));
+		
+		if (program_size_index >= 4)
+		{
+			fast_programming_state = FAST_PROGRAMMING_SIZE_PLUS;
+			program_size_index = 0;
+		}
+	}
+	else if (fast_programming_state == FAST_PROGRAMMING_SIZE_PLUS)
+	{
+		program_size_total |= (data << (8 * program_size_index++));
+		
+		if (program_size_index >= 4)
+		{
+			program_buffer = (uint8_t *)dynamic_memory_new(DRAM_BANK_0, program_size_total + 255);
+			
+			fast_programming_state = FAST_PROGRAMMING_DATA;
+		}
+	}
+	else if (fast_programming_state == FAST_PROGRAMMING_DATA)
+	{		
+		program_buffer[program_index] = data;
+		
+		program_index++;
+		if (program_index >= program_size)
+		{
+			fast_programming_state = FAST_PROGRAMMING_CHECK;
+		}
+	}
+	else if (fast_programming_state == FAST_PROGRAMMING_CHECK)
+	{
+		if (data == 'P')
+		{
+			board_serial_print("Programming success\n");
+			
+			SCB_CleanDCache();
+			
+			kernel_dynamic_loader_run((uint32_t *)program_buffer, program_size);
+		}
+		
+		fast_programming_state = FAST_PROGRAMMING_IDLE;
+	}
+	
 }

@@ -210,6 +210,24 @@ void board_serial_print_address(char* data, uint32_t addr)
 	//board_serial_write('\n');
 }
 
+void board_serial_print_hex(char c)
+{
+	for (uint8_t i = 0; i < 2; i++)
+	{
+		uint8_t val = ((c >> (4 * (1 - i))) & 0b1111);
+		
+		if (val < 10)
+		{
+			board_serial_write('0' + val);
+		}
+		else
+		{
+			val -= 10;
+			board_serial_write('A' + val);
+		}
+	}
+}
+
 void board_serial_print_percentage_symbol(char* data, uint8_t percent, uint8_t newline)
 {
 	board_serial_print(data);

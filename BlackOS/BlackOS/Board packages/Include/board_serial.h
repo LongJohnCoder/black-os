@@ -27,4 +27,6 @@ void board_serial_print_percentage_symbol(char* data, uint8_t percent, uint8_t n
 
 void board_serial_print_register(char* data, uint32_t reg);
 
+void board_serial_print_hex(char c);
+
 #endif

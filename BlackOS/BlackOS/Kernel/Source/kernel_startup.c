@@ -7,6 +7,7 @@
 
 #include "board_serial.h"
 #include "board_button.h"
+#include "board_serial_x.h"
 
 #include "systick.h"
 #include "dynamic_memory.h"
@@ -64,6 +65,7 @@ void kernel_startup(void)
 	
 	// Start the serial interface
 	board_serial_config();
+	board_serial_x_config();
 	
 	// Configure the on board button
 	board_button_config();

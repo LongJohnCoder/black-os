@@ -21,3 +21,9 @@ void board_button_config(void)
 	interrupt_enable_peripheral_interrupt(PIOA_IRQn, IRQ_LEVEL_3);
 }
 
+void PIOA_Handler()
+{
+	gpio_get_pin_value_status_register(PIOA);
+	
+	RSTC->RSTC_CR = (RSTC_CR_KEY_PASSWD_Val << RSTC_CR_KEY_Pos) | (1 << RSTC_CR_PROCRST_Pos);
+}
