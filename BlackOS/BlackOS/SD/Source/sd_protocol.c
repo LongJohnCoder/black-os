@@ -903,7 +903,7 @@ uint8_t sd_protocol_dma_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, u
 	{
 		return 0;
 	}
-	
+	board_serial_print_address("data: ", (uint32_t)data);
 	uint32_t command = 0;
 	uint32_t argument = 0;
 	
@@ -964,6 +964,13 @@ uint8_t sd_protocol_dma_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, u
 		sd_protocol_print_reg("Status reg: ", status, 32);
 		board_serial_print("ERROR\n");
 	}
+	
+	for (volatile uint32_t i = 0; i < 300000000; i++)
+	{
+		asm volatile ("nop");
+	}
+	
+	SCB_InvalidateDCache_by_Addr((uint32_t *)((uint32_t)data & ~32), count * 512 + 32);
 	
 	return 1;
 }

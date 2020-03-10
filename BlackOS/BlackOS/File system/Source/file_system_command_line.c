@@ -600,10 +600,7 @@ void file_system_command_line_input_decode(char* data)
 }
 
 void file_system_command_line_handler(void)
-{
-	board_serial_print(command_line_argument[0]);
-	board_serial_print(command_line_argument[1]);
-	
+{	
 	if (!strncmp(command_line_argument[0], "ls", 2))
 	{
 		file_system_command_line_ls();

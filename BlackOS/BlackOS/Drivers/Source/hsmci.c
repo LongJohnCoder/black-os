@@ -323,9 +323,9 @@ Hsmci_status_e hsmci_send_addressed_data_transfer_command(	const void* const har
 	}
 	
 	// Erase DMA and BLOCK register
-	CRITICAL_SECTION_ENTER()
-	((Hsmci *)hardware)->HSMCI_DMA = 0;
-	CRITICAL_SECTION_LEAVE()
+// 	CRITICAL_SECTION_ENTER()
+// 	((Hsmci *)hardware)->HSMCI_DMA = 0;
+// 	CRITICAL_SECTION_LEAVE()
 	
 	// Write the argument and command register
 	hsmci_write_argument_register(hardware, argument);

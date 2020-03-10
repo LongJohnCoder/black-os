@@ -1,9 +1,6 @@
 #include "dynamic_memory.h"
 #include "check.h"
 
-// DEBUG
-#include "board_serial.h"
-
 #include <stddef.h>
 #include <string.h>
 

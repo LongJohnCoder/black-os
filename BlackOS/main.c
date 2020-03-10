@@ -1,4 +1,3 @@
-#include "sam.h"
 #include "kernel.h"
 #include "board_led.h"
 
