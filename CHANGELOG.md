@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v1.2] - Thread exit fix
+
+### Changed
+
+- Fixed kernel crashing after thread returns
+- Fixed some file system formatting
+- Kernel now stable with every normal C code
+
 ## [v1.1] - Application support
 
 ### Changed
@@ -21,6 +29,7 @@ All notable changes to this project will be documented in this file.
 - Added runtime statistics support
 
 
-[Unreleased]: https://github.com/bjornbrodtkorb/BlackOS/compare/v1.0...HEAD
+[Unreleased]: https://github.com/bjornbrodtkorb/BlackOS/compare/v1.2...HEAD
 [v1.0]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.0
 [v1.1]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.1
+[v1.2]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.2
