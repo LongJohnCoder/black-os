@@ -11,9 +11,11 @@
 #include <stddef.h>
 #include <core_cm7.h>
 
-#define KERNEL_DEBUG 0
+#define KERNEL_DEBUG 1
+
 
 //--------------------------------------------------------------------------------------------------//
+
 
 typedef enum
 {
@@ -21,7 +23,9 @@ typedef enum
 	SCHEDULER_STATUS_SUSPENDED
 } kernel_scheduler_status;
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // The kernel tick count the number of milliseconds / time-slices that the kernel has run for
 uint32_t kernel_tick;
@@ -50,7 +54,9 @@ kernel_list delay_queue;
 uint32_t kernel_tick_to_wake;
 uint32_t kernel_runtime_tick;
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function_pointer thread_func, void* param);
 
@@ -68,7 +74,9 @@ void kernel_resume_scheduler(void);
 
 void kernel_reset_runtime(void);
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
 {
@@ -106,12 +114,10 @@ thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_fu
 		new_thread->name[i] = *thread_name++;
 	}
 	
-	// Set the tick_to_wake to zero since otherwise the task will be delays
-	// TODO: This should not be necessary
-	new_thread->tick_to_wake = 0;
-	
 	// Set the thread priority
 	new_thread->priority = priority;
+	
+	new_thread->thread_state = 0;
 	
 	new_thread->stack_size = 4 * stack_size;
 	
@@ -139,7 +145,22 @@ thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_fu
 	return new_thread;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
+
+void kernel_delete_thread(void)
+{
+	kernel_current_thread_pointer->thread_state = 1;
+	
+	kernel_thread_yield();
+	
+	while (1);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function_pointer thread_func, void* param)
 {
@@ -153,7 +174,7 @@ uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function_poin
 	*stack_pointer-- = (uint32_t)thread_func;
 	
 	// Link register
-	*stack_pointer = (uint32_t)KERNEL_THREAD_LR;
+	*stack_pointer = (uint32_t)kernel_delete_thread;
 	
 	// R12, R3, R2, R1, R0
 	stack_pointer -= 5;
@@ -165,7 +186,9 @@ uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function_poin
 	return stack_pointer;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_print_running_queue(kernel_list* list)
 {
@@ -251,7 +274,9 @@ void kernel_print_running_queue(kernel_list* list)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_start(void)
 {
@@ -283,7 +308,7 @@ void kernel_start(void)
 	//
 	// Under normal operation the SysTick exception should have the highest priority
 	// and the PendSV should have the lowest. In debug mode this will make the system
-	// crash. This is because the SysTick exception handler will phtrint things to the
+	// crash. This is because the SysTick exception handler will print things to the
 	// screen, and therefore not return within the new time slice. This means that
 	// the scheduler runs several times without a context-switch.
 	#if KERNEL_DEBUG
@@ -299,7 +324,9 @@ void kernel_start(void)
 	kernel_scheduler_start();
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_thread_config(void)
 {
@@ -310,9 +337,9 @@ void kernel_thread_config(void)
 	kernel_add_thread("Idle", kernel_idle_thread, NULL, THREAD_PRIORITY_NORMAL, KERNEL_IDLE_THREAD_STACK_SIZE);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-// There will be an SVC for this function
 
 void kernel_thread_yield(void)
 {
@@ -324,9 +351,9 @@ void kernel_thread_yield(void)
 	SCB->ICSR |= (1 << SCB_ICSR_PENDSTSET_Pos);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-// There will be an SVC for this function
 
 void kernel_thread_delay(uint32_t ticks)
 {
@@ -380,9 +407,6 @@ void kernel_scheduler(void)
 					// Put the element into the delay queue
 					kernel_list_remove_last(&running_queue);
 					kernel_list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_queue);
-					#if KERNEL_DEBUG
-					board_serial_print("DEL ADD %d\n",  delay_queue.first->thread_control->tick_to_wake);
-					#endif
 					
 					// Update the kernel tick to wake
 					kernel_tick_to_wake = delay_queue.first->thread_control->tick_to_wake;
@@ -422,9 +446,6 @@ void kernel_scheduler(void)
 				
 				kernel_list_remove_first(&delay_queue);
 				kernel_list_insert_first(tmp, &running_queue);
-				#if KERNEL_DEBUG
-				board_serial_print("DEL REMOVE %d\n", kernel_tick_to_wake);
-				#endif
 			}
 			
 			if (list_iterator == NULL)
@@ -436,6 +457,16 @@ void kernel_scheduler(void)
 			{
 				kernel_tick_to_wake = delay_queue.first->thread_control->tick_to_wake;
 			}
+		}
+		
+		if (kernel_current_thread_pointer->thread_state > 0)
+		{
+			// The thread has to be removed
+			kernel_list_remove_last(&running_queue);
+			
+			// Then we have to delete the memory resources
+			dynamic_memory_free(kernel_current_thread_pointer->stack_base);
+			dynamic_memory_free(kernel_current_thread_pointer);
 		}
 		
 		// Update the next thread to run

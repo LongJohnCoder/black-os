@@ -81,6 +81,8 @@ typedef struct kernel_thread_control_s
 	uint32_t last_runtime;
 	uint32_t runtime;
 	
+	uint8_t thread_state;
+	
 	// Store the name of the thread
 	char name[KERNEL_THREAD_MAX_NAME_LENGTH];
 	

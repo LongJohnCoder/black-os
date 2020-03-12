@@ -198,6 +198,7 @@ file_result_t file_system_command_line_ls(void)
 		{
 			board_serial_print("%d\tkB\t", 1);
 		}
+		
 		board_serial_print("%d.%d.%d\t%d:%d\t", (file_info.fdate & 0b11111), (file_info.fdate >> 4) & 0b1111, 1980 + ((file_info.fdate >> 9) & 0b1111111), (file_info.ftime >> 11) & 0b11111, (file_info.ftime >> 5) & 0b111111);
 
 		if (file_info.fattrib == AM_DIR)
