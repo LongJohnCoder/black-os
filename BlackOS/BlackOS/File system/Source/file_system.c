@@ -296,7 +296,7 @@ file_result_t file_system_command_run(char* arg)
 	}*/
 
 	// Now the data is placed at the right place so no we can start the application
-	kernel_add_thread("Print", (thread_function_pointer)(application_main), NULL, THREAD_LEVEL_3, 200);
+	kernel_add_thread("Print", (thread_function_pointer)(application_main), NULL, THREAD_PRIORITY_NORMAL, 200);
 	
 	return FR_OK;
 }

@@ -57,7 +57,7 @@ static volatile uint8_t file_system_command_ready = 0;
 directory_t directory;
 file_info_t file_info;
 
-kernel_thread_control* file_thread;
+thread_s* file_thread;
 
 //--------------------------------------------------------------------------------------------------//
 
@@ -65,7 +65,7 @@ void file_system_command_line_config(void)
 {
 	strcpy(file_system_path, "/");
 	
-	file_thread = kernel_add_thread("file", file_system_command_line_thread, NULL, THREAD_LEVEL_3, 500);
+	file_thread = kernel_add_thread("file", file_system_command_line_thread, NULL, THREAD_PRIORITY_NORMAL, 500);
 }
 
 void file_system_command_line_thread(void* args)

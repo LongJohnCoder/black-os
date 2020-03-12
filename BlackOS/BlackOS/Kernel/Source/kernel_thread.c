@@ -33,9 +33,9 @@ uint32_t kernel_statistics_timer;
 //		- The current pointer points to the current thread to be run
 //		- The next pointer is set by the scheduler and points to the next thread to run
 //
-kernel_thread_control* kernel_current_thread_pointer;
-kernel_thread_control* kernel_next_thread_pointer;
-kernel_thread_control* kernel_idle_thread_pointer;
+thread_s* kernel_current_thread_pointer;
+thread_s* kernel_next_thread_pointer;
+thread_s* kernel_idle_thread_pointer;
 
 // This variable will hold the current state of the scheduler
 kernel_scheduler_status scheduler_status;
@@ -70,14 +70,14 @@ void kernel_reset_runtime(void);
 
 //--------------------------------------------------------------------------------------------------//
 
-kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
+thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
 {
 	// We do NOT want any scheduler interrupting inside here
 	kernel_suspend_scheduler();
 	
 	// First we have to allocate memory for the thread and 
 	// for the stack that is going to be used by that thread
-	kernel_thread_control* new_thread = (kernel_thread_control*)dynamic_memory_new(DRAM_BANK_0, sizeof(kernel_thread_control));
+	thread_s* new_thread = (thread_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(thread_s));
 	
 	// Allocate the stack
 	new_thread->stack_base = (uint32_t*)dynamic_memory_new(DRAM_BANK_0, stack_size * sizeof(uint32_t));
@@ -307,7 +307,7 @@ void kernel_thread_config(void)
 	interrupt_global_disable();
 	
 	// Add the idle thread on priority level 7 (lowest)
-	kernel_add_thread("Idle", kernel_idle_thread, NULL, THREAD_LEVEL_7, KERNEL_IDLE_THREAD_STACK_SIZE);
+	kernel_add_thread("Idle", kernel_idle_thread, NULL, THREAD_PRIORITY_NORMAL, KERNEL_IDLE_THREAD_STACK_SIZE);
 }
 
 //--------------------------------------------------------------------------------------------------//
@@ -363,7 +363,7 @@ void kernel_scheduler(void)
 	
 	
 	// Check the integrity of the scheduler
-	volatile kernel_thread_control* thread_pointer_check = kernel_current_thread_pointer;
+	volatile thread_s* thread_pointer_check = kernel_current_thread_pointer;
 	
 	kernel_current_thread_pointer->runtime++;
 	

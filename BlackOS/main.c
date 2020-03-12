@@ -8,7 +8,7 @@ int main(void)
 {
 	kernel_startup();
 
-	kernel_add_thread("blink", blink_thread, NULL, THREAD_LEVEL_6, 200);
+	kernel_add_thread("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 200);
 
 	kernel_start();
 	

@@ -10,15 +10,15 @@ typedef void (*thread_function_pointer)(void *);
 // Thread priorities
 typedef enum
 {
-	THREAD_LEVEL_0,
-	THREAD_LEVEL_1,
-	THREAD_LEVEL_2,
-	THREAD_LEVEL_3,
-	THREAD_LEVEL_4,
-	THREAD_LEVEL_5,
-	THREAD_LEVEL_6,
-	THREAD_LEVEL_7,
+	THREAD_PRIORITY_LOW,
+	THREAD_PRIORITY_NORMAL,
+	THREAD_PRIORITY_HIGH,
+	THREAD_PRIORITY_EXTRA_HIGH
 } kernel_thread_priority;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // Just a forward declaration
 struct kernel_list_s;
@@ -34,6 +34,10 @@ typedef struct kernel_list_item_s
 	
 } kernel_list_item;
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 typedef struct kernel_list_s
 {
 	// Pointer to the first and last element in the list
@@ -45,7 +49,10 @@ typedef struct kernel_list_s
 	
 } kernel_list;
 
-// Thread control structure
+
+//--------------------------------------------------------------------------------------------------//
+
+
 typedef struct kernel_thread_control_s
 {
 	// Points to the top of the stack
@@ -70,37 +77,54 @@ typedef struct kernel_thread_control_s
 	// Time to wake is used for the thread delay function
 	uint32_t tick_to_wake;
 	
-	// The runtime variable will hold the total ticks the last second
+	// These variables are used to calculate the runtime statistics
 	uint32_t last_runtime;
 	uint32_t runtime;
 	
 	// Store the name of the thread
 	char name[KERNEL_THREAD_MAX_NAME_LENGTH];
 	
-} kernel_thread_control;
+} thread_s;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 extern kernel_list running_queue;
-extern kernel_thread_control* kernel_current_thread_pointer;
+extern thread_s* kernel_current_thread_pointer;
 extern kernel_list delay_queue;
+
+
+//--------------------------------------------------------------------------------------------------//
 
 void kernel_start(void);
 
 void kernel_thread_config(void);
 
-kernel_thread_control* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size);
+thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size);
 
 void kernel_thread_yield(void);
 
 void kernel_thread_delay(uint32_t ticks);
 
 
+//--------------------------------------------------------------------------------------------------//
+
+
 void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list);
+
 void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list);
+
 void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list);
 
 uint8_t kernel_list_remove_first(kernel_list* list);
+
 uint8_t kernel_list_remove_last(kernel_list* list);
+
 uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list);
+
+
+//--------------------------------------------------------------------------------------------------//
 
 
 void kernel_print_running_queue(kernel_list* list);
