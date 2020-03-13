@@ -1,3 +1,6 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "file_system_command_line.h"
 #include "usart.h"
 #include "board_serial.h"
@@ -9,11 +12,21 @@
 #include "interrupt.h"
 #include "kernel_dynamic_loader.h"
 
-file_system_t cortex_file_system;
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #include <string.h>
 
+
 //--------------------------------------------------------------------------------------------------//
+
+
+file_system_t cortex_file_system;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void file_system_command_line_input_decode(char* data);
 
@@ -35,7 +48,9 @@ void file_system_command_line_handler(void);
 
 void file_system_command_line_thread(void* args);
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 #define FILE_SYSTEM_MAX_PATH_LENGTH		1000
 #define FILE_SYSTEM_MAX_LIST_LENGTH		30
@@ -44,7 +59,9 @@ void file_system_command_line_thread(void* args);
 #define MAX_ARGUEMTNS 6
 #define LENGTH_ARGUMENT 50
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static char command_line_argument[MAX_ARGUEMTNS][LENGTH_ARGUMENT];
 static char file_system_path[FILE_SYSTEM_MAX_PATH_LENGTH];
@@ -54,12 +71,16 @@ static char command_line_buffer[FILE_SYSTEM_COMMAND_BUFFER_SIZE];
 static uint16_t command_line_buffer_index = 0;
 static volatile uint8_t file_system_command_ready = 0;
 
+
 directory_t directory;
 file_info_t file_info;
 
+
 thread_s* file_thread;
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void file_system_command_line_config(void)
 {
@@ -67,6 +88,10 @@ void file_system_command_line_config(void)
 	
 	file_thread = kernel_add_thread("file", file_system_command_line_thread, NULL, THREAD_PRIORITY_NORMAL, 500);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void file_system_command_line_thread(void* args)
 {	
@@ -159,7 +184,9 @@ void file_system_command_line_thread(void* args)
 	*/
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 file_result_t file_system_command_line_ls(void)
 {
@@ -231,7 +258,9 @@ file_result_t file_system_command_line_ls(void)
 	return FR_OK;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 file_result_t file_system_command_line_cd(char* arg)
 {
@@ -290,7 +319,9 @@ file_result_t file_system_command_line_cd(char* arg)
 	return FR_OK;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 file_result_t file_system_command_line_cat(char* arg)
 {
@@ -343,7 +374,9 @@ file_result_t file_system_command_line_cat(char* arg)
 	return FR_OK;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 file_result_t file_system_command_line_hex(char* arg)
 {
@@ -401,7 +434,9 @@ file_result_t file_system_command_line_hex(char* arg)
 	return FR_OK;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void file_system_command_line_print_hex(uint8_t tmp)
 {
@@ -428,7 +463,9 @@ void file_system_command_line_print_hex(uint8_t tmp)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 file_result_t file_system_command_line_run(char* arg)
 {
@@ -551,7 +588,9 @@ file_result_t file_system_command_line_run(char* arg)
 	return FR_OK;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void file_system_command_line_print_directory(void)
 {
@@ -569,7 +608,9 @@ void file_system_command_line_print_directory(void)
 	board_serial_print(" >");
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void file_system_command_line_input_decode(char* data)
 {
@@ -613,6 +654,10 @@ void file_system_command_line_input_decode(char* data)
 	file_system_command_ready = 1;
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void file_system_command_line_handler(void)
 {	
 	if (!strncmp(command_line_argument[0], "ls", 2))
@@ -641,7 +686,9 @@ void file_system_command_line_handler(void)
 	file_system_command_ready = 0;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void USART1_Handler()
 {
@@ -670,3 +717,6 @@ void USART1_Handler()
 		file_system_command_line_input_decode(command_line_buffer);
 	}
 }
+
+
+//--------------------------------------------------------------------------------------------------//

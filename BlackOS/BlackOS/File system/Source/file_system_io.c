@@ -1,10 +1,20 @@
-#include "file_system_io.h"
+//--------------------------------------------------------------------------------------------------//
 
+
+#include "file_system_io.h"
 #include "board_sd_card.h"
 #include "sd_protocol.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 // Make the physical disk
 Sd_card sd_card;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 fatfs_status_t disk_status(uint8_t physical_drive)
 {
@@ -27,6 +37,10 @@ fatfs_status_t disk_status(uint8_t physical_drive)
 	}
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 fatfs_status_t disk_initialize(uint8_t physical_drive)
 {
 	if (board_sd_card_get_status() == 0)
@@ -47,6 +61,10 @@ fatfs_status_t disk_initialize(uint8_t physical_drive)
 		}
 	}
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 fatfs_result_t disk_read(uint8_t physical_drive, uint8_t* data, uint32_t sector, uint32_t count)
 {
@@ -71,6 +89,10 @@ fatfs_result_t disk_read(uint8_t physical_drive, uint8_t* data, uint32_t sector,
 	}
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 fatfs_result_t disk_write(uint8_t physical_drive, const uint8_t* data, uint32_t sector, uint32_t count)
 {
 	// First check if the section is supported on the card
@@ -93,6 +115,10 @@ fatfs_result_t disk_write(uint8_t physical_drive, const uint8_t* data, uint32_t 
 		}
 	}
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 fatfs_result_t disk_ioctl(uint8_t physical_drive, uint8_t command, void* data)
 {
@@ -122,18 +148,33 @@ fatfs_result_t disk_ioctl(uint8_t physical_drive, uint8_t command, void* data)
 	return RES_ERROR;
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 uint32_t get_fattime(void)
 {
 	// Not used in this implementation
 	return 0;
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void disk_print_info(void)
 {
 	sd_protocol_print_card_info(&sd_card);
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void disk_print_csd(void)
 {
 	sd_protocol_print_csd(&sd_card);
 }
+
+
+//--------------------------------------------------------------------------------------------------//

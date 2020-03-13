@@ -1,28 +1,51 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "file_system.h"
 #include "board_serial.h"
-
 #include "dynamic_memory.h"
 #include "kernel.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include <string.h>
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #define FILE_SYSTEM_MAX_PATH_LENGTH		1000
 #define FILE_SYSTEM_MAX_LIST_LENGTH		30
 #define FILE_SYSTEM_BUFFER_SIZE			128
 
 
+//--------------------------------------------------------------------------------------------------//
+
+
 char file_system_path[FILE_SYSTEM_MAX_PATH_LENGTH];
 char file_system_tmp_path[FILE_SYSTEM_MAX_PATH_LENGTH];
 
+
 char file_system_buffer[FILE_SYSTEM_BUFFER_SIZE];
+
 
 directory_t directory;
 file_info_t file_info;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void file_system_config(void)
 {
 	strcpy(file_system_path, "/");
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 file_result_t file_system_command_ls(void)
 {
@@ -106,6 +129,10 @@ file_result_t file_system_command_ls(void)
 	return FR_OK;
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 file_result_t file_system_command_cd(char* arg)
 {
 	if (strcmp(arg, ""))
@@ -163,6 +190,10 @@ file_result_t file_system_command_cd(char* arg)
 	return FR_OK;
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 file_result_t file_system_command_cat(char* arg)
 {
 	file_result_t res;
@@ -207,6 +238,10 @@ file_result_t file_system_command_cat(char* arg)
 	
 	return FR_OK;
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 file_result_t file_system_command_run(char* arg)
 {
@@ -301,6 +336,10 @@ file_result_t file_system_command_run(char* arg)
 	return FR_OK;
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void file_system_print_directory(void)
 {
 	board_serial_print("Cortex:");
@@ -316,3 +355,6 @@ void file_system_print_directory(void)
 	}
 	board_serial_print(" >");
 }
+
+
+//--------------------------------------------------------------------------------------------------//
