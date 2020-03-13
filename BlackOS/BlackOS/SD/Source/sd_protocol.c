@@ -961,6 +961,7 @@ uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, u
 		return 0;
 	}
 	board_serial_print_address("data: ", (uint32_t)data);
+	
 	uint32_t command = 0;
 	uint32_t argument = 0;
 	
@@ -990,42 +991,11 @@ uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, u
 		argument = sector;
 	}
 	
-	// Enable the DMA interface
-	HSMCI->HSMCI_DMA = (1 << HSMCI_DMA_DMAEN_Pos);
-	
-	hsmci_read_proof_enable(HSMCI);
-	hsmci_write_proof_enable(HSMCI);
-	
-	hsmci_force_byte_transfer_disable(HSMCI);
-	hsmci_set_block_length(HSMCI, 512, count);
-	
-	hsmci_send_addressed_data_transfer_command(HSMCI, command, argument, 512, count, 0, CHECK_CRC);
+	hsmci_send_addressed_data_transfer_command(HSMCI, command, argument, 512, count, 1, CHECK_CRC);
 
+	hsmci_start_read_blocks(data, count);
 	
-	// Configure the DMA interface
-	dma_channel_mode_config(XDMAC, 0, XDMAC_CC_PERID_HSMCI_Val, DMA_DEST_ADDRESSING_INCREMENTED, DMA_SOURCE_ADDRESSING_FIXED, DMA_AHB_INTERFACE_1, DMA_AHB_INTERFACE_0, DMA_DATA_WIDTH_WORD, DMA_CHUNK_SIZE_1, DMA_MEMORY_FILL_OFF, DMA_TRIGGER_HARDWARE, DMA_SYNC_PERIPHERAL_TO_MEMORY, DMA_BURST_SIZE_SINGLE, DMA_TRANSFER_TYPE_PERIPHERAL_TRANSFER);
-	dma_channel_set_destination_address(XDMAC, 0, (uint32_t *)data);
-	dma_channel_set_source_address(XDMAC, 0, (uint32_t *)(&(HSMCI->HSMCI_FIFO[0])));
-	dma_channel_set_microblock_length(XDMAC, 0, count * 512 / 4);
-	
-	dma_channel_interrupt_disable(XDMAC, 0, DMA_INTERRUPT_ALL);
-	dma_channel_interrupt_enable(XDMAC, 0, DMA_INTERRUPT_END_OF_BLOCK);
-	
-	dma_channel_enable(XDMAC, 0);
-	
-	// Check for error
-	uint32_t status = hsmci_read_48_bit_response_register(HSMCI);
-	
-	if (status & (0b1111111111111 << 19))
-	{
-		sd_protocol_print_reg("Status reg: ", status, 32);
-		board_serial_print("ERROR\n");
-	}
-	
-	for (volatile uint32_t i = 0; i < 300000000; i++)
-	{
-		asm volatile ("nop");
-	}
+	hsmci_wait_end_of_read();
 	
 	SCB_InvalidateDCache_by_Addr((uint32_t *)((uint32_t)data & ~32), count * 512 + 32);
 	

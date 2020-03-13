@@ -18,7 +18,8 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-#define HSMCI_DEBUG 1
+#define HSMCI_DEBUG			1
+#define HSMCI_DMA_CHANNEL	2
 
 #define HSMCI_STATUS_REGISTER_ERROR_MASK ((1 << HSMCI_SR_ACKRCV_Pos) | (1 << HSMCI_SR_BLKOVRE_Pos) | (1 << HSMCI_SR_CSTOE_Pos) | (1 << HSMCI_SR_DTOE_Pos) | (1 << HSMCI_SR_DCRCE_Pos) | (1 << HSMCI_SR_RTOE_Pos) | (1 << HSMCI_SR_CSTOE_Pos) | (1 << HSMCI_SR_RENDE_Pos) | (1 << HSMCI_SR_RDIRE_Pos) | (1 << HSMCI_SR_RINDE_Pos))
 
@@ -224,7 +225,9 @@ void hsmci_write_data_register(Hsmci* hardware, uint32_t data);
 
 uint32_t hsmci_read_data_register(Hsmci* hardware);
 
-hsmci_status_e hsmci_start_read_blocks();
+hsmci_status_e hsmci_start_read_blocks(void* destination, uint16_t number_of_blocks);
+
+hsmci_status_e hsmci_wait_end_of_read(void);
 
 void hsmci_read_data_register_reverse(Hsmci* hardware, uint8_t* data, uint8_t number_of_words);
 

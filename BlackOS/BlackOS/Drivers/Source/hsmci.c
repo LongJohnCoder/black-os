@@ -9,6 +9,15 @@
 #include "check.h"
 #include "core.h"
 #include "board_serial.h"
+#include "dma.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+static uint32_t hsmci_transfer_position;
+static uint16_t hsmci_block_size;
+static uint16_t hsmci_last_number_of_blocks;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -355,17 +364,6 @@ hsmci_status_e hsmci_send_command(Hsmci* hardware, uint32_t command, uint32_t ar
 //--------------------------------------------------------------------------------------------------//
 
 
-void hsmci_write_command_register(Hsmci* hardware, uint32_t command)
-{
-	CRITICAL_SECTION_ENTER()
-	hardware->HSMCI_CMDR = command;
-	CRITICAL_SECTION_LEAVE()
-}
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
 hsmci_status_e hsmci_send_addressed_data_transfer_command(	Hsmci* hardware, uint32_t command_register, uint32_t argument,
 															uint16_t block_size, uint16_t number_of_blocks, uint8_t dma, hsmci_check_crc_e crc)
 {
@@ -473,6 +471,118 @@ hsmci_status_e hsmci_send_addressed_data_transfer_command(	Hsmci* hardware, uint
 //--------------------------------------------------------------------------------------------------//
 
 
+hsmci_status_e hsmci_start_read_blocks(void* destination, uint16_t number_of_blocks)
+{
+	// Here we will use the DMA for data transfer
+	check(number_of_blocks);
+	
+	dma_channel_disable(XDMAC, HSMCI_DMA_CHANNEL);
+	
+	
+	uint32_t data_size = hsmci_block_size * number_of_blocks;
+	
+	
+	// The data sheet specifies that all DMA source addresses must be word aligned
+	if ((uint32_t)destination & 0b11)
+	{
+		dma_channel_mode_config(	XDMAC, 
+									HSMCI_DMA_CHANNEL,
+									XDMAC_CC_PERID_HSMCI_Val,
+									DMA_DEST_ADDRESSING_INCREMENTED,
+									DMA_SOURCE_ADDRESSING_FIXED,
+									DMA_AHB_INTERFACE_0,
+									DMA_AHB_INTERFACE_1,
+									DMA_DATA_WIDTH_BYTE,
+									DMA_CHUNK_SIZE_1,
+									DMA_MEMORY_FILL_OFF,
+									DMA_TRIGGER_HARDWARE,
+									DMA_SYNC_PERIPHERAL_TO_MEMORY,
+									DMA_BURST_SIZE_SINGLE,
+									DMA_TRANSFER_TYPE_PERIPHERAL_TRANSFER);
+									
+		dma_channel_set_microblock_length(XDMAC, HSMCI_DMA_CHANNEL, data_size);
+		
+		// Force byte transfer as well
+		hsmci_force_byte_transfer_enable(HSMCI);
+	}
+	else
+	{
+		dma_channel_mode_config(	XDMAC,
+									HSMCI_DMA_CHANNEL,
+									XDMAC_CC_PERID_HSMCI_Val,
+									DMA_DEST_ADDRESSING_INCREMENTED,
+									DMA_SOURCE_ADDRESSING_FIXED,
+									DMA_AHB_INTERFACE_0,
+									DMA_AHB_INTERFACE_1,
+									DMA_DATA_WIDTH_WORD,
+									DMA_CHUNK_SIZE_1,
+									DMA_MEMORY_FILL_OFF,
+									DMA_TRIGGER_HARDWARE,
+									DMA_SYNC_PERIPHERAL_TO_MEMORY,
+									DMA_BURST_SIZE_SINGLE,
+									DMA_TRANSFER_TYPE_PERIPHERAL_TRANSFER);
+		
+		dma_channel_set_microblock_length(XDMAC, HSMCI_DMA_CHANNEL, data_size / 4);
+		
+		// Force byte transfer as well
+		hsmci_force_byte_transfer_disable(HSMCI);
+	}
+	
+	
+	// Set the source and destination address of the DMA transaction
+	dma_channel_set_source_address(XDMAC, HSMCI_DMA_CHANNEL, (const void *)HSMCI->HSMCI_FIFO[0]);
+	dma_channel_set_destination_address(XDMAC, HSMCI_DMA_CHANNEL, (const void *)destination);
+	
+	
+	// Start the DMA transfer
+	dma_channel_enable(XDMAC, HSMCI_DMA_CHANNEL);
+	
+	hsmci_transfer_position += data_size;
+	
+	return HSMCI_OK;
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+hsmci_status_e hsmci_wait_end_of_read(void)
+{
+	uint32_t dma_status_register;
+	uint32_t hsmci_status_register;
+	
+	do 
+	{
+		hsmci_status_register = hsmci_read_status_register(HSMCI);
+		
+		
+		// Check for errors
+		if (hsmci_status_register & (HSMCI_SR_UNRE_Msk | HSMCI_SR_OVRE_Msk | HSMCI_SR_DTOE_Msk | HSMCI_SR_DCRCE_Msk))
+		{
+			dma_channel_disable(XDMAC, HSMCI_DMA_CHANNEL);
+			
+			return HSMCI_ERROR;
+		}
+		
+		if (((uint32_t)hsmci_block_size * hsmci_last_number_of_blocks) > hsmci_transfer_position)
+		{
+			dma_status_register = dma_read_channel_status(XDMAC, HSMCI_DMA_CHANNEL);
+			
+			if (dma_status_register & XDMAC_CIS_BIS_Msk)
+			{
+				return HSMCI_OK;
+			}
+		}
+		
+	} while (!(hsmci_status_register & (1 << HSMCI_SR_XFRDONE_Pos)));
+	
+	return HSMCI_OK;
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 uint32_t hsmci_construct_command_register(	uint8_t boot_ack,
 										uint8_t ata_with_command_completion_enable,
 										hsmci_command_sdio_special_command_e sdio_special_command,
@@ -512,6 +622,17 @@ void hsmci_force_byte_transfer_enable(Hsmci* hardware)
 	
 	CRITICAL_SECTION_ENTER()
 	hardware->HSMCI_MR = tmp;
+	CRITICAL_SECTION_LEAVE()
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void hsmci_write_command_register(Hsmci* hardware, uint32_t command)
+{
+	CRITICAL_SECTION_ENTER()
+	hardware->HSMCI_CMDR = command;
 	CRITICAL_SECTION_LEAVE()
 }
 
