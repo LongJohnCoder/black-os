@@ -60,6 +60,7 @@ kernel_scheduler_status scheduler_status;
 // Some lists that the kernel will use for the threads
 kernel_list running_queue;
 kernel_list delay_queue;
+kernel_list suspended_list;
 
 // Global tick to wake variable. This variable gets updated every time a thread is added or removed from the delay
 // list. It holds the tick to wake value of the first thread to be put in the running queue again. This reduces the
@@ -71,7 +72,7 @@ uint32_t kernel_runtime_tick;
 //--------------------------------------------------------------------------------------------------//
 
 
-uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function_pointer thread_func, void* param);
+uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function thread_func, void* param);
 
 void kernel_scheduler(void);
 
@@ -91,7 +92,7 @@ void kernel_reset_runtime(void);
 //--------------------------------------------------------------------------------------------------//
 
 
-thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
+thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
 {
 	// We do NOT want any scheduler interrupting inside here
 	kernel_suspend_scheduler();
@@ -130,7 +131,7 @@ thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_fu
 	// Set the thread priority
 	new_thread->priority = priority;
 	
-	new_thread->thread_state = 0;
+	new_thread->state = THREAD_STATE_RUNNING;
 	
 	new_thread->stack_size = 4 * stack_size;
 	
@@ -164,9 +165,9 @@ thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_fu
 
 void kernel_delete_thread(void)
 {
-	kernel_current_thread_pointer->thread_state = 1;
+	kernel_current_thread_pointer->state = THREAD_STATE_EXIT_PENDING;
 	
-	kernel_thread_yield();
+	kernel_reschedule();
 	
 	while (1);
 }
@@ -175,7 +176,7 @@ void kernel_delete_thread(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function_pointer thread_func, void* param)
+uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function thread_func, void* param)
 {
 	// Add a small offset
 	stack_pointer--;
@@ -297,15 +298,19 @@ void kernel_start(void)
 	systick_config();
 	systick_set_reload_value(300000000 / KERNEL_TICK_FREQUENCY);
 	
+	
 	// Start the scheduler
 	scheduler_status = SCHEDULER_STATUS_RUNNING;
+	
 	
 	// Update the kernel tick and tick to wake
 	kernel_tick = 0;
 	kernel_statistics_timer = 0;
 	
+	
 	// Set the tick to wake variable to not trigger
 	kernel_tick_to_wake = 0xffffffff;
+	
 	
 	// Set the current thread to point to the first thread to run
 	if (running_queue.last != NULL)
@@ -354,7 +359,7 @@ void kernel_thread_config(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_thread_yield(void)
+void kernel_reschedule(void)
 {
 	// Not sure is this is a good idea, since it might fuck up the timing
 	systick_set_counter_value(0);
@@ -387,7 +392,7 @@ void kernel_thread_delay(uint32_t ticks)
 	kernel_resume_scheduler();
 	
 	// Free the resources used
-	kernel_thread_yield();
+	kernel_reschedule();
 }
 
 
@@ -474,7 +479,7 @@ void kernel_scheduler(void)
 			}
 		}
 		
-		if (kernel_current_thread_pointer->thread_state > 0)
+		if (kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING)
 		{
 			// The thread has to be removed
 			kernel_list_remove_last(&running_queue);
@@ -496,14 +501,8 @@ void kernel_scheduler(void)
 	}
 	else
 	{
-		
+		// The scheduler is not running
 	}
-	
-	if (kernel_next_thread_pointer->name[0] == 'k')	
-	{
-		asm volatile ("nop");
-	}
-
 	
 	// This function must leave the current thread pointer unchanged. If changed, the whole
 	// kernel will crash, and the result will be undefined.
@@ -533,7 +532,7 @@ void SysTick_Handler()
 	// Launch the scheduler
 	kernel_scheduler();
 	
-	// Pend the PendSV exception
+	// Pend the PendSV exception that will execute the actual context switch
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 
@@ -654,8 +653,8 @@ void kernel_resume_scheduler(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-// Sice we a using a linked list we must asure that every element is unique. Otherwise the
-// functionality will be messed up. This simple funciton searched a list for a match. This
+// Since we a using a linked list we must assure that every element is unique. Otherwise the
+// functionality will be messed up. This simple function searched a list for a match. This
 // function should be called before inserting a new element.
 
 static uint8_t kernel_list_search(kernel_list_item* list_item, kernel_list* list)
@@ -690,10 +689,6 @@ void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 	// Check if the size is zero
 	if (list->size == 0)
 	{
-		if (list == &delay_queue)
-		{
-			board_serial_print("xxx");
-		}
 		// Update the global pointers
 		list->first = list_item;
 		list->last = list_item;
@@ -704,7 +699,7 @@ void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 	}
 	else
 	{
-		// Search the list to make sure it dont exist
+		// Search the list to make sure it do not exist
 		check(kernel_list_search(list_item, list) == 0);
 		
 		// Update the list item pointers
@@ -742,7 +737,7 @@ void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list)
 	}
 	else
 	{
-		// Search the list to make sure it dont exist
+		// Search the list to make sure it do not exist
 		check(kernel_list_search(list_item, list) == 0);
 		
 		// Update the list item pointers
@@ -782,7 +777,7 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 	}
 	else
 	{
-		// Search the list to make sure it dont exist
+		// Search the list to make sure it do not exist
 		check(kernel_list_search(list_item, list) == 0);
 		
 		// Check the tick value
@@ -829,7 +824,7 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 				list_iterator = list_iterator->next;
 			}
 			
-			// Should not rech here
+			// Should not reach here
 			check(0);
 		}
 	}

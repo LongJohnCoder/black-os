@@ -167,71 +167,83 @@ typedef enum
 } hsmci_control_enable_e;
 
 
-//--------------------------------------------------------------------------------------------------//
 
-
-void hsmci_write_protection_enable(const void* const hardware);
-
-void hsmci_write_protection_disable(const void* const hardware);
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-void hsmci_software_reset(const void* const hardware);
-
-void hsmci_soft_reset(const void* const hardware);
-
+typedef enum
+{
+	HSMCI_DMA_CHUNK_1,
+	HSMCI_DMA_CHUNK_2,
+	HSMCI_DMA_CHUNK_4,
+	HSMCI_DMA_CHUNK_8,
+	HSMCI_DMA_CHUNK_16
+} hsmci_dma_chunk_size_e;
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void hsmci_set_completion_timeout(const void* const hardware, hsmci_data_timeout_multiplier_e completion_signal_timout_multiplier, uint8_t completion_signal_timeout_cycle_number);
+void hsmci_write_protection_enable(Hsmci* hardware);
+
+void hsmci_write_protection_disable(Hsmci* hardware);
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void hsmci_software_reset(Hsmci* hardware);
+
+void hsmci_soft_reset(Hsmci* hardware);
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void hsmci_set_completion_timeout(Hsmci* hardware, hsmci_data_timeout_multiplier_e completion_signal_timout_multiplier, uint8_t completion_signal_timeout_cycle_number);
 						
-void hsmci_set_data_timeout(const void* const hardware, hsmci_data_timeout_multiplier_e data_timeout_multiplier, uint8_t data_timeout_cycle_number);
+void hsmci_set_data_timeout(Hsmci* hardware, hsmci_data_timeout_multiplier_e data_timeout_multiplier, uint8_t data_timeout_cycle_number);
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void hsmci_write_control_register(const void* const hardware, hsmci_control_enable_e enable, hsmci_control_powersave_e powersave);
+void hsmci_write_control_register(Hsmci* hardware, hsmci_control_enable_e enable, hsmci_control_powersave_e powersave);
 
-void hsmci_sd_card_config(const void* const hardware, hsmci_sd_bus_width_e bus_width, hsmci_sd_slot_select_e slot_selct);
+void hsmci_sd_card_config(Hsmci* hardware, hsmci_sd_bus_width_e bus_width, hsmci_sd_slot_select_e slot_selct);
 
-void hsmci_set_block_length(const void* const hardware, uint32_t block_length, uint32_t block_count);
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-void hsmci_write_argument_register(const void* const hardware, uint32_t argument);
-
-void hsmci_write_data_register(const void* const hardware, uint32_t data);
+void hsmci_set_block_length(Hsmci* hardware, uint32_t block_length, uint32_t block_count);
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-uint32_t hsmci_read_data_register(const void* const hardware);
+void hsmci_write_argument_register(Hsmci* hardware, uint32_t argument);
 
-void hsmci_read_data_register_reverse(const void* const hardware, uint8_t* data, uint8_t number_of_words);
+void hsmci_write_data_register(Hsmci* hardware, uint32_t data);
 
-uint32_t hsmci_read_48_bit_response_register(const void* const hardware);	
 
-void hsmci_read_136_bit_response_register_extended(const void* const hardware, uint8_t* response);
+//--------------------------------------------------------------------------------------------------//
+
+
+uint32_t hsmci_read_data_register(Hsmci* hardware);
+
+hsmci_status_e hsmci_start_read_blocks();
+
+void hsmci_read_data_register_reverse(Hsmci* hardware, uint8_t* data, uint8_t number_of_words);
+
+uint32_t hsmci_read_48_bit_response_register(Hsmci* hardware);	
+
+void hsmci_read_136_bit_response_register_extended(Hsmci* hardware, uint8_t* response);
 						
-uint32_t hsmci_read_status_register(const void* const hardware);
+uint32_t hsmci_read_status_register(Hsmci* hardware);
 			
 					
 //--------------------------------------------------------------------------------------------------//
 
 
-hsmci_status_e hsmci_send_command(const void* hardware, uint32_t command_register, uint32_t argument, hsmci_check_crc_e crc);
+hsmci_status_e hsmci_send_command(Hsmci* hardware, uint32_t command_register, uint32_t argument, hsmci_check_crc_e crc);
 
-void hsmci_write_command_register(const void* const hardware, uint32_t command);
+void hsmci_write_command_register(Hsmci* hardware, uint32_t command);
 
-hsmci_status_e hsmci_send_addressed_data_transfer_command(	const void* const hardware, uint32_t command_register, uint32_t argument,
-															uint16_t block_size, uint16_t number_of_blocks, hsmci_check_crc_e crc);
+hsmci_status_e hsmci_send_addressed_data_transfer_command(	Hsmci* hardware, uint32_t command_register, uint32_t argument,
+															uint16_t block_size, uint16_t number_of_blocks, uint8_t dma, hsmci_check_crc_e crc);
 
 uint32_t hsmci_construct_command_register(	uint8_t boot_ack,
 										uint8_t ata_with_command_completion_enable,
@@ -249,23 +261,23 @@ uint32_t hsmci_construct_command_register(	uint8_t boot_ack,
 //--------------------------------------------------------------------------------------------------//
 
 
-void hsmci_force_byte_transfer_enable(const void* const hardware);
+void hsmci_force_byte_transfer_enable(Hsmci* hardware);
 
-void hsmci_force_byte_transfer_disable(const void* const hardware);
+void hsmci_force_byte_transfer_disable(Hsmci* hardware);
 
-void hsmci_read_proof_enable(const void* const hardware);
+void hsmci_read_proof_enable(Hsmci* hardware);
 
-void hsmci_read_proof_disable(const void* const hardware);
+void hsmci_read_proof_disable(Hsmci* hardware);
 
-void hsmci_write_proof_enable(const void* const hardware);
+void hsmci_write_proof_enable(Hsmci* hardware);
 
-void hsmci_write_proof_disable(const void* const hardware);
+void hsmci_write_proof_disable(Hsmci* hardware);
 
-void hsmci_set_padding_value(const void* const hardware, hsmci_mr_padding_e padding);
+void hsmci_set_padding_value(Hsmci* hardware, hsmci_mr_padding_e padding);
 
-void hsmci_set_bus_speed(const void* const hardware, uint32_t bus_speed, uint32_t cpu_peripheral_speed);
+void hsmci_set_bus_speed(Hsmci* hardware, uint32_t bus_speed, uint32_t cpu_peripheral_speed);
 
-void hsmci_write_mode_register(	const void* const hardware,
+void hsmci_write_mode_register(	Hsmci* hardware,
 								uint8_t odd_clock_divider,
 								hsmci_mr_padding_e padding,
 								uint8_t force_byte_tranfer_enable,
@@ -278,9 +290,13 @@ void hsmci_write_mode_register(	const void* const hardware,
 //--------------------------------------------------------------------------------------------------//
 
 
-void hsmci_high_speed_enable(const void* const hardware);
+void hsmci_high_speed_enable(Hsmci* hardware);
 
-void hsmci_write_configuration_register(const void* const hardware,
+void hsmci_dma_enable(Hsmci* hardware, hsmci_dma_chunk_size_e chunk_size);
+
+void hsmci_dma_disable(Hsmci* hardware);
+
+void hsmci_write_configuration_register(Hsmci* hardware,
 										uint8_t synhronize_last_block,
 										uint8_t high_speed_mode,
 										uint8_t flow_error_reset_control_mode,

@@ -20,7 +20,7 @@
 
 
 // Function pointer to a thread
-typedef void (*thread_function_pointer)(void *);
+typedef void (*thread_function)(void *);
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -36,17 +36,28 @@ typedef enum
 } kernel_thread_priority;
 
 
+
+typedef enum
+{
+	THREAD_STATE_SUSPENDED,
+	THREAD_STATE_EXIT_PENDING,
+	THREAD_STATE_RUNNING
+} thread_state;
+
+
 //--------------------------------------------------------------------------------------------------//
 
 
 // Just a forward declaration
 struct kernel_list_s;
 
+
 typedef struct kernel_list_item_s
 {
 	// Pointers to the next and previous element
 	struct kernel_list_item_s* next;
 	struct kernel_list_item_s* previous;
+
 
 	// Pointer to the thread
 	struct kernel_thread_control_s* thread_control;
@@ -63,6 +74,7 @@ typedef struct kernel_list_s
 	struct kernel_list_item_s* first;
 	struct kernel_list_item_s* last;
 	
+	
 	// Keep track of the size of the list
 	uint16_t size;
 	
@@ -77,30 +89,39 @@ typedef struct kernel_thread_control_s
 	// Points to the top of the stack
 	uint32_t* stack_pointer;
 	
+	
 	// Points to the next thread in the list
 	struct kernel_thread_control_s* next;
+	
 	
 	// We use the list interface
 	struct kernel_list_item_s list_item;
 	
+	
 	struct kernel_list_s* current_list;
 	struct kernel_list_s* next_list;
+
 
 	// Pointer to the stack base so that we can delete the memory
 	uint32_t* stack_base;
 	uint32_t stack_size;
 	
+	
 	// Priority of the thread
 	kernel_thread_priority priority;
 	
+	
 	// Time to wake is used for the thread delay function
 	uint32_t tick_to_wake;
+	
 	
 	// These variables are used to calculate the runtime statistics
 	uint32_t last_runtime;
 	uint32_t runtime;
 	
-	uint8_t thread_state;
+	
+	thread_state state;
+	
 	
 	// Store the name of the thread
 	char name[KERNEL_THREAD_MAX_NAME_LENGTH];
@@ -123,9 +144,9 @@ void kernel_start(void);
 
 void kernel_thread_config(void);
 
-thread_s* kernel_add_thread(char* thread_name, thread_function_pointer thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size);
+thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size);
 
-void kernel_thread_yield(void);
+void kernel_reschedule(void);
 
 void kernel_thread_delay(uint32_t ticks);
 

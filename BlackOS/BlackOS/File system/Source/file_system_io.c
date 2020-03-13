@@ -14,7 +14,7 @@
 
 
 // Make the physical disk
-Sd_card sd_card;
+sd_card card;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -26,7 +26,7 @@ fatfs_status_t disk_status(uint8_t physical_drive)
 	
 	if (status == 1)
 	{
-		if (sd_card.card_initialized == 1)
+		if (card.card_initialized == 1)
 		{
 			return FATFS_STATUS_OK;
 		}
@@ -53,7 +53,7 @@ fatfs_status_t disk_initialize(uint8_t physical_drive)
 	}
 	else
 	{
-		uint8_t status = sd_protocol_initialize(&sd_card);
+		uint8_t status = sd_protocol_initialize(&card);
 		
 		if (status == 1)
 		{
@@ -73,14 +73,14 @@ fatfs_status_t disk_initialize(uint8_t physical_drive)
 fatfs_result_t disk_read(uint8_t physical_drive, uint8_t* data, uint32_t sector, uint32_t count)
 {
 	// First check if the section is supported on the card
-	if (sector + count >= sd_card.number_of_blocks)
+	if (sector + count >= card.number_of_blocks)
 	{
 		return RES_PARERR;
 	}
 	else
 	{
 		// The command can be executed on the SD card
-		uint8_t status = sd_protocol_read(&sd_card, data, sector, count);
+		uint8_t status = sd_protocol_read(&card, data, sector, count);
 		
 		if (status == 0)
 		{
@@ -100,14 +100,14 @@ fatfs_result_t disk_read(uint8_t physical_drive, uint8_t* data, uint32_t sector,
 fatfs_result_t disk_write(uint8_t physical_drive, const uint8_t* data, uint32_t sector, uint32_t count)
 {
 	// First check if the section is supported on the card
-	if (sector + count >= sd_card.number_of_blocks)
+	if (sector + count >= card.number_of_blocks)
 	{
 		return RES_PARERR;
 	}
 	else
 	{
 		// The command can be executed on the SD card
-		uint8_t status = sd_protocol_write(&sd_card, data, sector, count);
+		uint8_t status = sd_protocol_write(&card, data, sector, count);
 		
 		if (status == 0)
 		{
@@ -134,9 +134,9 @@ fatfs_result_t disk_ioctl(uint8_t physical_drive, uint8_t command, void* data)
 			return RES_OK;
 		case GET_SECTOR_COUNT:
 			// Get the number of sectors
-			if (sd_card.card_initialized)
+			if (card.card_initialized)
 			{
-				*((uint32_t *)data) = sd_card.number_of_blocks;
+				*((uint32_t *)data) = card.number_of_blocks;
 				return RES_OK;
 			}
 			else
@@ -168,7 +168,7 @@ uint32_t get_fattime(void)
 
 void disk_print_info(void)
 {
-	sd_protocol_print_card_info(&sd_card);
+	sd_protocol_print_card_info(&card);
 }
 
 
@@ -177,7 +177,7 @@ void disk_print_info(void)
 
 void disk_print_csd(void)
 {
-	sd_protocol_print_csd(&sd_card);
+	sd_protocol_print_csd(&card);
 }
 
 

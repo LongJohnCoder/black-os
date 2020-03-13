@@ -24,7 +24,7 @@ typedef enum
 	SDSC,
 	SDHC,
 	SDXC
-} Sd_protocol_card_type;
+} sd_protocol_card_type_e;
 
 
 
@@ -32,13 +32,15 @@ typedef enum
 {
 	SD_PROTOCOL_OK,
 	SD_PROTOCOL_ERROR
-} Sd_protocol_status;
+} sd_protocol_status_e;
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
 // The CSD structure depends on the Physical Specification Version and on the SD card capacity
+// The CSD register version 1.0 applies to all standard capacity memory cards
+
 typedef struct  
 {
 	uint8_t		csd_structure;
@@ -69,11 +71,14 @@ typedef struct
 	uint8_t		permanent_write_protection;
 	uint8_t		temporarily_write_protection;
 	uint8_t		file_format;
-} Sd_protocol_csd_1_0;
+	
+} sd_protocol_csd_1_0;
 
 
 //--------------------------------------------------------------------------------------------------//
 
+
+// The CSD register version 2.0 applies to all high and extended capacity memory cards
 
 typedef struct 
 {
@@ -100,7 +105,8 @@ typedef struct
 	uint8_t		permanent_write_protection;
 	uint8_t		temporarily_write_protection;
 	uint8_t		file_format;
-} Sd_protocol_csd_2_0;
+	
+} sd_protocol_csd_2_0;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -116,7 +122,8 @@ typedef struct
 	uint8_t		revision;
 	uint32_t	serial_number;	
 	uint16_t	manifacturer_date;
-} Sd_protocol_cid;
+	
+} sd_protocol_cid;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -128,16 +135,22 @@ typedef struct
 {
 	uint8_t card_initialized;
 	
-	Sd_protocol_cid card_identification;
+	sd_protocol_cid card_identification;
 	
 	union
 	{
-		Sd_protocol_csd_1_0 card_specific_data_1_0;
-		Sd_protocol_csd_2_0 card_specific_data_2_0;
+		sd_protocol_csd_1_0 card_specific_data_1_0;
+		sd_protocol_csd_2_0 card_specific_data_2_0;
 	};
-	Sd_protocol_card_type	card_type;
+	
+	
+	sd_protocol_card_type_e	card_type;
+	
+	
 	uint16_t				relative_card_address;
 	uint32_t				card_size;
+	
+	
 	uint8_t					four_bit_bus_width_support;
 	uint8_t					version_1_10_and_later;
 	uint8_t					high_speed_support;
@@ -145,7 +158,8 @@ typedef struct
 	uint32_t				number_of_blocks;
 	
 	hsmci_sd_slot_select_e	slot;
-} Sd_card;
+	
+} sd_card;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -235,19 +249,21 @@ typedef struct
 
 
 // CMD0 GO_IDLE_STATE
-// This command brings the SD card to IDLE state
-
+// This command brings the SD card to the IDLE state
+//
 // Argument:	[31:0] stuff bits
 // Response:	none
+
 uint8_t sd_protocol_send_cmd_0(void);
 
 
 // CMD2 ALL_SEND_CID
 // Ask the card to send their CID numbers on the CMD line
-
+//
 // Argument:	[31:0] stuff bits
 // Response:	R2
-uint8_t sd_protocol_send_cmd_2(Sd_card* sd_card);
+
+uint8_t sd_protocol_send_cmd_2(sd_card* sd_card);
 
 
 // CMD3 SEND_RELATIVE_ADDRESS
@@ -255,7 +271,7 @@ uint8_t sd_protocol_send_cmd_2(Sd_card* sd_card);
 
 // Argument:	[31:0] stuff bits
 // Response:	R6
-uint8_t sd_protocol_send_cmd_3(Sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_3(sd_card* sd_card);
 
 
 // CMD8 SEND_IF_COND
@@ -272,7 +288,7 @@ uint8_t sd_protocol_send_cmd_8(void);
 
 // Argument:	[31:16] relative card address (RCA)
 // Response:	R2
-uint8_t sd_protocol_send_cmd_9(Sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_9(sd_card* sd_card);
 
 
 // CMD55 APP_CMD
@@ -280,7 +296,7 @@ uint8_t sd_protocol_send_cmd_9(Sd_card* sd_card);
 
 // Argument:	[31:16] relative card address (RCA)
 // Response:	R1
-uint8_t sd_protocol_send_cmd_55(const Sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_55(const sd_card* sd_card);
 
 
 // ACMD41 SD_SEND_OP_COND
@@ -289,7 +305,7 @@ uint8_t sd_protocol_send_cmd_55(const Sd_card* sd_card);
 // Argument:	[31] reserved set to 0
 //				[30] host high capacity support
 // Response:	R3
-uint8_t sd_protocol_send_acmd_41(Sd_card* sd_card);
+uint8_t sd_protocol_send_acmd_41(sd_card* sd_card);
 
 
 // CMD7 SELECT / DESELECT CARD
@@ -297,7 +313,7 @@ uint8_t sd_protocol_send_acmd_41(Sd_card* sd_card);
 
 // Argument:	[31:16] RCA WARNING: address zero de-select all
 // Response:	R1b
-uint8_t sd_protocol_send_cmd_7(const Sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_7(const sd_card* sd_card);
 
 
 // ACMD6 SET_BUS_WIDTH
@@ -306,7 +322,7 @@ uint8_t sd_protocol_send_cmd_7(const Sd_card* sd_card);
 // Argument:	[31:2] stuff bits
 //				[1:0] bus width
 // Response:	R1
-uint8_t sd_protocol_send_acmd_6(const Sd_card* sd_card);
+uint8_t sd_protocol_send_acmd_6(const sd_card* sd_card);
 
 
 // CMD16 SET_BLOCKLEN
@@ -324,7 +340,7 @@ uint8_t sd_protocol_send_cmd_16(void);
 
 // Argument:	[31:0] stuffed bits
 // Response:	R1
-uint8_t sd_protocol_send_acmd_51(Sd_card* sd_card);
+uint8_t sd_protocol_send_acmd_51(sd_card* sd_card);
 
 
 // CMD6 SWITCH_FUNC
@@ -337,7 +353,7 @@ uint8_t sd_protocol_send_acmd_51(Sd_card* sd_card);
 //				[7:4] command system
 //				[3:0] access mode
 // Response:	R1
-uint8_t sd_protocol_send_cmd_6(Sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_6(sd_card* sd_card);
 
 
 // CMD6 SWITCH_FUNC
@@ -350,7 +366,7 @@ uint8_t sd_protocol_send_cmd_6(Sd_card* sd_card);
 //				[7:4] command system
 //				[3:0] access mode
 // Response:	R1
-uint8_t sd_protocol_send_cmd_6_check(Sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_6_check(sd_card* sd_card);
 
 
 // CMD13 SEND_STATUS
@@ -359,7 +375,7 @@ uint8_t sd_protocol_send_cmd_6_check(Sd_card* sd_card);
 // Argument:	[31:16] RCA
 //				[15] send task status register
 // Result:		R1
-uint8_t sd_protocol_send_cmd_13(Sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_13(sd_card* sd_card);
 
 
 // send 74 dummy cycles according to the SD Specification due to VDD ramp-up delay
@@ -369,11 +385,11 @@ uint8_t sd_protocol_boot(void);
 //--------------------------------------------------------------------------------------------------//
 
 
-Sd_protocol_csd_1_0 sd_protocol_csd_decode_version_1_0(uint8_t* raw_data);
+sd_protocol_csd_1_0 sd_protocol_csd_decode_version_1_0(uint8_t* raw_data);
 
-Sd_protocol_csd_2_0 sd_protocol_csd_decode_version_2_0(uint8_t* raw_data);
+sd_protocol_csd_2_0 sd_protocol_csd_decode_version_2_0(uint8_t* raw_data);
 
-Sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata);
+sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata);
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -382,21 +398,21 @@ Sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata);
 // just a temporarily function used for debug
 void sd_protocol_print_reg(char* description, uint32_t data, uint8_t number_of_bits);
 
-void sd_protocol_print_csd(const Sd_card* sd_card);
+void sd_protocol_print_csd(const sd_card* sd_card);
 
-void sd_protocol_print_card_info(const Sd_card* sd_card);
+void sd_protocol_print_card_info(const sd_card* sd_card);
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_initialize(Sd_card* sd_card);
+uint8_t sd_protocol_initialize(sd_card* sd_card);
 
-uint8_t sd_protocol_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
+uint8_t sd_protocol_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
 
-uint8_t sd_protocol_dma_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
+uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
 
-uint8_t sd_protocol_write(Sd_card* sd_card, const uint8_t *data, uint32_t sector, uint32_t count);
+uint8_t sd_protocol_write(sd_card* sd_card, const uint8_t *data, uint32_t sector, uint32_t count);
 
 
 //--------------------------------------------------------------------------------------------------//
