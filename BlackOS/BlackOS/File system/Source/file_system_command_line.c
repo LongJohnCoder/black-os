@@ -140,48 +140,6 @@ void file_system_command_line_thread(void* args)
 			
 		}
 	}
-	/*
-	// Configure the SD card
-	board_sd_card_config();
-
-	while (board_get_sd_card_status() == 0)
-	{
-
-	}
-	board_serial_print("SD card detected\n\n");
-	service_thread_delay(200);
-
-	// Try to mount the disk
-	interrupt_global_disable();
-	
-	uint8_t retry_count = 0;
-	while (retry_count++ < 5)
-	{
-		if (f_mount(&cortex_file_system, "", 1) == FR_OK)
-		{
-			file_system_command_line_print_directory();
-			break;
-		}
-		service_thread_delay(200);
-	}
-	if (retry_count >= 5)
-	{
-		board_serial_print("Mount error\n");
-	}
-
-	interrupt_global_enable();
-	while (1)
-	{
-		if (file_system_command_ready)
-		{
-			file_system_command_line_handler();
-			file_system_command_line_print_directory();
-			
-		}
-		service_thread_delay(100);
-		
-	}
-	*/
 }
 
 
@@ -522,68 +480,6 @@ file_result_t file_system_command_line_run(char* arg)
 	}
 	
 	kernel_dynamic_loader_run((uint32_t *)application, bytes_read);
-	
-	/*
-	board_serial_print("Launching %s\n\n", arg);
-
-	uint32_t* iter = (uint32_t *)application;
-	
-	board_serial_print_address("Start: ", (uint32_t)(iter));
-
-	uint8_t* application_main = application + *iter++;
-
-	// The offset should already resolve the thumb bit in the function pointer
-	// but in case it do not
-	application_main = (uint8_t*)((uint32_t)application_main | 0x01);
-	
-	//uint8_t* end_text = application + *iter++;
-	
-	
-	uint8_t* start_got = application + *iter++;
-	uint8_t* end_got = application + *iter++;
-
-	uint8_t* start_got_plt = application + *iter++;
-	uint8_t* end_got_plt = application + *iter++;
-
-	
-	board_serial_print("Getting the start address and GOT table info:\n\n");
-	
-	board_serial_print_address("\nApplication entry: ", (uint32_t)application_main);
-	
-	board_serial_print_address("\nGOT table start: ", (uint32_t)start_got);
-	board_serial_print_address("\nGOT table end: ", (uint32_t)end_got);
-	
-	board_serial_print_address("\nGOT PLT start: ", (uint32_t)start_got_plt);
-	board_serial_print_address("\nGOT PLT end: ", (uint32_t)end_got_plt);
-
-	board_serial_print("\n\n");
-	
-	board_serial_print_address("Memory start address: ", (uint32_t)application);
-
-	board_serial_print_address("Application main address: ", (uint32_t)application_main);
-	board_serial_print_address("\nEnd text section: ", (uint32_t)end_text);
-	board_serial_print_address("Start GOT section: ", (uint32_t)start_got);
-	board_serial_print_address("End GOT section: ", (uint32_t)end_got);
-	
-	
-	// Resolve .GOT addressed by performing dynamic linking
-	for (uint32_t* iterate = (uint32_t *)start_got; iterate < (uint32_t *)end_got; iterate++)
-	{
-		// Add the global offset to each entry
-		*iterate += (uint32_t)application;
-	}
-	
-	// Resolve .GOT PLT addressed by performing dynamic linking
-	for (uint32_t* iterate = (uint32_t *)start_got_plt; iterate < (uint32_t *)end_got_plt; iterate++)
-	{
-		// Add the global offset to each entry
-		*iterate += (uint32_t)application;
-	}
-
-	// Now the data is placed at the right place so no we can start the application
-	kernel_add_thread("k", (thread_function_pointer)(application_main), NULL, THREAD_LEVEL_3, 600);
-	
-	*/
 
 	return FR_OK;
 }
