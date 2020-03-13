@@ -1,5 +1,16 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef SD_PROTOCOL_H
 #define SD_PROTOCOL_H
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #include "sam.h"
 #include "hsmci.h"
@@ -14,6 +25,8 @@ typedef enum
 	SDHC,
 	SDXC
 } Sd_protocol_card_type;
+
+
 
 typedef enum
 {

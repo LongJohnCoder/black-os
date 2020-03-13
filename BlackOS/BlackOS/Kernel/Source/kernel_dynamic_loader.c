@@ -1,3 +1,10 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "kernel_dynamic_loader.h"
 #include "kernel_thread.h"
 #include "config.h"
@@ -5,7 +12,15 @@
 #include "dynamic_memory.h"
 #include "usart.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include <stddef.h>
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void kernel_dynamic_loader_run(uint32_t* data, uint32_t size)
 {
@@ -35,6 +50,10 @@ void kernel_dynamic_loader_run(uint32_t* data, uint32_t size)
 
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 uint8_t kernel_dynamic_loader_check_name(char* data, uint32_t size)
 {
 	if (size > KERNEL_THREAD_MAX_NAME_LENGTH)
@@ -53,6 +72,10 @@ uint8_t kernel_dynamic_loader_check_name(char* data, uint32_t size)
 	
 	return 0;
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void kernel_dynamic_loader_relocate(uint32_t* data)
 {
@@ -89,6 +112,10 @@ void kernel_dynamic_loader_relocate(uint32_t* data)
 	}
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 typedef enum
 {
 	FAST_PROGRAMMING_IDLE,
@@ -98,13 +125,24 @@ typedef enum
 	FAST_PROGRAMMING_CHECK
 } kernel_fast_programming_state;
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 volatile kernel_fast_programming_state fast_programming_state;
 uint8_t program_size_index;
 uint32_t program_size;
 uint32_t program_index;
 uint32_t program_size_total;
-
 uint8_t* program_buffer;
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+// This USART handler is used for the fast programming interface.
+// This interface will dynamically download a user program and run it immediately.
+// Deleting of the program is not handled. This can be done by a hardware reset.
 
 void USART0_Handler()
 {
@@ -168,5 +206,7 @@ void USART0_Handler()
 		
 		fast_programming_state = FAST_PROGRAMMING_IDLE;
 	}
-	
 }
+
+
+//--------------------------------------------------------------------------------------------------//

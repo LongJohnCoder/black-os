@@ -1,9 +1,18 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "sd_protocol.h"
 #include "board_sd_card.h"
 #include "board_serial.h"
 #include "dma.h"
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_boot(void)
 {
@@ -18,7 +27,9 @@ uint8_t sd_protocol_boot(void)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_0(void)
 {
@@ -33,7 +44,9 @@ uint8_t sd_protocol_send_cmd_0(void)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_8(void)
 {	
@@ -57,7 +70,9 @@ uint8_t sd_protocol_send_cmd_8(void)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_55(const Sd_card* sd_card)
 {
@@ -71,7 +86,9 @@ uint8_t sd_protocol_send_cmd_55(const Sd_card* sd_card)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_2(Sd_card* sd_card)
 {
@@ -90,7 +107,9 @@ uint8_t sd_protocol_send_cmd_2(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_acmd_41(Sd_card* sd_card)
 {	
@@ -126,7 +145,9 @@ uint8_t sd_protocol_send_acmd_41(Sd_card* sd_card)
 	}	
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_3(Sd_card* sd_card)
 {
@@ -141,7 +162,9 @@ uint8_t sd_protocol_send_cmd_3(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_9(Sd_card* sd_card)
 {
@@ -177,7 +200,9 @@ uint8_t sd_protocol_send_cmd_9(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_7(const Sd_card* sd_card)
 {
@@ -189,7 +214,9 @@ uint8_t sd_protocol_send_cmd_7(const Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_acmd_6(const Sd_card* sd_card)
 {
@@ -213,14 +240,18 @@ uint8_t sd_protocol_send_acmd_6(const Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_acmd_16(void)
 {
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_acmd_51(Sd_card* sd_card)
 {
@@ -263,7 +294,9 @@ uint8_t sd_protocol_send_acmd_51(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_6(Sd_card* sd_card)
 {	
@@ -318,7 +351,9 @@ uint8_t sd_protocol_send_cmd_6(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_6_check(Sd_card* sd_card)
 {
@@ -359,7 +394,9 @@ uint8_t sd_protocol_send_cmd_6_check(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_send_cmd_13(Sd_card* sd_card)
 {
@@ -383,7 +420,9 @@ uint8_t sd_protocol_send_cmd_13(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void sd_protocol_print_reg(char* description, uint32_t data, uint8_t number_of_bits)
 {
@@ -415,7 +454,9 @@ void sd_protocol_print_reg(char* description, uint32_t data, uint8_t number_of_b
 	board_serial_print("\n");
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 Sd_protocol_csd_1_0 sd_protocol_csd_decode_version_1_0(uint8_t* raw_data)
 {
@@ -453,7 +494,9 @@ Sd_protocol_csd_1_0 sd_protocol_csd_decode_version_1_0(uint8_t* raw_data)
 	return csd;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 Sd_protocol_csd_2_0 sd_protocol_csd_decode_version_2_0(uint8_t* raw_data)
 {
@@ -487,7 +530,9 @@ Sd_protocol_csd_2_0 sd_protocol_csd_decode_version_2_0(uint8_t* raw_data)
 	return csd;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void sd_protocol_print_csd(const Sd_card* sd_card)
 {
@@ -557,7 +602,9 @@ void sd_protocol_print_csd(const Sd_card* sd_card)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void sd_protocol_print_card_info(const Sd_card* sd_card)
 {
@@ -603,7 +650,9 @@ void sd_protocol_print_card_info(const Sd_card* sd_card)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 Sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata)
 {
@@ -633,7 +682,9 @@ Sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata)
 	return cid;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_initialize(Sd_card* sd_card)
 {
@@ -759,7 +810,9 @@ uint8_t sd_protocol_initialize(Sd_card* sd_card)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count)
 {
@@ -823,7 +876,9 @@ uint8_t sd_protocol_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, uint3
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_write(Sd_card* sd_card, const uint8_t *data, uint32_t sector, uint32_t count)
 {

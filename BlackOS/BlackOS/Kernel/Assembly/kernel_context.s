@@ -1,3 +1,10 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 // Tell the assembler to enterpret instructions as Thumb (16-bit)
 .thumb
 
@@ -18,11 +25,16 @@
 // source (.s) file. It must be delared as global elsewhere
 
 
+//--------------------------------------------------------------------------------------------------//
+
+
 // Make the current thread pointer visible by declaring it extern
 .extern kernel_current_thread_pointer
 .extern kernel_next_thread_pointer
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // Declare global functions since these are declared in separate files
 .global kernel_scheduler
@@ -82,7 +94,9 @@ PendSV_Handler:
 
 	bx					lr
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // Declare the global function
 .global kernel_scheduler_start
@@ -129,5 +143,6 @@ kernel_scheduler_start:
 	isb
 
 	bx					lr
+
 
 //--------------------------------------------------------------------------------------------------//

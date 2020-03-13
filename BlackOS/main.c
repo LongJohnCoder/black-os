@@ -5,10 +5,6 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-
-//--------------------------------------------------------------------------------------------------//
-
-
 #include "kernel.h"
 #include "board_led.h"
 #include "gpio.h"

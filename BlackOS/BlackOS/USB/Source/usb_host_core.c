@@ -1,3 +1,10 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "usb_host_core.h"
 #include "board_serial.h"
 #include "interrupt.h"
@@ -7,7 +14,15 @@
 #include "systick.h"
 #include "usb_descriptors.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void usb_host_defaut_pipe_enable(void);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void usb_host_init(void)
 {
@@ -54,6 +69,9 @@ void usb_host_init(void)
 	usbhs_host_interrupt_enable(USBHS_HSTIMR_DCONNIE_Msk | USBHS_HSTIMR_RSTIE_Msk | USBHS_HSTIMR_HSOFIE_Msk | USBHS_HSTIMR_HWUPIE_Msk);
 	
 }
+
+
+//--------------------------------------------------------------------------------------------------//
 
 
 void usb_host_root_hub_handler(uint32_t status)
@@ -141,17 +159,29 @@ void usb_host_root_hub_handler(uint32_t status)
 
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void usb_host_pipe_handler(uint32_t status)
 {
 	// USBdebug
 	board_serial_print("Handler: Pipe\n");
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void usb_host_dma_handler(uint32_t status)
 {
 	// USBdebug
 	board_serial_print("Handler: DMA\n");
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void usb_host_start_of_frame_handler(uint32_t status)
 {
@@ -167,6 +197,9 @@ void usb_host_start_of_frame_handler(uint32_t status)
 		return;
 	}
 }
+
+
+//--------------------------------------------------------------------------------------------------//
 
 
 // Allocation pipe
@@ -192,6 +225,10 @@ void usb_host_defaut_pipe_enable(void)
 	}
 	board_serial_print("Pipe zero configure success\n");
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void usb_host_get_device_descriptor(void)
 {
@@ -219,6 +256,10 @@ void usb_host_get_device_descriptor(void)
 	// Issue the transfer
 	
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void USBHS_Handler()
 {
@@ -268,3 +309,6 @@ void USBHS_Handler()
 		systick_delay_milliseconds(800);
 	}
 }
+
+
+//--------------------------------------------------------------------------------------------------//

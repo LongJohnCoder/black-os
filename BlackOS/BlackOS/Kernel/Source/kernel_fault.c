@@ -1,6 +1,17 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "kernel_fault.h"
 #include "config.h"
 #include "board_serial.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void MemoryManagement_Handler()
 {
@@ -15,6 +26,10 @@ void MemoryManagement_Handler()
 	board_serial_print("DACCVIOL\t%d\n", (memory_fault_register & (1 << 1)) ? 1 : 0);
 	board_serial_print("IACCVIOL\t%d\n", (memory_fault_register & (1 << 0)) ? 1 : 0);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void BusFault_Handler()
 {
@@ -31,6 +46,10 @@ void BusFault_Handler()
 	board_serial_print("IBUSERR\t%d\n", (bus_fault_register & (1 << 0)) ? 1 : 0);
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void UsageFault_Handler()
 {
 	uint32_t usage_fault_register = *(uint16_t *)0xE000ED2A;
@@ -46,6 +65,10 @@ void UsageFault_Handler()
 
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void HardFault_Handler()
 {
 	uint32_t usage_fault_register = *(uint16_t *)0xE000ED2A;
@@ -53,14 +76,11 @@ void HardFault_Handler()
 	uint32_t memory_fault_register = *(uint8_t *)0xE000ED28;
 	
 	board_serial_print_register("\n\nBus: ", bus_fault_register);
-	board_serial_print_register("Mem: ", memory_fault_register);
-	board_serial_print_register("Use: ", usage_fault_register);
+	board_serial_print_register("Memory: ", memory_fault_register);
+	board_serial_print_register("Usage: ", usage_fault_register);
 	
 	while (1);
 }
 
 
-
-
-
-
+//--------------------------------------------------------------------------------------------------//

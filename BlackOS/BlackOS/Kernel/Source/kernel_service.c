@@ -1,3 +1,10 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "kernel_service.h"
 #include "board_serial.h"
 #include "kernel.h"
@@ -25,6 +32,10 @@ void KERNEL_SERVICE_NOINLINE service_serial_print(char* data)
 {
 	KERNEL_SERVICE(SERVICE_SERIAL_PRINT);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void KERNEL_SERVICE_NOINLINE service_thread_delay(uint32_t ticks)
 {

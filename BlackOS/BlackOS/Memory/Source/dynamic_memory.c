@@ -1,15 +1,32 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "dynamic_memory.h"
 #include "check.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include <stddef.h>
 #include <string.h>
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // Variables declared extern in the linker script
 // These mark the beginning and end of the linkers heap section
 extern uint32_t _sheap;
 extern uint32_t _eheap;
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // Below is the memory section definitions. The first section is located in
 // internal SRAM and gets the addresses from the linker script. Thus a start
@@ -26,6 +43,7 @@ Dynamic_memory_section_s dynamic_section_sram =
 	.name				= "SRAM"
 };
 
+
 Dynamic_memory_section_s dynamic_section_dram_bank_0 = 
 {
 	.start_address		= 0x70000000,
@@ -34,6 +52,7 @@ Dynamic_memory_section_s dynamic_section_dram_bank_0 =
 	.minimum_block_size = 8,
 	.name				= "DRAM bank 0"
 };
+
 
 Dynamic_memory_section_s dynamic_section_dram_bank_1 =
 {
@@ -44,6 +63,7 @@ Dynamic_memory_section_s dynamic_section_dram_bank_1 =
 	.name				= "DRAM bank 1"
 };
 
+
 Dynamic_memory_section_s* dynamic_memory_sections[] = 
 {
 	&dynamic_section_sram,
@@ -52,7 +72,9 @@ Dynamic_memory_section_s* dynamic_memory_sections[] =
 	NULL
 };
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // Memory section operations
 #define MEMORY_IS_BLOCK_USED(size)				((size) & 0x80000000)
@@ -60,21 +82,29 @@ Dynamic_memory_section_s* dynamic_memory_sections[] =
 #define MEMORY_SET_BLOCK_FREE(size)				((size) & 0x7FFFFFFF)
 #define MEMORY_GET_RAW_SIZE(size)				((size) & 0xfffffff)
 
+
 // This bit mask defines how many memory sections that is allowed
 #define MEMORY_GET_SECTION(size)				(((size) >> 28) & 0b111)
 #define MEMORY_SET_SECTION(size, sect)			(((sect) << 28) | (size))
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 // Specifies the size of the dynamic memory descriptor
 const uint8_t memory_descriptor_size = ((sizeof(dynamic_memory_descriptor) + 8 - 1) & ~(8 - 1));
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // Private prototypes
 static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, dynamic_memory_descriptor* block);
 
+
 //--------------------------------------------------------------------------------------------------//
 
-// TODO: Optimize the memory operations
+
 void dynamic_memory_config(void)
 {
 	uint32_t section_counter = 0;
@@ -134,7 +164,9 @@ void dynamic_memory_config(void)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, dynamic_memory_descriptor* block)
 {
@@ -203,7 +235,9 @@ static void dynamic_memory_insert_block(Dynamic_memory_section memory_section, d
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 {
@@ -319,7 +353,9 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 	return return_value;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dynamic_memory_free(void* memory_object)
 {
@@ -374,7 +410,9 @@ void dynamic_memory_free(void* memory_object)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dynamic_memory_get_total_size(Dynamic_memory_section memory_section)
 {
@@ -383,7 +421,9 @@ uint32_t dynamic_memory_get_total_size(Dynamic_memory_section memory_section)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dynamic_memory_get_used_size(Dynamic_memory_section memory_section)
 {
@@ -393,7 +433,9 @@ uint32_t dynamic_memory_get_used_size(Dynamic_memory_section memory_section)
 	return (tmp_total - tmp_free);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dynamic_memory_get_free_size(Dynamic_memory_section memory_section)
 {
@@ -402,7 +444,9 @@ uint32_t dynamic_memory_get_free_size(Dynamic_memory_section memory_section)
 	return tmp_free;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t dynamic_memory_get_used_percentage(Dynamic_memory_section memory_section)
 {
@@ -415,5 +459,6 @@ uint8_t dynamic_memory_get_used_percentage(Dynamic_memory_section memory_section
 	
 	return (uint8_t)tmp_percent;
 }
+
 
 //--------------------------------------------------------------------------------------------------//

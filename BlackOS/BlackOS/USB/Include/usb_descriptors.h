@@ -1,7 +1,22 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef USB_DESCRIPTORS_H
 #define USB_DESCRIPTORS_H
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "sam.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // This file contain all USB 2.0 protocol descriptors and descriptor defines
 
@@ -9,6 +24,7 @@
 
 // USB descriptor type
 // Identifies the descriptor type
+
 typedef enum
 {
 	USB_DECRIPTOR_TYPE_DEVICE					= 0x01,
@@ -29,6 +45,8 @@ typedef enum
 	USB_DECRIPTOR_TYPE_DEVICE_CAPABILITY		= 0x10
 } usb_descriptor_type;
 
+
+
 typedef enum
 {
 	USB_REQUEST_CODE_GET_STATUS = 0,
@@ -45,6 +63,7 @@ typedef enum
 } usb_request_code;
 
 
+
 // USB device class type
 typedef enum
 {
@@ -56,6 +75,9 @@ typedef enum
 	USB_DEV_CLASS_MISCELLANEOUS			= 0xef,
 	USB_DEV_CLASS_VENDOR_SPECIFIC		= 0xff
 } usb_device_class_type;
+
+
+//--------------------------------------------------------------------------------------------------//
 
 
 // USB device descriptor
@@ -79,6 +101,7 @@ typedef struct usb_device_descriptor_s
 } usb_device_descriptor;
 
 
+
 // USB device qualifier descriptor
 // Devices that supports both full and high speed have this.
 // Depending on speed config some fields in device and device qualifier may swap
@@ -95,6 +118,8 @@ typedef struct usb_device_qualifier_descriptor_s
 	uint8_t		reserved;
 } usb_device_qualifier_descriptor;
 
+
+
 typedef struct
 {
 	uint8_t				request_type;
@@ -105,15 +130,24 @@ typedef struct
 } usb_host_setup_packet;
 
 
+//--------------------------------------------------------------------------------------------------//
+
+
 #define USB_SETUP_PACKET_RQ_TYPE_HOST_TO_DEVICE		(0 << 7)
 #define USB_SETUP_PACKET_RQ_TYPE_DEVCE_TO_HOST		(1 << 7)
+
 
 #define USB_SETUP_PACKET_RQ_TYPE_STANDARD			(0 << 5)
 #define USB_SETUP_PACKET_RQ_TYPE_CLASS				(1 << 5)
 #define USB_SETUP_PACKET_RQ_TYPE_VENDOR				(2 << 5)
 
+
 #define USB_SETUP_PACKET_RQ_TYPE_DEVICE				(0 << 0)
 #define USB_SETUP_PACKET_RQ_TYPE_INTERFACE			(1 << 0)
 #define USB_SETUP_PACKET_RQ_TYPE_ENDPOINT			(2 << 0)
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #endif

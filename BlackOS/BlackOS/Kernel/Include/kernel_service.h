@@ -1,9 +1,28 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef KERNEL_SERVICE_H
 #define KERNEL_SERVICE_H
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "sam.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #define KERNEL_SERVICE_NOINLINE __attribute__((noinline))
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // Service numbers
 // Service 1 to 10 is reserved for the kernel
@@ -19,6 +38,10 @@ typedef enum
 	SERVICE_GET_PIN_VALUE = 14
 } kernel_services;
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 // Prototypes for the services that the kernel provide
 void KERNEL_SERVICE_NOINLINE service_serial_print(char* data);
 
@@ -29,6 +52,9 @@ void KERNEL_SERVICE_NOINLINE serivice_display_flush(void);
 void KERNEL_SERVICE_NOINLINE service_display_write_frame_buffer(uint16_t x, uint16_t y, uint16_t color);
 
 void KERNEL_SERVICE_NOINLINE service_display_scroll(uint16_t amount);
+
+
+//--------------------------------------------------------------------------------------------------//
 
 
 #endif

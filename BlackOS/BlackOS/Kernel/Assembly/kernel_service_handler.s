@@ -1,3 +1,10 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 // Tell the assembler to enterpret instructions as Thumb (16-bit)
 .thumb
 
@@ -11,8 +18,15 @@
 // therefore noe .section will be needed
 .text
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 // Extern variables are lables that is not found in the current
 // source (.s) file. It must be delared as global elsewhere
+
+
+//--------------------------------------------------------------------------------------------------//
 
 
 // Declare global functions since these are declared in separate files
@@ -31,3 +45,6 @@ SVCall_Handler:
 	mrsne			r0,							psp
 	b				kernel_service_handler
 	bx				lr
+
+
+//--------------------------------------------------------------------------------------------------//

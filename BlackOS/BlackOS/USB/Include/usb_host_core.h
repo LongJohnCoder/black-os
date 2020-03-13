@@ -1,15 +1,42 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef USB_HOST_CORE_H
 #define USB_HOST_CORE_H
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "sam.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #define USB_FIFO_BUFFER_START_ADDRESS 0xA0100000
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // Forward declaration
 struct usb_host_pipe_s;
 struct usb_host_control_trasfer_s;
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 typedef void (*usb_host_pipe_callback)(struct usb_host_pipe_s me);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 typedef struct usb_host_pipe_s
 {
@@ -33,6 +60,10 @@ typedef struct usb_host_pipe_s
 	} transfer;
 } usb_host_pipe;
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 typedef struct usb_host_control_trasfer_s
 {
 	uint8_t*	data;
@@ -50,16 +81,21 @@ typedef struct usb_host_control_trasfer_s
 } usb_host_control_trasfer;
 
 
+//--------------------------------------------------------------------------------------------------//
+
+
 // We allocate 4 pipes
 // 3 transfer pipes + 1 control pipe (pipe zero)
 usb_host_pipe pipe[4];
 
-// Can add a structure for the pipes and its functionality
 
-// Need callback for
-// SOF
-// Root hub change
+//--------------------------------------------------------------------------------------------------//
+
 
 void usb_host_init(void);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #endif

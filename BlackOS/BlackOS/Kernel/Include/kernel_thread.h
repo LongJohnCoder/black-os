@@ -1,11 +1,30 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef KERNEL_THREAD_H
 #define KERNEL_THREAD_H
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #include "sam.h"
 #include "config.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 // Function pointer to a thread
 typedef void (*thread_function_pointer)(void *);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // Thread priorities
 typedef enum
@@ -99,6 +118,7 @@ extern kernel_list delay_queue;
 
 //--------------------------------------------------------------------------------------------------//
 
+
 void kernel_start(void);
 
 void kernel_thread_config(void);
@@ -132,5 +152,9 @@ uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list);
 void kernel_print_running_queue(kernel_list* list);
 
 void kernel_print_runtime_statistics(void);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #endif

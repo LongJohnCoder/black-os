@@ -1,15 +1,28 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "kernel_thread.h"
 #include "systick.h"
 #include "interrupt.h"
 #include "dynamic_memory.h"
-
 #include "board_serial_programming.h"
-
 #include "check.h"
 #include "core.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include <stddef.h>
 #include <core_cm7.h>
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #define KERNEL_DEBUG 1
 
@@ -377,7 +390,9 @@ void kernel_thread_delay(uint32_t ticks)
 	kernel_thread_yield();
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // This is the kernels scheduler which decide what thread to run next
 // The next thread to run should be placed in the kernel_current_thread_pointer
@@ -495,7 +510,9 @@ void kernel_scheduler(void)
 	check(thread_pointer_check == kernel_current_thread_pointer);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // The kernel does not use the SysTick handler for context switching
 // since this would block all interrupts. Instead it is pending the PendSV
@@ -520,7 +537,9 @@ void SysTick_Handler()
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_reset_runtime(void)
 {
@@ -545,7 +564,9 @@ void kernel_reset_runtime(void)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_print_runtime_statistics(void)
 {
@@ -586,7 +607,9 @@ void kernel_print_runtime_statistics(void)
 	board_serial_programming_print("\n\n");
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_idle_thread(void* param)
 {
@@ -596,7 +619,9 @@ void kernel_idle_thread(void* param)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_thread_stack_overflow_event(char* data)
 {
@@ -605,7 +630,9 @@ void kernel_thread_stack_overflow_event(char* data)
 	board_serial_print(" thread\n");
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_suspend_scheduler(void)
 {
@@ -613,7 +640,9 @@ void kernel_suspend_scheduler(void)
 	scheduler_status = SCHEDULER_STATUS_SUSPENDED;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_resume_scheduler(void)
 {
@@ -621,7 +650,9 @@ void kernel_resume_scheduler(void)
 	scheduler_status = SCHEDULER_STATUS_RUNNING;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 // Sice we a using a linked list we must asure that every element is unique. Otherwise the
 // functionality will be messed up. This simple funciton searched a list for a match. This
@@ -650,7 +681,9 @@ static uint8_t kernel_list_search(kernel_list_item* list_item, kernel_list* list
 	return 0;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 {
@@ -690,7 +723,9 @@ void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 	list->size++;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list)
 {
@@ -726,7 +761,9 @@ void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list)
 	list->size++;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 {
@@ -798,7 +835,9 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t kernel_list_remove_first(kernel_list* list)
 {
@@ -839,7 +878,9 @@ uint8_t kernel_list_remove_first(kernel_list* list)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t kernel_list_remove_last(kernel_list* list)
 {
@@ -877,7 +918,9 @@ uint8_t kernel_list_remove_last(kernel_list* list)
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list)
 {
@@ -923,5 +966,6 @@ uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list)
 		return 0;
 	}
 }
+
 
 //--------------------------------------------------------------------------------------------------//

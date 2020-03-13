@@ -1,3 +1,10 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #include "kernel_startup.h"
 #include "watchdog.h"
 #include "interrupt.h"
@@ -19,10 +26,16 @@
 #include "dram.h"
 #include "dma.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 // Cache dependencies
 #include <core_cm7.h>
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void kernel_startup(void)
 {
@@ -81,5 +94,6 @@ void kernel_startup(void)
 	
 	file_system_command_line_config();
 }
+
 
 //--------------------------------------------------------------------------------------------------//

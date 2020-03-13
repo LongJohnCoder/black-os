@@ -1,4 +1,11 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "same70q21b.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 extern uint32_t _sfixed;
 extern uint32_t _efixed;
@@ -10,6 +17,10 @@ extern uint32_t _ezero;
 extern uint32_t _sstack;
 extern uint32_t _estack;
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 int main(void);
 
 void __libc_init_array(void);
@@ -17,6 +28,9 @@ void __libc_init_array(void);
 void Reset_Handler(void);
 
 void Dummy_Handler(void);
+
+
+//--------------------------------------------------------------------------------------------------//
 
 
 // Core handlers
@@ -29,6 +43,7 @@ void SVCall_Handler				( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void DebugMonitor_Handler		( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void PendSV_Handler				( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SysTick_Handler			( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+
 
 // Peripheral handlers
 void SUPC_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -101,6 +116,10 @@ void I2SC1_Handler        ( void ) __attribute__ ((weak, alias("Dummy_Handler"))
 void GMAC_Q3_Handler      ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void GMAC_Q4_Handler      ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void GMAC_Q5_Handler      ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // Exception table
 __attribute__ ((section(".vectors")))
@@ -202,6 +221,10 @@ const DeviceVectors exception_table = {
         .pfnGMAC_Q5_Handler            = (void*) GMAC_Q5_Handler  /* 73 Gigabit Ethernet MAC */
 };
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void Reset_Handler(void)
 {
         uint32_t *pSrc, *pDest;
@@ -232,13 +255,14 @@ void Reset_Handler(void)
         while (1);
 }
 
-uint32_t interrupt_status;
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void Dummy_Handler(void)
 {
-	
-	
-    while (1) {
-	    interrupt_status = __get_IPSR();
-    }
+	while (1);
 }
+
+
+//--------------------------------------------------------------------------------------------------//

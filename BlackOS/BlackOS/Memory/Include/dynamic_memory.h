@@ -1,8 +1,37 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef DYNAMIC_MEMORY_H
 #define DYNAMIC_MEMORY_H
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "sam.h"
 #include "config.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+// List of sections with dynamic memory support
+// This will be the input to all dynamic memory functions
+
+typedef enum
+{
+	SRAM,
+	DRAM_BANK_0,
+	DRAM_BANK_1
+} Dynamic_memory_section;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 // This dynamic memory implementation uses a lightweight algorithm and is optimized for
 // allocations across multiple sections. The user can request dynamic memory and specify where to
@@ -14,6 +43,7 @@
 
 // This is the dynamic memory descriptor
 // Every block that is allocated or freed will start with this descriptor
+
 typedef struct dynamic_memory_descriptor_s
 {
 	// Pointer to next element in the linked list
@@ -25,15 +55,7 @@ typedef struct dynamic_memory_descriptor_s
 } dynamic_memory_descriptor;
 
 
-
-// List of sections with dynamic memory support
-// This will be the input to all dynamic memory functions
-typedef enum
-{
-	SRAM,
-	DRAM_BANK_0,
-	DRAM_BANK_1
-} Dynamic_memory_section;
+//--------------------------------------------------------------------------------------------------//
 
 
 // Dynamic memory section descriptor
@@ -63,6 +85,8 @@ typedef struct
 } Dynamic_memory_section_s;
 
 
+//--------------------------------------------------------------------------------------------------//
+
 
 void dynamic_memory_config(void);
 
@@ -70,6 +94,8 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size);
 
 void dynamic_memory_free(void* memory_object);
 
+
+//--------------------------------------------------------------------------------------------------//
 
 
 uint32_t dynamic_memory_get_total_size(Dynamic_memory_section memory_section);
@@ -79,5 +105,9 @@ uint32_t dynamic_memory_get_used_size(Dynamic_memory_section memory_section);
 uint32_t dynamic_memory_get_free_size(Dynamic_memory_section memory_section);
 
 uint8_t dynamic_memory_get_used_percentage(Dynamic_memory_section memory_section);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #endif
