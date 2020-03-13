@@ -1,3 +1,6 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "graphics_driver.h"
 #include "gpio.h"
 #include "clock.h"
@@ -5,7 +8,9 @@
 #include "systick.h"
 #include "check.h"
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static void graphic_driver_pin_config (void)
 {
@@ -27,14 +32,18 @@ static void graphic_driver_pin_config (void)
 	
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_clock_config()
 {
 	clock_peripheral_clock_enable(ID_SPI0);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_config(void)
 {
@@ -51,35 +60,45 @@ void graphics_driver_config(void)
 	graphics_driver_configuration_sequence();
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_command(void)
 {
 	gpio_clear_pin_value(GRAPHICS_DRIVER_D_C_PORT, GRAPHICS_DRIVER_D_C_PIN);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_data(void)
 {
 	gpio_set_pin_value(GRAPHICS_DRIVER_D_C_PORT, GRAPHICS_DRIVER_D_C_PIN);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_reset_on(void)
 {
 	gpio_clear_pin_value(GRAPHICS_DRIVER_RESET_PORT, GRAPHICS_DRIVER_RESET_PIN);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_reset_off(void)
 {
 	gpio_set_pin_value(GRAPHICS_DRIVER_RESET_PORT, GRAPHICS_DRIVER_RESET_PIN);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_config_write_data(uint8_t data)
 {
@@ -88,7 +107,9 @@ void graphics_driver_config_write_data(uint8_t data)
 	spi_trasmit_data_8_bit(SPI0, data);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_config_write_command(uint8_t data)
 {
@@ -97,7 +118,9 @@ void graphics_driver_config_write_command(uint8_t data)
 	spi_trasmit_data_8_bit(SPI0, data);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_config_write_data_16_bit(uint16_t data)
 {
@@ -107,7 +130,9 @@ void graphics_driver_config_write_data_16_bit(uint16_t data)
 	spi_trasmit_data_8_bit(SPI0, data);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_set_address_window(uint16_t x_start, uint16_t y_start, uint16_t width, uint16_t height)
 {
@@ -139,7 +164,9 @@ void graphics_driver_set_address_window(uint16_t x_start, uint16_t y_start, uint
 	graphics_driver_config_write_command(ILI9341_RAMWR);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_draw_framebuffer(uint16_t* framebuffer)
 {
@@ -157,7 +184,9 @@ void graphics_driver_draw_framebuffer(uint16_t* framebuffer)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void graphics_driver_configuration_sequence()
 {
@@ -304,14 +333,8 @@ void graphics_driver_configuration_sequence()
 	{
 		spi_trasmit_data_16_bit(SPI0, ILI9341_YELLOW);
 	}
-	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);
-	
-	
-	
-	
-	
-	
+	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);	
 }
 
-//--------------------------------------------------------------------------------------------------//
 
+//--------------------------------------------------------------------------------------------------//
