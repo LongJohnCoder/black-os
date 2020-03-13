@@ -1,9 +1,14 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "gpio.h"
 #include "core.h"
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void gpio_set_pin_function(Pio* hardware, uint8_t pin, gpio_peripheral_function func)
+
+void gpio_set_pin_function(Pio* hardware, uint8_t pin, gpio_peripheral_function_e func)
 {
 	//Disable write protection in case
 	CRITICAL_SECTION_ENTER()
@@ -47,7 +52,9 @@ void gpio_set_pin_function(Pio* hardware, uint8_t pin, gpio_peripheral_function 
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_set_pin_direction_output(Pio* hardware, uint8_t pin)
 {
@@ -56,7 +63,9 @@ void gpio_set_pin_direction_output(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_set_pin_direction_input(Pio* hardware, uint8_t pin)
 {
@@ -65,7 +74,9 @@ void gpio_set_pin_direction_input(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_set_pin_value(Pio* hardware, uint8_t pin)
 {
@@ -74,7 +85,9 @@ void gpio_set_pin_value(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_clear_pin_value(Pio* hardware, uint8_t pin)
 {
@@ -83,7 +96,9 @@ void gpio_clear_pin_value(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_toogle_pin_value(Pio* hardware, uint8_t pin)
 {
@@ -99,7 +114,9 @@ void gpio_toogle_pin_value(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t gpio_get_pin_value_status_register(Pio* hardware)
 {
@@ -108,7 +125,9 @@ uint32_t gpio_get_pin_value_status_register(Pio* hardware)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_glitch_filter_enable(Pio* hardware, uint8_t pin)
 {
@@ -118,7 +137,9 @@ void gpio_glitch_filter_enable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_glitch_filter_disable(Pio* hardware, uint8_t pin)
 {
@@ -127,7 +148,9 @@ void gpio_glitch_filter_disable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_debounce_filter_enable(Pio* hardware, uint8_t pin, float ms)
 {
@@ -140,7 +163,9 @@ void gpio_debounce_filter_enable(Pio* hardware, uint8_t pin, float ms)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_debounce_filter_disable(Pio* hardware, uint8_t pin)
 {
@@ -149,7 +174,9 @@ void gpio_debounce_filter_disable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_pullup_enable(Pio* hardware, uint8_t pin)
 {
@@ -158,7 +185,9 @@ void gpio_pullup_enable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_pullup_disable(Pio* hardware, uint8_t pin)
 {
@@ -167,7 +196,9 @@ void gpio_pullup_disable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_pulldown_enable(Pio* hardware, uint8_t pin)
 {
@@ -176,7 +207,9 @@ void gpio_pulldown_enable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_pulldown_disable(Pio* hardware, uint8_t pin)
 {
@@ -185,7 +218,9 @@ void gpio_pulldown_disable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_interrupt_enable(Pio* hardware, uint8_t pin)
 {
@@ -195,7 +230,9 @@ void gpio_interrupt_enable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void gpio_interrupt_disable(Pio* hardware, uint8_t pin)
 {
@@ -204,9 +241,11 @@ void gpio_interrupt_disable(Pio* hardware, uint8_t pin)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void gpio_set_interrupt_source(Pio* hardware, uint8_t pin, gpio_interrupt_source md)
+
+void gpio_set_interrupt_source(Pio* hardware, uint8_t pin, gpio_interrupt_source_e md)
 {
 	CRITICAL_SECTION_ENTER()
 	if (md == GPIO_STANDARD)
@@ -241,7 +280,9 @@ void gpio_set_interrupt_source(Pio* hardware, uint8_t pin, gpio_interrupt_source
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t gpio_get_interrupt_status_register(Pio* hardware)
 {
@@ -249,5 +290,6 @@ uint32_t gpio_get_interrupt_status_register(Pio* hardware)
 	
 	return tmp;
 }
+
 
 //--------------------------------------------------------------------------------------------------//

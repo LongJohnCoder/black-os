@@ -1,3 +1,6 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "dma.h"
 #include "core.h"
 #include "clock.h"
@@ -5,7 +8,9 @@
 #include "config.h"
 #include "check.h"
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_reset(Xdmac* hardware)
 {
@@ -29,7 +34,9 @@ void dma_reset(Xdmac* hardware)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_mode_config(	Xdmac* hardware,
 								uint8_t channel_number,
@@ -64,6 +71,10 @@ void dma_channel_mode_config(	Xdmac* hardware,
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dma_clear_unused_register(Xdmac* hardware, uint8_t channel_number)
 {
 	CRITICAL_SECTION_ENTER()
@@ -75,7 +86,9 @@ void dma_clear_unused_register(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dma_get_info(Xdmac* hardware)
 {
@@ -84,7 +97,9 @@ uint32_t dma_get_info(Xdmac* hardware)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_config(void)
 {
@@ -97,7 +112,9 @@ void dma_config(void)
 	interrupt_enable_peripheral_interrupt(XDMAC_IRQn, DMA_INTERRUPT_PRIORITY);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_interrupt_enable(Xdmac* hardware, uint8_t channel_number)
 {
@@ -106,7 +123,9 @@ void dma_global_interrupt_enable(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_interrupt_disable(Xdmac* hardware, uint8_t channel_number)
 {
@@ -115,7 +134,9 @@ void dma_global_interrupt_disable(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dma_read_global_interrupt_status_register(Xdmac* hardware)
 {
@@ -124,7 +145,9 @@ uint32_t dma_read_global_interrupt_status_register(Xdmac* hardware)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dma_read_global_interrupt_mask_register(Xdmac* hardware)
 {
@@ -133,7 +156,9 @@ uint32_t dma_read_global_interrupt_mask_register(Xdmac* hardware)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_suspend_source_request(Xdmac* hardware, uint8_t channel_number)
 {
@@ -142,7 +167,9 @@ void dma_global_suspend_source_request(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_resume_source_request(Xdmac* hardware, uint8_t channel_number)
 {
@@ -151,7 +178,9 @@ void dma_global_resume_source_request(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_suspend_destination_request(Xdmac* hardware, uint8_t channel_number)
 {
@@ -160,7 +189,9 @@ void dma_global_suspend_destination_request(Xdmac* hardware, uint8_t channel_num
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_resume_destination_request(Xdmac* hardware, uint8_t channel_number)
 {
@@ -169,7 +200,9 @@ void dma_global_resume_destination_request(Xdmac* hardware, uint8_t channel_numb
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_suspend_rw_request(Xdmac* hardware, uint8_t channel_number)
 {
@@ -178,7 +211,9 @@ void dma_global_suspend_rw_request(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_global_resume_rw_request(Xdmac* hardware, uint8_t channel_number)
 {
@@ -187,7 +222,9 @@ void dma_global_resume_rw_request(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_interrupt_enable(Xdmac* hardware, uint8_t channel_number, uint32_t interrupt_mask)
 {
@@ -196,7 +233,9 @@ void dma_channel_interrupt_enable(Xdmac* hardware, uint8_t channel_number, uint3
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_interrupt_disable(Xdmac* hardware, uint8_t channel_number, uint32_t interrupt_mask)
 {
@@ -205,7 +244,9 @@ void dma_channel_interrupt_disable(Xdmac* hardware, uint8_t channel_number, uint
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dma_read_channel_interrupt_status_register(Xdmac* hardware, uint8_t channel_number)
 {
@@ -214,7 +255,9 @@ uint32_t dma_read_channel_interrupt_status_register(Xdmac* hardware, uint8_t cha
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dma_read_channel_interrupt_mask_register(Xdmac* hardware, uint8_t channel_number)
 {
@@ -223,7 +266,9 @@ uint32_t dma_read_channel_interrupt_mask_register(Xdmac* hardware, uint8_t chann
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_enable(Xdmac* hardware, uint8_t channel_number)
 {
@@ -232,7 +277,9 @@ void dma_channel_enable(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_disable(Xdmac* hardware, uint8_t channel_number)
 {
@@ -241,7 +288,9 @@ void dma_channel_disable(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t dma_read_channel_status(Xdmac* hardware, uint8_t channel_number)
 {
@@ -257,7 +306,9 @@ uint8_t dma_read_channel_status(Xdmac* hardware, uint8_t channel_number)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_set_destination_address(Xdmac* hardware, uint8_t channel_number, const void* const destination_address)
 {
@@ -266,7 +317,9 @@ void dma_channel_set_destination_address(Xdmac* hardware, uint8_t channel_number
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_set_source_address(Xdmac* hardware, uint8_t channel_number, const void* const source_address)
 {
@@ -275,7 +328,9 @@ void dma_channel_set_source_address(Xdmac* hardware, uint8_t channel_number, con
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_set_microblock_length(Xdmac* hardware, uint8_t channel_number, uint32_t length)
 {
@@ -284,7 +339,9 @@ void dma_channel_set_microblock_length(Xdmac* hardware, uint8_t channel_number, 
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_set_block_length(Xdmac* hardware, uint8_t channel_number, uint32_t length)
 {
@@ -292,6 +349,7 @@ void dma_channel_set_block_length(Xdmac* hardware, uint8_t channel_number, uint3
 	hardware->XdmacChid[channel_number].XDMAC_CBC = (XDMAC_CBC_BLEN_Msk & length);
 	CRITICAL_SECTION_LEAVE()
 }
+
 
 //--------------------------------------------------------------------------------------------------//
 
@@ -303,7 +361,9 @@ void dma_channel_software_trigger_request(Xdmac* hardware, uint8_t channel_numbe
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_software_flush(Xdmac* hardware, uint8_t channel_number)
 {
@@ -312,7 +372,9 @@ void dma_channel_software_flush(Xdmac* hardware, uint8_t channel_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_set_data_stride_memory_pattern(Xdmac* hardware, uint8_t channel_number, int16_t destination_data_stride, int16_t source_data_stride)
 {
@@ -323,7 +385,9 @@ void dma_channel_set_data_stride_memory_pattern(Xdmac* hardware, uint8_t channel
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_set_microblock_stride_memory_pattern(Xdmac* hardware, uint8_t channel_number, int32_t stride)
 {
@@ -338,7 +402,9 @@ void dma_channel_set_microblock_stride_memory_pattern(Xdmac* hardware, uint8_t c
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t dma_read_channel_status_register(Xdmac* hardware)
 {
@@ -347,7 +413,9 @@ uint32_t dma_read_channel_status_register(Xdmac* hardware)
 	return tmp_reg;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descriptor* dma_descriptor)
 {	
@@ -435,7 +503,9 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 	dma_channel_enable(hardware, current_channel);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void dma_channel_configure(Xdmac* hardware, dma_microblock_transaction_descriptor* dma_descriptor)
 {
@@ -459,7 +529,9 @@ void dma_channel_configure(Xdmac* hardware, dma_microblock_transaction_descripto
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void XDMAC_Handler()
 {

@@ -1,7 +1,12 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "spi.h"
 #include "core.h"
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_write_protection_enable(Spi* hardware)
 {
@@ -10,7 +15,9 @@ void spi_write_protection_enable(Spi* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_write_protection_disable(Spi* hardware)
 {
@@ -19,12 +26,14 @@ void spi_write_protection_disable(Spi* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void spi_mode_config(Spi* hardware, uint8_t delay_between_chip_selekt, spi_fixed_chip_select fixed_chip_select,
+
+void spi_mode_config(Spi* hardware, uint8_t delay_between_chip_selekt, spi_fixed_chip_select_e fixed_chip_select,
 						uint8_t local_loopback_enable, uint8_t wait_data_read_befor_transfere,
 						uint8_t mode_fault_detection_disable, uint8_t chip_select_decode_enable,
-						spi_peripheral_mode peripheral_mode , spi_master_slave_mode master_slave_mode)
+						spi_peripheral_mode_e peripheral_mode , spi_master_slave_mode_e master_slave_mode)
 {
 	uint32_t tmp = (delay_between_chip_selekt << SPI_MR_DLYBCS_Pos) | (fixed_chip_select << SPI_MR_PCS_Pos) |
 					(local_loopback_enable << SPI_MR_LLB_Pos) | (wait_data_read_befor_transfere << SPI_MR_WDRBT_Pos) |
@@ -36,7 +45,9 @@ void spi_mode_config(Spi* hardware, uint8_t delay_between_chip_selekt, spi_fixed
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_enable(Spi* hardware)
 {
@@ -45,7 +56,9 @@ void spi_enable(Spi* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_disable(Spi* hardware)
 {
@@ -54,7 +67,9 @@ void spi_disable(Spi* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_software_reset (Spi* hardware)
 {
@@ -63,7 +78,9 @@ void spi_software_reset (Spi* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_trasmit_data_16_bit(Spi* hardware, uint16_t transmit_data)
 {
@@ -77,7 +94,9 @@ void spi_trasmit_data_16_bit(Spi* hardware, uint16_t transmit_data)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_trasmit_data_8_bit(Spi* hardware, uint8_t transmit_data)
 {	
@@ -91,7 +110,9 @@ void spi_trasmit_data_8_bit(Spi* hardware, uint8_t transmit_data)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void spi_flush(Spi* hardware)
 {	
@@ -101,7 +122,9 @@ void spi_flush(Spi* hardware)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t spi_get_status_register(Spi* hardware)
 {
@@ -110,13 +133,14 @@ uint32_t spi_get_status_register(Spi* hardware)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
 
-void spi_chip_select_config(Spi* hardware, spi_chip_select chip_select, uint8_t delay_between_consecutive_transfers,
-							uint8_t delay_before_clock, uint8_t serial_clock_bit_rate, spi_bits_per_transfer bits_per_transfer,
+void spi_chip_select_config(Spi* hardware, spi_chip_select_e chip_select, uint8_t delay_between_consecutive_transfers,
+							uint8_t delay_before_clock, uint8_t serial_clock_bit_rate, spi_bits_per_transfer_e bits_per_transfer,
 							uint8_t chip_select_active_after_transfer, uint8_t chip_select_not_active_after_transfer,
-							spi_clock_polarity clock_polarity, spi_clock_phase clock_phase)
+							spi_clock_polarity_e clock_polarity, spi_clock_phase_e clock_phase)
 {
 	uint32_t tmp = (delay_between_consecutive_transfers << SPI_CSR_DLYBCT_Pos) | (delay_before_clock << SPI_CSR_DLYBS_Pos) |
 					(serial_clock_bit_rate << SPI_CSR_SCBR_Pos) | (bits_per_transfer << SPI_CSR_BITS_Pos) |
@@ -128,9 +152,11 @@ void spi_chip_select_config(Spi* hardware, spi_chip_select chip_select, uint8_t 
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void spi_set_bit_size(Spi* hardware, spi_chip_select chip_select, spi_bits_per_transfer bits_per_transfer)
+
+void spi_set_bit_size(Spi* hardware, spi_chip_select_e chip_select, spi_bits_per_transfer_e bits_per_transfer)
 {
 	uint32_t tmp = hardware->SPI_CSR[chip_select] & ~SPI_CSR_BITS_Msk;
 	
@@ -138,5 +164,6 @@ void spi_set_bit_size(Spi* hardware, spi_chip_select chip_select, spi_bits_per_t
 	hardware->SPI_CSR[chip_select] = tmp | (bits_per_transfer << SPI_CSR_BITS_Pos);
 	CRITICAL_SECTION_LEAVE()
 }
+
 
 //--------------------------------------------------------------------------------------------------//

@@ -1,5 +1,12 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "matrix.h"
 #include "core.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void matrix_write_protection_disable(Matrix* hardware)
 {
@@ -8,6 +15,10 @@ void matrix_write_protection_disable(Matrix* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void matrix_write_protection_enable(Matrix* hardware)
 {
 	CRITICAL_SECTION_ENTER()
@@ -15,8 +26,12 @@ void matrix_write_protection_enable(Matrix* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void matrix_write_flash_chip_select_configuration_register(	Matrix* hardware,
-															Matrix_chip_select_1_e assign_cs1,
+															matrix_chip_select_1_e assign_cs1,
 															uint8_t assign_cs2_flash,
 															uint8_t assign_cs3_flash,
 															uint8_t assign_cs0_flash)
@@ -38,3 +53,6 @@ void matrix_write_flash_chip_select_configuration_register(	Matrix* hardware,
 	hardware->CCFG_SMCNFCS = tmp_reg;
 	CRITICAL_SECTION_LEAVE()
 }
+
+
+//--------------------------------------------------------------------------------------------------//

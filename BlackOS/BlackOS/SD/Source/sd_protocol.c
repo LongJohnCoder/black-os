@@ -893,7 +893,9 @@ uint8_t sd_protocol_write(Sd_card* sd_card, const uint8_t *data, uint32_t sector
 	return 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t sd_protocol_dma_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count)
 {
@@ -974,5 +976,6 @@ uint8_t sd_protocol_dma_read(Sd_card* sd_card, uint8_t *data, uint32_t sector, u
 	
 	return 1;
 }
+
 
 //--------------------------------------------------------------------------------------------------//

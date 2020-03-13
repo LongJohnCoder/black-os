@@ -1,9 +1,14 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "usart.h"
 #include "core.h"
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void usart_mode_config(Usart* hardware, usart_stop_bits sp, usart_parity pb, usart_synchronous_mode sm, uint16_t cd_value)
+
+void usart_mode_config(Usart* hardware, usart_stop_bits_e sp, usart_parity_e pb, usart_synchronous_mode_e sm, uint16_t cd_value)
 {
 	// Disable USART write protection
 	CRITICAL_SECTION_ENTER()
@@ -52,7 +57,9 @@ void usart_mode_config(Usart* hardware, usart_stop_bits sp, usart_parity pb, usa
 	hardware->US_CR |= (1 << US_CR_TXEN_Pos) | (1 << US_CR_RXEN_Pos);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usart_interrupt_enable(Usart* hardware, uint32_t interrupt_mask)
 {
@@ -61,7 +68,9 @@ void usart_interrupt_enable(Usart* hardware, uint32_t interrupt_mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usart_interrupt_disable(Usart* hardware, uint32_t interrupt_mask)
 {
@@ -70,7 +79,9 @@ void usart_interrupt_disable(Usart* hardware, uint32_t interrupt_mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usart_write(Usart* hardware, char data)
 {
@@ -83,7 +94,9 @@ void usart_write(Usart* hardware, char data)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 char usart_read(Usart* hardware)
 {
@@ -92,7 +105,9 @@ char usart_read(Usart* hardware)
 	return data;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t usart_get_status_register(Usart* hardware)
 {
@@ -100,5 +115,6 @@ uint32_t usart_get_status_register(Usart* hardware)
 	
 	return status;
 }
+
 
 //--------------------------------------------------------------------------------------------------//

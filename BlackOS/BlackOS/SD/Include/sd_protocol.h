@@ -131,7 +131,7 @@ typedef struct
 	uint32_t				bus_speed;
 	uint32_t				number_of_blocks;
 	
-	Hsmci_sd_slot_select_e	slot;
+	hsmci_sd_slot_select_e	slot;
 } Sd_card;
 
 

@@ -1,8 +1,13 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "systick.h"
 #include "core.h"
 #include "config.h"
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_config(void)
 {
@@ -16,7 +21,9 @@ void systick_config(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_interrupt_enable(void)
 {
@@ -25,7 +32,9 @@ void systick_interrupt_enable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_interrupt_disable(void)
 {
@@ -34,7 +43,9 @@ void systick_interrupt_disable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_disable(void)
 {
@@ -43,7 +54,9 @@ void systick_disable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_enable(void)
 {
@@ -52,7 +65,9 @@ void systick_enable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_set_reload_value(uint32_t value)
 {
@@ -61,7 +76,9 @@ void systick_set_reload_value(uint32_t value)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_set_counter_value(uint32_t value)
 {
@@ -70,14 +87,18 @@ void systick_set_counter_value(uint32_t value)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t systick_get_counter_value(void)
 {
 	return SysTick->VAL;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static inline void systick_delay_cycles(uint32_t cycles)
 {
@@ -104,32 +125,41 @@ static inline void systick_delay_cycles(uint32_t cycles)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static inline uint32_t get_cycles_us(uint32_t us, uint32_t frequency)
 {
 	return (us * (frequency / 1000) - 1) / 1000 + 1;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static inline uint32_t get_cycles_ms(uint32_t ms, uint32_t frequency)
 {
 	return (ms * (frequency / 1000));
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_delay_milliseconds(uint16_t ms)
 {
 	systick_delay_cycles(get_cycles_ms(ms, SYSTICK_FREQUENCY));
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void systick_delay_microseconds(uint16_t us)
 {
 	systick_delay_cycles(get_cycles_us(us, SYSTICK_FREQUENCY));
 }
+
 
 //--------------------------------------------------------------------------------------------------//

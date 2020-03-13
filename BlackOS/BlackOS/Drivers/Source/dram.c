@@ -1,13 +1,24 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "dram.h"
 #include "matrix.h"
 #include "core.h"
 #include "gpio.h"
 #include "clock.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 static void sdram_clock_config(void)
 {
 	clock_peripheral_clock_enable(ID_SDRAMC);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 static void sdram_pin_config(void)
 {
@@ -54,6 +65,10 @@ static void sdram_pin_config(void)
 	gpio_set_pin_function(PIOD, 29, PERIPHERAL_FUNCTION_C);
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dram_config(void)
 {
 	sdram_clock_config();
@@ -97,8 +112,8 @@ void dram_config(void)
 	dram_write_mode_register(SDRAMC, DRAM_MODE_MODE_NOP);
 	*dram_base_address = 0x00;
 	
-	//step 6
-	//pre-charge all banks
+	// Step 6
+	// Charge all banks
 	dram_write_mode_register(SDRAMC, DRAM_MODE_ALL_BANKS_PRECHARGE);
 	*dram_base_address = 0x00;
 	for (i = 0; i < ((150000000 / 1000000) * 200 / 6); i++) {
@@ -144,12 +159,20 @@ void dram_config(void)
 	SDRAMC->SDRAMC_TR = SDRAMC_TR_COUNT(i);
 }
 
-void dram_write_mode_register(Sdramc* hardware, Dram_mode_e ram_mode)
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void dram_write_mode_register(Sdramc* hardware, sram_mode_e ram_mode)
 {
 	CRITICAL_SECTION_ENTER()
 	hardware->SDRAMC_MR = ram_mode;
 	CRITICAL_SECTION_LEAVE()
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void dram_set_refresh_timer(Sdramc* hardware, uint16_t value)
 {
@@ -158,6 +181,10 @@ void dram_set_refresh_timer(Sdramc* hardware, uint16_t value)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dram_write_configuration_register(Sdramc* hardware,
 										uint8_t exit_self_refresh_to_active_delay,
 										uint8_t active_to_precharge_delay,
@@ -165,10 +192,10 @@ void dram_write_configuration_register(Sdramc* hardware,
 										uint8_t row_precharge_delay,
 										uint8_t row_cycle_delay,
 										uint8_t write_recovery_delay,
-										Dram_cas_latency_e cas_latency,
-										Dram_number_of_banks_e number_of_banks,
-										Dram_number_of_row_bits_e row_bits,
-										Dram_number_of_col_bits_e col_bits)
+										sram_cas_latency_e cas_latency,
+										sram_number_of_banks_e number_of_banks,
+										sram_number_of_row_bits_e row_bits,
+										sram_number_of_col_bits_e col_bits)
 {
 	uint32_t tmp_reg =	(SDRAMC_CR_TXSR_Msk & (exit_self_refresh_to_active_delay << SDRAMC_CR_TXSR_Pos)) |
 						(SDRAMC_CR_TRAS_Msk & (active_to_precharge_delay << SDRAMC_CR_TRAS_Pos)) |
@@ -187,8 +214,12 @@ void dram_write_configuration_register(Sdramc* hardware,
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dram_write_configuration_register_1(	Sdramc* hardware,
-											Dram_unaligned_access_e support_unaligned,
+											dram_unaligned_access_e support_unaligned,
 											uint8_t load_mode_to_refresh_delay)
 {
 	uint32_t tmp_reg =	(support_unaligned << SDRAMC_CFR1_UNAL_Pos) |
@@ -199,9 +230,13 @@ void dram_write_configuration_register_1(	Sdramc* hardware,
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dram_write_low_power_register(	Sdramc* hardware,
-									Dram_timeout_e timeout_before_low_power,
-									Dram_low_power_configuration_e configuration,
+									sram_timeout_e timeout_before_low_power,
+									dram_low_power_configuration_e configuration,
 									uint8_t drive_strength,
 									uint8_t temp_comp_self_refresh,
 									uint8_t partial_array_self_refresh)
@@ -218,12 +253,19 @@ void dram_write_low_power_register(	Sdramc* hardware,
 }
 
 
+//--------------------------------------------------------------------------------------------------//
+
+
 void dram_interrupt_enable(Sdramc* hardware)
 {
 	CRITICAL_SECTION_ENTER()
 	hardware->SDRAMC_IER = (1 << SDRAMC_IER_RES_Pos);
 	CRITICAL_SECTION_LEAVE()
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void dram_interrupt_disble(Sdramc* hardware)
 {
@@ -232,6 +274,10 @@ void dram_interrupt_disble(Sdramc* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 uint32_t dram_read_interrupt_status_register(Sdramc* hardware)
 {
 	uint32_t tmp = hardware->SDRAMC_ISR;
@@ -239,12 +285,20 @@ uint32_t dram_read_interrupt_status_register(Sdramc* hardware)
 	return tmp;
 }
 
-void dram_set_memory_device(Sdramc* hardware, Dram_memory_device_e device)
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void dram_set_memory_device(Sdramc* hardware, dram_memory_device_e device)
 {
 	CRITICAL_SECTION_ENTER()
 	hardware->SDRAMC_MDR = device;
 	CRITICAL_SECTION_LEAVE()
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void dram_scrambling_enable(Sdramc* hardware)
 {
@@ -253,12 +307,20 @@ void dram_scrambling_enable(Sdramc* hardware)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dram_scrambling_disable(Sdramc* hardware)
 {
 	CRITICAL_SECTION_ENTER()
 	hardware->SDRAMC_OCMS = 0b0;
 	CRITICAL_SECTION_LEAVE()
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void dram_set_scrambling_keys(Sdramc* hardware, uint32_t key1, uint32_t key2)
 {
@@ -270,3 +332,6 @@ void dram_set_scrambling_keys(Sdramc* hardware, uint32_t key1, uint32_t key2)
 	hardware->SDRAMC_OCMS_KEY2 = key2;
 	CRITICAL_SECTION_LEAVE()
 }
+
+
+//--------------------------------------------------------------------------------------------------//

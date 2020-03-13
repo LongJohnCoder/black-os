@@ -1,14 +1,31 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef USBHS_H
 #define USBHS_H
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "sam.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 typedef enum
 {
 	USB_DRIVER_FULL_SPEED = 0,
 	USB_DRIVER_HIGH_SPEED = 1,
 	USB_DRIVER_LOW_SPEED = 2
-} usb_driver_speed_status;
+} usb_driver_speed_status_e;
+
+
 
 typedef enum
 {
@@ -16,7 +33,9 @@ typedef enum
 	USB_DRIVER_HOST_SPEED_LOW_POWER				= 1,
 	USB_DRIVER_HOST_SPEED_HIGH_SPEED			= 2,
 	USB_DRIVER_HOST_SPEED_FORCED_FULL_SPEED		= 3
-} usb_driver_host_speed;
+} usb_driver_host_speed_e;
+
+
 
 typedef enum
 {
@@ -24,14 +43,18 @@ typedef enum
 	PIPE_TYPE_ISOCHRONOUS	= 1,
 	PIPE_TYPE_BULK			= 2,
 	PIPE_TYPE_INTERRUPT		= 3
-} usb_driver_pipe_type;
+} usb_driver_pipe_type_e;
+
+
 
 typedef enum
 {
 	PIPE_TOKEN_SETUP	= 0,
 	PIPE_TOKEN_IN		= 1,
 	PIPE_TOKEN_OUT		= 2
-} usb_driver_pipe_token;
+} usb_driver_pipe_token_e;
+
+
 
 typedef enum
 {
@@ -43,13 +66,19 @@ typedef enum
 	PIPE_SIZE_256	= 5,
 	PIPE_SIZE_512	= 6,
 	PIPE_SIZE_1024	= 7,
-} usb_driver_pipe_size;
+} usb_driver_pipe_size_e;
+
+
 
 typedef enum
 {
 	USB_DRIVER_HOST		= 0,
 	USB_DRIVER_DEVICE	= 1
-} usb_driver_mode;
+} usb_driver_mode_e;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #define USB_PIPE_0	0
 #define USB_PIPE_1	1
@@ -62,9 +91,11 @@ typedef enum
 #define USB_PIPE_8	8
 #define USB_PIPE_9	9
 
-//======================================= U S B   G L O B A L =======================================//
 
-void usbhs_global_set_mode(usb_driver_mode usb_mode);
+//--------------------------------------------------------------------------------------------------//
+
+
+void usbhs_global_set_mode(usb_driver_mode_e usb_mode);
 
 void usbhs_global_freeze_clock(void);
 
@@ -80,18 +111,17 @@ void usbhs_global_vbus_hardware_enable(void);
 
 void usbhs_global_vbus_hardware_disable(void);
 
-usb_driver_speed_status usbhs_global_get_speed_status(void);
+usb_driver_speed_status_e usbhs_global_get_speed_status(void);
 
 uint32_t usbhs_global_get_status_register(void);
 
 uint8_t usbhs_global_clock_usable(void);
 
 
+//--------------------------------------------------------------------------------------------------//
 
 
-//================================= U S B   H O S T   C O N T R O L =================================//
-
-void usbhs_host_set_speed_capability(usb_driver_host_speed speed);
+void usbhs_host_set_speed_capability(usb_driver_host_speed_e speed);
 
 // This function should only be called when the host generates start of frames
 void usbhs_host_send_resume(void);
@@ -105,9 +135,8 @@ void usbhs_host_SOF_enable(void);
 void usbhs_host_SOF_disable(void);
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//=============================== U S B   H O S T   I N T E R R U P T ===============================//
 
 // The host interrupts is as follows
 //
@@ -134,18 +163,16 @@ void usbhs_host_interrupt_disable(uint32_t mask);
 void usbhs_host_interrupt_enable(uint32_t mask);
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//=========================== U S B   H O S T   F R A M E   C O N T R O L ===========================//
 
 uint16_t usbhs_host_get_frame_number(void);
 
 uint8_t usbhs_host_get_microframe_number(void);
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//============================ U S B   H O S T   P I P E   C O N T R O L ============================//
 
 void usbhs_host_set_pipe_address(uint8_t pipe_number, uint8_t addr);
 
@@ -158,19 +185,18 @@ void usbhs_host_pipe_reset_on(uint8_t pipe_number);
 void usbhs_host_pipe_reset_off(uint8_t pipe_number);
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//====================== U S B   H O S T   P I P E   C O N F I G U R A T I O N ======================//
 
 void usbhs_host_pipe_set_interrupt_frequency(uint8_t pipe_number, uint8_t interrupt_frequency);
 
 void usbhs_host_pipe_set_endpoint_number(uint8_t pipe_number, uint8_t endpoint_number);
 
-void usbhs_host_pipe_set_type(uint8_t pipe_number, usb_driver_pipe_type pipe_type);
+void usbhs_host_pipe_set_type(uint8_t pipe_number, usb_driver_pipe_type_e pipe_type);
 
-void usbhs_host_pipe_set_token(uint8_t pipe_number, usb_driver_pipe_token token);
+void usbhs_host_pipe_set_token(uint8_t pipe_number, usb_driver_pipe_token_e token);
 
-void usbhs_host_pipe_set_size(uint8_t pipe_number, usb_driver_pipe_size pipe_size);
+void usbhs_host_pipe_set_size(uint8_t pipe_number, usb_driver_pipe_size_e pipe_size);
 
 void usbhs_host_pipe_auto_bankswitch_enable(uint8_t pipe_number);
 
@@ -181,9 +207,8 @@ void usbhs_host_pipe_allocate(uint8_t pipe_number);
 void usbhs_host_pipe_free(uint8_t pipe_number);
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//========================== U S B   H O S T   P I P E   I N T E R R U P T ==========================//
 
 // USB pipe status info are as follows
 //
@@ -224,12 +249,15 @@ void usbhs_host_pipe_interrupt_enable(uint8_t pipe_number, uint32_t mask);
 void usbhs_host_pipe_interrupt_disable(uint8_t pipe_number, uint32_t mask);
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//============================== U S B   H O S T   I N   R E Q U E S T ==============================//
 
 void usbhs_host_in_request_disable(uint8_t pipe_number);
 
 void usbhs_host_in_request_enable(uint8_t pipe_number, uint8_t number_of_in_requests);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #endif

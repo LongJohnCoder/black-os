@@ -1,9 +1,14 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "clock.h"
 #include "core.h"
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void clock_sources_config(clock_source clock_oscillator, uint8_t startup_time)
+
+void clock_sources_config(clock_source_e clock_oscillator, uint8_t startup_time)
 {
 	uint32_t data;
 	
@@ -57,9 +62,11 @@ void clock_sources_config(clock_source clock_oscillator, uint8_t startup_time)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void clock_main_clock_config(clock_source clock_oscillator)
+
+void clock_main_clock_config(clock_source_e clock_oscillator)
 {
 	if (clock_oscillator == CLOCK_SOURCE_CRYSTAL)
 	{
@@ -81,7 +88,9 @@ void clock_main_clock_config(clock_source clock_oscillator)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void clock_pll_config(uint16_t multiplication_factor, uint8_t division_factor, uint8_t startup_time)
 {
@@ -111,9 +120,11 @@ void clock_pll_config(uint16_t multiplication_factor, uint8_t division_factor, u
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void clock_master_clock_config(clock_master_clock_source source, clock_master_clock_prescaler prescaler, clock_master_clock_division division)
+
+void clock_master_clock_config(clock_master_clock_source_e source, clock_master_clock_prescaler_e prescaler, clock_master_clock_division_e division)
 {
 	// Set processor clock prescaler
 	uint32_t tmp = PMC->PMC_MCKR;
@@ -164,9 +175,11 @@ void clock_master_clock_config(clock_master_clock_source source, clock_master_cl
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void clock_programmable_clocks_enable(uint8_t programmable_clock, clock_master_clock_source source, uint8_t prescaler)
+
+void clock_programmable_clocks_enable(uint8_t programmable_clock, clock_master_clock_source_e source, uint8_t prescaler)
 {
 	uint32_t tmp = (PMC_PCK_PRES_Msk & ((prescaler - 1) << PMC_PCK_PRES_Pos)) | (source << PMC_PCK_CSS_Pos);
 	
@@ -184,7 +197,9 @@ void clock_programmable_clocks_enable(uint8_t programmable_clock, clock_master_c
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void clock_programmable_clock_disable(uint8_t programmable_clock)
 {
@@ -193,7 +208,9 @@ void clock_programmable_clock_disable(uint8_t programmable_clock)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t clock_get_cpu_frequency(void)
 {
@@ -215,9 +232,11 @@ uint32_t clock_get_cpu_frequency(void)
 	return freq;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void clock_usb_pll_config(clock_source_frequency source_frequency, uint8_t startup_time, uint8_t divider)
+
+void clock_usb_pll_config(clock_source_frequency_e source_frequency, uint8_t startup_time, uint8_t divider)
 {
 	// First set source frequency for the right PLL multiplication
 	uint32_t tmp = UTMI->UTMI_CKTRIM;
@@ -263,16 +282,20 @@ void clock_usb_pll_config(clock_source_frequency source_frequency, uint8_t start
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void clock_usb_config(clock_usb_source usb_source, uint8_t division)
+
+void clock_usb_config(clock_usb_source_e usb_source, uint8_t division)
 {
 	CRITICAL_SECTION_ENTER()
 	PMC->PMC_USB = (usb_source << PMC_USB_USBS_Pos) | (((division - 1) << PMC_USB_USBDIV_Pos) & PMC_USB_USBDIV_Msk);
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void clock_usb_full_speed_enable(void)
 {
@@ -281,7 +304,9 @@ void clock_usb_full_speed_enable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void clock_usb_full_speed_disable(void)
 {
@@ -290,7 +315,9 @@ void clock_usb_full_speed_disable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void clock_peripheral_clock_enable(uint8_t id_peripheral)
 {
@@ -330,7 +357,9 @@ void clock_peripheral_clock_enable(uint8_t id_peripheral)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void clock_peripheral_clock_disable(uint8_t id_peripheral)
 {
@@ -369,5 +398,6 @@ void clock_peripheral_clock_disable(uint8_t id_peripheral)
 		CRITICAL_SECTION_LEAVE()
 	}
 }
+
 
 //--------------------------------------------------------------------------------------------------//

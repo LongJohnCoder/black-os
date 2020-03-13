@@ -1,9 +1,14 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "usbhs.h"
 #include "core.h"
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void usbhs_global_set_mode(usb_driver_mode usb_mode)
+
+void usbhs_global_set_mode(usb_driver_mode_e usb_mode)
 {
 	uint32_t tmp = USBHS->USBHS_CTRL;
 	
@@ -23,7 +28,9 @@ void usbhs_global_set_mode(usb_driver_mode usb_mode)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_global_freeze_clock(void)
 {
@@ -32,7 +39,9 @@ void usbhs_global_freeze_clock(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_global_unfreeze_clock(void)
 {
@@ -41,7 +50,9 @@ void usbhs_global_unfreeze_clock(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_global_enable(void)
 {
@@ -50,7 +61,9 @@ void usbhs_global_enable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_global_disable(void)
 {
@@ -59,7 +72,9 @@ void usbhs_global_disable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_global_send_vbus_request(void)
 {
@@ -68,19 +83,23 @@ void usbhs_global_send_vbus_request(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-usb_driver_speed_status usbhs_global_get_speed_status(void)
+
+usb_driver_speed_status_e usbhs_global_get_speed_status(void)
 {
 	uint32_t tmp = USBHS->USBHS_SR;
 	
 	tmp &= USBHS_SR_SPEED_Msk;
 	tmp >>= USBHS_SR_SPEED_Pos;
 	
-	return (usb_driver_speed_status)tmp;
+	return (usb_driver_speed_status_e)tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t usbhs_global_get_status_register(void)
 {
@@ -89,7 +108,9 @@ uint32_t usbhs_global_get_status_register(void)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t usbhs_global_clock_usable(void)
 {
@@ -103,7 +124,9 @@ uint8_t usbhs_global_clock_usable(void)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_global_vbus_hardware_enable(void)
 {
@@ -112,7 +135,9 @@ void usbhs_global_vbus_hardware_enable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_global_vbus_hardware_disable(void)
 {
@@ -121,9 +146,11 @@ void usbhs_global_vbus_hardware_disable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void usbhs_host_set_speed_capability(usb_driver_host_speed speed)
+
+void usbhs_host_set_speed_capability(usb_driver_host_speed_e speed)
 {
 	uint32_t tmp = USBHS->USBHS_HSTCTRL;
 	
@@ -135,7 +162,9 @@ void usbhs_host_set_speed_capability(usb_driver_host_speed speed)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_send_resume(void)
 {
@@ -144,7 +173,9 @@ void usbhs_host_send_resume(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_send_reset(void)
 {
@@ -153,7 +184,9 @@ void usbhs_host_send_reset(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_send_reset_clear(void)
 {
@@ -162,7 +195,9 @@ void usbhs_host_send_reset_clear(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_SOF_enable(void)
 {
@@ -171,7 +206,9 @@ void usbhs_host_SOF_enable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_SOF_disable(void)
 {
@@ -180,7 +217,9 @@ void usbhs_host_SOF_disable(void)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t usbhs_host_get_interrupt_status_register(void)
 {
@@ -189,7 +228,9 @@ uint32_t usbhs_host_get_interrupt_status_register(void)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t usbhs_host_get_interrupt_mask(void)
 {
@@ -198,7 +239,9 @@ uint32_t usbhs_host_get_interrupt_mask(void)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_interrupt_clear(uint32_t mask)
 {
@@ -207,7 +250,9 @@ void usbhs_host_interrupt_clear(uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_interrupt_force(uint32_t mask)
 {
@@ -216,7 +261,9 @@ void usbhs_host_interrupt_force(uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_interrupt_disable(uint32_t mask)
 {
@@ -225,7 +272,9 @@ void usbhs_host_interrupt_disable(uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_interrupt_enable(uint32_t mask)
 {
@@ -234,7 +283,9 @@ void usbhs_host_interrupt_enable(uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint16_t usbhs_host_get_frame_number(void)
 {
@@ -246,7 +297,9 @@ uint16_t usbhs_host_get_frame_number(void)
 	return (uint16_t)tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint8_t usbhs_host_get_microframe_number(void)
 {
@@ -257,7 +310,9 @@ uint8_t usbhs_host_get_microframe_number(void)
 	return (uint8_t)tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_set_pipe_address(uint8_t pipe_number, uint8_t addr)
 {
@@ -302,7 +357,9 @@ void usbhs_host_set_pipe_address(uint8_t pipe_number, uint8_t addr)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_enable(uint8_t pipe_number)
 {
@@ -311,7 +368,9 @@ void usbhs_host_pipe_enable(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_disable(uint8_t pipe_number)
 {
@@ -320,7 +379,9 @@ void usbhs_host_pipe_disable(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_reset_on(uint8_t pipe_number)
 {
@@ -329,7 +390,9 @@ void usbhs_host_pipe_reset_on(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_reset_off(uint8_t pipe_number)
 {
@@ -338,7 +401,9 @@ void usbhs_host_pipe_reset_off(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_set_interrupt_frequency(uint8_t pipe_number, uint8_t interrupt_frequency)
 {
@@ -352,7 +417,9 @@ void usbhs_host_pipe_set_interrupt_frequency(uint8_t pipe_number, uint8_t interr
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_set_endpoint_number(uint8_t pipe_number, uint8_t endpoint_number)
 {
@@ -366,9 +433,11 @@ void usbhs_host_pipe_set_endpoint_number(uint8_t pipe_number, uint8_t endpoint_n
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void usbhs_host_pipe_set_type(uint8_t pipe_number, usb_driver_pipe_type pipe_type)
+
+void usbhs_host_pipe_set_type(uint8_t pipe_number, usb_driver_pipe_type_e pipe_type)
 {
 	uint32_t tmp = USBHS->USBHS_HSTPIPCFG[pipe_number];
 	
@@ -380,9 +449,11 @@ void usbhs_host_pipe_set_type(uint8_t pipe_number, usb_driver_pipe_type pipe_typ
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void usbhs_host_pipe_set_token(uint8_t pipe_number, usb_driver_pipe_token token)
+
+void usbhs_host_pipe_set_token(uint8_t pipe_number, usb_driver_pipe_token_e token)
 {
 	uint32_t tmp = USBHS->USBHS_HSTPIPCFG[pipe_number];
 	
@@ -394,9 +465,11 @@ void usbhs_host_pipe_set_token(uint8_t pipe_number, usb_driver_pipe_token token)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
 
-void usbhs_host_pipe_set_size(uint8_t pipe_number, usb_driver_pipe_size pipe_size)
+
+void usbhs_host_pipe_set_size(uint8_t pipe_number, usb_driver_pipe_size_e pipe_size)
 {
 	uint32_t tmp = USBHS->USBHS_HSTPIPCFG[pipe_number];
 	
@@ -408,7 +481,9 @@ void usbhs_host_pipe_set_size(uint8_t pipe_number, usb_driver_pipe_size pipe_siz
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_auto_bankswitch_enable(uint8_t pipe_number)
 {
@@ -417,7 +492,9 @@ void usbhs_host_pipe_auto_bankswitch_enable(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_auto_bankswitch_disable(uint8_t pipe_number)
 {
@@ -426,7 +503,9 @@ void usbhs_host_pipe_auto_bankswitch_disable(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_allocate(uint8_t pipe_number)
 {
@@ -435,7 +514,9 @@ void usbhs_host_pipe_allocate(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_free(uint8_t pipe_number)
 {
@@ -444,7 +525,9 @@ void usbhs_host_pipe_free(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t usbhs_host_pipe_get_interrupt_status_register(uint8_t pipe_number)
 {
@@ -453,7 +536,9 @@ uint32_t usbhs_host_pipe_get_interrupt_status_register(uint8_t pipe_number)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 uint32_t usbhs_host_pipe_get_interrupt_mask(uint8_t pipe_number)
 {
@@ -462,7 +547,9 @@ uint32_t usbhs_host_pipe_get_interrupt_mask(uint8_t pipe_number)
 	return tmp;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_interrupt_clear(uint8_t pipe_number, uint32_t mask)
 {
@@ -471,7 +558,9 @@ void usbhs_host_pipe_interrupt_clear(uint8_t pipe_number, uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_interrupt_force(uint8_t pipe_number, uint32_t mask)
 {
@@ -480,7 +569,9 @@ void usbhs_host_pipe_interrupt_force(uint8_t pipe_number, uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_interrupt_enable(uint8_t pipe_number, uint32_t mask)
 {
@@ -489,7 +580,9 @@ void usbhs_host_pipe_interrupt_enable(uint8_t pipe_number, uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_pipe_interrupt_disable(uint8_t pipe_number, uint32_t mask)
 {
@@ -498,7 +591,9 @@ void usbhs_host_pipe_interrupt_disable(uint8_t pipe_number, uint32_t mask)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_in_request_disable(uint8_t pipe_number)
 {
@@ -507,7 +602,9 @@ void usbhs_host_in_request_disable(uint8_t pipe_number)
 	CRITICAL_SECTION_LEAVE()
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void usbhs_host_in_request_enable(uint8_t pipe_number, uint8_t number_of_in_requests)
 {
@@ -515,5 +612,6 @@ void usbhs_host_in_request_enable(uint8_t pipe_number, uint8_t number_of_in_requ
 	USBHS->USBHS_HSTPIPINRQ[pipe_number] = number_of_in_requests;
 	CRITICAL_SECTION_LEAVE()
 }
+
 
 //--------------------------------------------------------------------------------------------------//

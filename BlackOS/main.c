@@ -12,7 +12,7 @@
 #include "kernel.h"
 #include "board_led.h"
 #include "gpio.h"
-#include "board_serial_x.h"
+#include "board_serial_programming.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -39,14 +39,15 @@ void runtime_agent(void* arg)
 
 int main(void)
 {
+	// This functions starts up the kernel and initializes the basic drivers
 	kernel_startup();
 	
+	// Add some threads for test & debug purposes
 	kernel_add_thread("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 200);
 	kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
 
+	// Start the kernel
 	kernel_start();
-	
-	while (1);
 }
 
 

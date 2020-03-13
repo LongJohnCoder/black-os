@@ -180,7 +180,7 @@
     <Compile Include="BlackOS\Board packages\Include\board_serial.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Include\board_serial_x.h">
+    <Compile Include="BlackOS\Board packages\Include\board_serial_programming.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Board packages\Source\board_button.c">
@@ -195,7 +195,7 @@
     <Compile Include="BlackOS\Board packages\Source\board_serial.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Source\board_serial_x.c">
+    <Compile Include="BlackOS\Board packages\Source\board_serial_programming.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Config\config.h">

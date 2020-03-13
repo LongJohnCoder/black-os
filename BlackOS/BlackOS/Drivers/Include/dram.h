@@ -1,7 +1,22 @@
+// Copyright (c) 2020 Bjørn Brodtkorb
+//
+// This software is provided "as is" without warranty of any kind.
+// Permission is granted, free of charge, to copy and modify this
+// software, if this copyright notice is included in all copies of
+// the software.
+
 #ifndef DRAM_H
 #define DRAM_H
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "sam.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 typedef enum
 {
@@ -12,27 +27,35 @@ typedef enum
 	DRAM_MODE_AUTO_REFRESH,
 	DRAM_MODE_EXT_LOAD_MODE_REGISTER,
 	DRAM_MODE_DEEP_POWERDOWN
-} Dram_mode_e;
+} sram_mode_e;
+
+
 
 typedef enum
 {
 	DRAM_CAS_LATENCY_1 = 1,
 	DRAM_CAS_LATENCY_2,
 	DRAM_CAS_LATENCY_3
-} Dram_cas_latency_e;
+} sram_cas_latency_e;
+
+
 
 typedef enum
 {
 	DRAM_BANK_2 = 0,
 	DRAM_BANK_4
-} Dram_number_of_banks_e;
+} sram_number_of_banks_e;
+
+
 
 typedef enum
 {
 	DRAM_ROW_BITS_11 = 0,
 	DRAM_ROW_BITS_12,
 	DRAM_ROW_BITS_13
-} Dram_number_of_row_bits_e;
+} sram_number_of_row_bits_e;
+
+
 
 typedef enum
 {
@@ -40,14 +63,18 @@ typedef enum
 	DRAM_COL_BITS_9,
 	DRAM_COL_BITS_10,
 	DRAM_COL_BITS_11
-} Dram_number_of_col_bits_e;
+} sram_number_of_col_bits_e;
+
+
 
 typedef enum
 {
 	DRAM_TIMEOUT_LP_LAST_XFER = 0,
 	DRAM_TIMEOUT_LP_LAST_XFER_64,
 	DRAM_TIMEOUT_LP_LAST_XFER_128
-} Dram_timeout_e;
+} sram_timeout_e;
+
+
 
 typedef enum
 {
@@ -55,23 +82,31 @@ typedef enum
 	DRAM_LOW_POWER_SELF_REFRESH,
 	DRAM_LOW_POWER_POWER_DOWN,
 	DRAM_LOW_POWER_DEEP_POWER_DOWN
-} Dram_low_power_configuration_e;
+} dram_low_power_configuration_e;
+
+
 
 typedef enum
 {
 	DRAM_MEMORY_DEVICE_SDRAM,
 	DRAM_MEMORY_DEVICE_LPSDRAM
-} Dram_memory_device_e;
+} dram_memory_device_e;
+
+
 
 typedef enum
 {
 	DRAM_UNALIGNED_ACCESS_UNSUPPORTED,
 	DRAM_UNALIGNED_ACCESS_SUPPORTED
-} Dram_unaligned_access_e;
+} dram_unaligned_access_e;
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void dram_config(void);
 
-void dram_write_mode_register(Sdramc* hardware, Dram_mode_e ram_mode);
+void dram_write_mode_register(Sdramc* hardware, sram_mode_e ram_mode);
 
 void dram_set_refresh_timer(Sdramc* hardware, uint16_t value);
 
@@ -82,18 +117,18 @@ void dram_write_configuration_register(	Sdramc* hardware,
 										uint8_t row_precharge_delay,
 										uint8_t row_cycle_delay,
 										uint8_t write_recovery_delay,
-										Dram_cas_latency_e cas_latency,
-										Dram_number_of_banks_e number_of_banks,
-										Dram_number_of_row_bits_e row_bits,
-										Dram_number_of_col_bits_e col_bits);
+										sram_cas_latency_e cas_latency,
+										sram_number_of_banks_e number_of_banks,
+										sram_number_of_row_bits_e row_bits,
+										sram_number_of_col_bits_e col_bits);
 
 void dram_write_configuration_register_1(	Sdramc* hardware,
-											Dram_unaligned_access_e support_unaligned,
+											dram_unaligned_access_e support_unaligned,
 											uint8_t load_mode_to_refresh_delay);
 
 void dram_write_low_power_register(	Sdramc* hardware,
-									Dram_timeout_e timeout_before_low_power,
-									Dram_low_power_configuration_e configuration,
+									sram_timeout_e timeout_before_low_power,
+									dram_low_power_configuration_e configuration,
 									uint8_t drive_strength,
 									uint8_t temp_comp_self_refresh,
 									uint8_t partial_array_self_refresh);
@@ -104,12 +139,16 @@ void dram_interrupt_disble(Sdramc* hardware);
 
 uint32_t dram_read_interrupt_status_register(Sdramc* hardware);
 
-void dram_set_memory_device(Sdramc* hardware, Dram_memory_device_e device);
+void dram_set_memory_device(Sdramc* hardware, dram_memory_device_e device);
 
 void dram_scrambling_enable(Sdramc* hardware);
 
 void dram_scrambling_disable(Sdramc* hardware);
 
 void dram_set_scrambling_keys(Sdramc* hardware, uint32_t key1, uint32_t key2);
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 #endif
