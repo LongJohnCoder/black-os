@@ -83,8 +83,6 @@ void kernel_startup(void)
 	// Configure the on board button
 	board_button_config();
 	
-	// Print hello message
-	board_serial_print("\n------------------ X Operating System ------------------\n\n");
 		
 	//graphics_driver_config();
 
@@ -93,6 +91,9 @@ void kernel_startup(void)
 	kernel_thread_config();
 	
 	file_system_command_line_config();
+	
+	
+	board_serial_print("BlackOS kernel started...\n\n");
 }
 
 
