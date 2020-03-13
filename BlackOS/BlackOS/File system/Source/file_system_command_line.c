@@ -74,7 +74,7 @@ void file_system_command_line_thread(void* args)
 	
 	while (1)
 	{
-		while (board_get_sd_card_status() == SD_DISCONNECTED)
+		while (board_sd_card_get_status() == SD_DISCONNECTED)
 		{
 			service_thread_delay(100);
 		}
@@ -100,7 +100,7 @@ void file_system_command_line_thread(void* args)
 		
 		while (1)
 		{
-			if (board_get_sd_card_status() == SD_DISCONNECTED)
+			if (board_sd_card_get_status() == SD_DISCONNECTED)
 			{
 				board_serial_print("Card disconnected\n");
 				break;

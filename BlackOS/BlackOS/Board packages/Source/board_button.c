@@ -1,9 +1,16 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "board_button.h"
 #include "gpio.h"
 #include "interrupt.h"
 #include "clock.h"
 #include "board_serial.h"
 #include "kernel.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void board_button_config(void)
 {
@@ -16,14 +23,21 @@ void board_button_config(void)
 	
 	gpio_set_interrupt_source(PIOA, 11, GPIO_FALLING_EDGE);
 	
-	gpio_interrupt_enable(PIOA, 11);
-	
-	interrupt_enable_peripheral_interrupt(PIOA_IRQn, IRQ_LEVEL_3);
+	// Enable interrupt if user button reset should be enabled
+	//gpio_interrupt_enable(PIOA, 11);
+	//interrupt_enable_peripheral_interrupt(PIOA_IRQn, IRQ_LEVEL_3);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 void PIOA_Handler()
 {
 	gpio_get_pin_value_status_register(PIOA);
 	
-	RSTC->RSTC_CR = (RSTC_CR_KEY_PASSWD_Val << RSTC_CR_KEY_Pos) | (1 << RSTC_CR_PROCRST_Pos);
+	//RSTC->RSTC_CR = (RSTC_CR_KEY_PASSWD_Val << RSTC_CR_KEY_Pos) | (1 << RSTC_CR_PROCRST_Pos);
 }
+
+
+//--------------------------------------------------------------------------------------------------//

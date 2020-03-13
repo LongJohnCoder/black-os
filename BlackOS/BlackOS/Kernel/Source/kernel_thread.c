@@ -551,22 +551,22 @@ void kernel_print_runtime_statistics(void)
 {
 	int32_t cpu_usage = 1000 - kernel_idle_thread_pointer->last_runtime;
 	char k = cpu_usage / 10;
-	board_serial_x_write_percent(k, cpu_usage - (k * 10));
-	board_serial_x_print(" : CPU Usage");
-	board_serial_x_print("\n");
+	board_serial_programming_write_percent(k, cpu_usage - (k * 10));
+	board_serial_programming_print(" : CPU Usage");
+	board_serial_programming_print("\n");
 	
 	if (running_queue.size != 0)
 	{
 		for (kernel_list_item* i = running_queue.first; i != NULL; i = i->next)
 		{
 			uint32_t used_stack = i->thread_control->stack_size - ((uint32_t)i->thread_control->stack_pointer - (uint32_t)i->thread_control->stack_base);
-			board_serial_x_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
-			board_serial_x_print("\t");
+			board_serial_programming_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
+			board_serial_programming_print("\t");
 			
 			uint8_t tmp = i->thread_control->last_runtime / 10;
-			board_serial_x_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
-			board_serial_x_print(" : %s", i->thread_control->name);
-			board_serial_x_print("\n");
+			board_serial_programming_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
+			board_serial_programming_print(" : %s", i->thread_control->name);
+			board_serial_programming_print("\n");
 		}
 	}
 	if (delay_queue.size != 0)
@@ -574,16 +574,16 @@ void kernel_print_runtime_statistics(void)
 		for (kernel_list_item* i = delay_queue.first; i != NULL; i = i->next)
 		{
 			uint32_t used_stack = i->thread_control->stack_size - ((uint32_t)i->thread_control->stack_pointer - (uint32_t)i->thread_control->stack_base);
-			board_serial_x_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
-			board_serial_x_print("\t");
+			board_serial_programming_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
+			board_serial_programming_print("\t");
 			
 			uint8_t tmp = i->thread_control->last_runtime / 10;
-			board_serial_x_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
-			board_serial_x_print(" : %s", i->thread_control->name);
-			board_serial_x_print("\n");
+			board_serial_programming_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
+			board_serial_programming_print(" : %s", i->thread_control->name);
+			board_serial_programming_print("\n");
 		}
 	}
-	board_serial_x_print("\n\n");
+	board_serial_programming_print("\n\n");
 }
 
 //--------------------------------------------------------------------------------------------------//

@@ -206,7 +206,7 @@ void Reset_Handler(void)
 {
         uint32_t *pSrc, *pDest;
 
-        /* Initialize the relocate segment */
+		// Relocate segment
         pSrc = &_etext;
         pDest = &_srelocate;
 
@@ -216,28 +216,22 @@ void Reset_Handler(void)
                 }
         }
 
-        /* Clear the zero segment */
+        // Zero segment
         for (pDest = &_szero; pDest < &_ezero;) {
                 *pDest++ = 0;
         }
 
-        /* Set the vector table base address */
+        // Set vector table base address
         pSrc = (uint32_t *) & _sfixed;
         SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
 
-        /* Initialize the C library */
         __libc_init_array();
 
-        /* Branch to main function */
         main();
 
-        /* Infinite loop */
         while (1);
 }
 
-/**
- * \brief Default interrupt handler for unused IRQs.
- */
 uint32_t interrupt_status;
 
 void Dummy_Handler(void)

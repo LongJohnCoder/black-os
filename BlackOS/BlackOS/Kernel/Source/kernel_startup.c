@@ -27,7 +27,7 @@
 void kernel_startup(void)
 {
 	// First we boot the chip and the peripherals
-	SystemInit();
+	//SystemInit();
 	
 	// Disable interrupt under system configuration
 	interrupt_global_disable();
@@ -65,7 +65,7 @@ void kernel_startup(void)
 	
 	// Start the serial interface
 	board_serial_config();
-	board_serial_x_config();
+	board_serial_programming_config();
 	
 	// Configure the on board button
 	board_button_config();

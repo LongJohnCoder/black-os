@@ -1,11 +1,22 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "board_sd_card.h"
 #include "clock.h"
 #include "gpio.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 static void board_sd_card_clock_config(void)
 {
 	clock_peripheral_clock_enable(ID_HSMCI);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 static void board_sd_card_port_config(void)
 {
@@ -24,7 +35,11 @@ static void board_sd_card_port_config(void)
 	gpio_debounce_filter_enable(PIOC, 16, 5);
 }
 
-board_sd_status board_get_sd_card_status(void)
+
+//--------------------------------------------------------------------------------------------------//
+
+
+board_sd_status board_sd_card_get_status(void)
 {
 	uint32_t tmp = gpio_get_pin_value_status_register(PIOC);
 
@@ -35,8 +50,15 @@ board_sd_status board_get_sd_card_status(void)
 	return SD_CONNECTED;
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void board_sd_card_config(void)
 {
 	board_sd_card_clock_config();
 	board_sd_card_port_config();
 }
+
+
+//--------------------------------------------------------------------------------------------------//

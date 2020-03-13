@@ -30,6 +30,5 @@ void KERNEL_SERVICE_NOINLINE service_display_write_frame_buffer(uint16_t x, uint
 
 void KERNEL_SERVICE_NOINLINE service_display_scroll(uint16_t amount);
 
-void KERNEL_SERVICE_NOINLINE service_get_pin_value(Pio* hardware, uint8_t pin, uint8_t* value);
 
 #endif

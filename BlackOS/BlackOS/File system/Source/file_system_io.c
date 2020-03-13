@@ -8,7 +8,7 @@ Sd_card sd_card;
 
 fatfs_status_t disk_status(uint8_t physical_drive)
 {
-	uint8_t status = board_get_sd_card_status();
+	uint8_t status = board_sd_card_get_status();
 	
 	if (status == 1)
 	{
@@ -29,7 +29,7 @@ fatfs_status_t disk_status(uint8_t physical_drive)
 
 fatfs_status_t disk_initialize(uint8_t physical_drive)
 {
-	if (board_get_sd_card_status() == 0)
+	if (board_sd_card_get_status() == 0)
 	{
 		return FATFS_STATUS_NO_DISK;
 	}

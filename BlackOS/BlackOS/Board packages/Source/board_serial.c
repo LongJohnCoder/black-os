@@ -1,3 +1,6 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "board_serial.h"
 #include "usart.h"
 #include "clock.h"
@@ -5,16 +8,24 @@
 #include "interrupt.h"
 #include "dma.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include <stdio.h>
 #include <stdarg.h>
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static char serial_print_buffer[256];
 
 static const unsigned s_value[] = {1000000000u, 100000000u, 10000000u, 1000000u, 100000u, 10000u, 1000u, 100u, 10u, 1u};
+
 	
 //--------------------------------------------------------------------------------------------------//
+
 
 static void board_serial_port_config(void)
 {
@@ -22,14 +33,18 @@ static void board_serial_port_config(void)
 	gpio_set_pin_function(BOARD_SERIAL_RX_PORT, BOARD_SERIAL_RX_PIN, PERIPHERAL_FUNCTION_D);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static void board_serial_clock_config(void)
 {
 	clock_peripheral_clock_enable(ID_USART1);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static void board_serial_mode_config(void)
 {
@@ -38,7 +53,9 @@ static void board_serial_mode_config(void)
 	interrupt_enable_peripheral_interrupt(USART1_IRQn, IRQ_LEVEL_6);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_serial_config(void)
 {
@@ -47,7 +64,9 @@ void board_serial_config(void)
 	board_serial_mode_config();
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_print_buffer(char* buffer, uint32_t size)
 {
@@ -84,7 +103,9 @@ void board_print_buffer(char* buffer, uint32_t size)
 	dma_setup_transaction(XDMAC, &dma);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 static int printu_override(char *s, unsigned u)
 {
@@ -119,7 +140,9 @@ static int printu_override(char *s, unsigned u)
 	return n;
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_serial_print(char* data, ...)
 {
@@ -200,14 +223,18 @@ void board_serial_print(char* data, ...)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_serial_write(char data)
 {
 	usart_write(USART1, data);
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_serial_print_address(char* data, uint32_t addr)
 {
@@ -229,7 +256,9 @@ void board_serial_print_address(char* data, uint32_t addr)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_serial_print_hex(char c)
 {
@@ -249,7 +278,9 @@ void board_serial_print_hex(char c)
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_serial_print_percentage_symbol(char* data, uint8_t percent, uint8_t newline)
 {
@@ -262,7 +293,9 @@ void board_serial_print_percentage_symbol(char* data, uint8_t percent, uint8_t n
 	}
 }
 
+
 //--------------------------------------------------------------------------------------------------//
+
 
 void board_serial_print_register(char* data, uint32_t reg)
 {
@@ -286,5 +319,6 @@ void board_serial_print_register(char* data, uint32_t reg)
 	}
 	board_serial_write('\n');
 }
+
 
 //--------------------------------------------------------------------------------------------------//

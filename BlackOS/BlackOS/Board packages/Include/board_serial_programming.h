@@ -5,8 +5,8 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#ifndef BOARD_SD_CARD_H
-#define BOARD_SD_CARD_H
+#ifndef BOARD_SERIAL_PROGRAMMING_H
+#define BOARD_SERIAL_PROGRAMMING_H
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -18,19 +18,27 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-typedef enum
-{
-	SD_DISCONNECTED,
-	SD_CONNECTED
-} board_sd_status;
+#define BOARD_SERIAL_PROGRAMMING_RX_PIN	0
+#define BOARD_SERIAL_PROGRAMMING_RX_PORT	PIOB
+
+#define BOARD_SERIAL_PROGRAMMING_TX_PIN	1
+#define BOARD_SERIAL_PROGRAMMING_TX_PORT	PIOB
+
+#define BOARD_SERIAL_PROGRAMMING_CPU_FREQ	150000000
+#define BOARD_SERIAL_PROGRAMMING_BAUD_RATE	115200
+#define BOARD_SERIAL_PROGRAMMING_CD_VALUE	BOARD_SERIAL_PROGRAMMING_CPU_FREQ / (16 * BOARD_SERIAL_PROGRAMMING_BAUD_RATE)
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void board_sd_card_config(void);
+void board_serial_programming_config(void);
 
-board_sd_status board_sd_card_get_status(void);
+void board_serial_programming_write_percent(char first, char second);
+
+void board_serial_programming_write(char data);
+
+void board_serial_programming_print(char* data, ...);
 
 
 //--------------------------------------------------------------------------------------------------//

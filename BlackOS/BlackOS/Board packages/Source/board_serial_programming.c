@@ -1,46 +1,81 @@
+//--------------------------------------------------------------------------------------------------//
+
+
 #include "board_serial_x.h"
 #include "clock.h"
 #include "gpio.h"
 #include "usart.h"
 #include "interrupt.h"
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 #include <stdio.h>
 #include <stdarg.h>
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 static char serial_print_buffer[256];
 
 static const unsigned s_value[] = {1000000000u, 100000000u, 10000000u, 1000000u, 100000u, 10000u, 1000u, 100u, 10u, 1u};
+	
+
+//--------------------------------------------------------------------------------------------------//
+
 
 static void board_serial_x_port_config(void)
 {
-	gpio_set_pin_function(BOARD_SERIAL_X_TX_PORT, BOARD_SERIAL_X_TX_PIN, PERIPHERAL_FUNCTION_C);
-	gpio_set_pin_function(BOARD_SERIAL_X_RX_PORT, BOARD_SERIAL_X_RX_PIN, PERIPHERAL_FUNCTION_C);
+	gpio_set_pin_function(BOARD_SERIAL_PROGRAMMING_TX_PORT, BOARD_SERIAL_PROGRAMMING_TX_PIN, PERIPHERAL_FUNCTION_C);
+	gpio_set_pin_function(BOARD_SERIAL_PROGRAMMING_RX_PORT, BOARD_SERIAL_PROGRAMMING_RX_PIN, PERIPHERAL_FUNCTION_C);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 static void board_serial_x_clock_config(void)
 {
 	clock_peripheral_clock_enable(ID_USART0);
 }
 
+
+//--------------------------------------------------------------------------------------------------//
+
+
 static void board_serial_x_mode_config(void)
 {
-	usart_mode_config(USART0, USART_STOP_BIT_1, USART_PARITY_NO, USART_MODE_ASYNCHRONOUS, BOARD_SERIAL_X_CD_VALUE);
+	usart_mode_config(USART0, USART_STOP_BIT_1, USART_PARITY_NO, USART_MODE_ASYNCHRONOUS, BOARD_SERIAL_PROGRAMMING_CD_VALUE);
 	
 	usart_interrupt_enable(USART0, USART_IRQ_RX_READY);
 	interrupt_enable_peripheral_interrupt(USART0_IRQn, IRQ_LEVEL_1);
 }
 
-void board_serial_x_config(void)
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_programming_config(void)
 {
 	board_serial_x_port_config();
 	board_serial_x_clock_config();
 	board_serial_x_mode_config();
 }
 
-void board_serial_x_write(char data)
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_programming_write(char data)
 {
 	usart_write(USART0, data);
 }
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 static int printu_override(char *s, unsigned u)
 {
@@ -75,7 +110,11 @@ static int printu_override(char *s, unsigned u)
 	return n;
 }
 
-void board_serial_x_print(char* data, ...)
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_programming_print(char* data, ...)
 {
 	char* start = serial_print_buffer;
 	char* s = serial_print_buffer;
@@ -154,8 +193,15 @@ void board_serial_x_print(char* data, ...)
 	}
 }
 
-void board_serial_x_write_percent(char first, char second)
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_programming_write_percent(char first, char second)
 {
-	board_serial_x_print("%d.%d", first, second);
-	board_serial_x_write('%');
+	board_serial_programming_print("%d.%d", first, second);
+	board_serial_programming_write('%');
 }
+
+
+//--------------------------------------------------------------------------------------------------//

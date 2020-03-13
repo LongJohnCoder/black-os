@@ -411,9 +411,6 @@
     <Compile Include="System startup\startup.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="System startup\system.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
@@ -451,9 +448,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="System startup\flash.ld">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="System startup\sram.ld">
       <SubType>compile</SubType>
     </None>
   </ItemGroup>
