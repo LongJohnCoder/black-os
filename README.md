@@ -12,7 +12,26 @@ BlackOS is a lightweight operating system designed for ARM processors. It comes 
 - No overhead when threads are waiting
 - Task manager which keeps track of CPU, memory and stack
 
-# Coming soon
+## Drivers included 
+
+- Optional check driver
+- Clock driver
+- Critical sections driver
+- DMA driver
+- DRAM driver
+- GPIO driver
+- High speed SD card driver
+- Interrupt driver
+- Matrix driver
+- SPI driver
+- SysTick driver
+- Printf formatting driver
+- Timer driver
+- Usart driver
+- USB Root Hub driver
+- Watchdog driver
+
+## Coming soon
 
 - Graphics card support
 - Support for up to 7" TFT LCD
