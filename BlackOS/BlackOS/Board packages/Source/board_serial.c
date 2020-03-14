@@ -11,6 +11,7 @@
 #include "gpio.h"
 #include "interrupt.h"
 #include "dma.h"
+#include "timer.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -322,6 +323,101 @@ void board_serial_print_register(char* data, uint32_t reg)
 		}
 	}
 	board_serial_write('\n');
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+static char* serial_buffer_a[128];
+static char* serial_buffer_b[128];
+
+
+static uint8_t serial_buffer_a_size;
+static uint8_t serial_buffer_b_size; 
+
+
+static char* serial_current_buffer;
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+// This function will set up a DMA serial transaction 
+
+void board_serial_dma_flush_buffer(char* source_buffer, uint8_t size)
+{	
+	dma_microblock_transaction_descriptor dma_desc;
+
+	
+	// We configure the channel
+	dma_desc.burst_size = DMA_BURST_SIZE_SINGLE;
+	dma_desc.chunk_size = DMA_CHUNK_SIZE_1;
+	dma_desc.data_width = DMA_DATA_WIDTH_BYTE;
+
+	dma_desc.destination_adressing_mode = DMA_DEST_ADDRESSING_FIXED;
+	dma_desc.destination_bus_interface = DMA_AHB_INTERFACE_1;
+	dma_desc.destination_pointer = (uint32_t *)&(((Usart *)(USART1))->US_THR);
+
+	dma_desc.memory_fill = DMA_MEMORY_FILL_OFF;
+	dma_desc.peripheral_id = XDMAC_CC_PERID_USART1_TX_Val;
+
+	dma_desc.size = size;
+
+	dma_desc.channel = BOARD_SERIAL_DMA_CHANNEL;
+
+	dma_desc.source_addressing_mode = DMA_SOURCE_ADDRESSING_INCREMENTED;
+	dma_desc.source_bus_inteface = DMA_AHB_INTERFACE_0;
+	dma_desc.source_pointer = (uint32_t *)source_buffer;
+
+	dma_desc.synchronization = DMA_SYNC_MEMORY_TO_PERIPHERAL;
+	dma_desc.transfer_type = DMA_TRANSFER_TYPE_PERIPHERAL_TRANSFER;
+	dma_desc.trigger = DMA_TRIGGER_HARDWARE;
+
+
+	// The serial buffer that is flushed might be located in the cache. Therefore
+	// we have to clean the cache lines that corresponds to the serial buffer. That
+	// means that the cache data is written back to memory.
+	uint32_t* cache_addr = (uint32_t *)((uint32_t)source_buffer & ~((uint32_t)32));
+
+	// Cache can only be cleaned at 32-bytes alignment
+	SCB_CleanDCache_by_Addr(cache_addr, size + 32);
+
+
+	// Start the transfer
+	dma_setup_transaction(XDMAC, &dma_desc);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+// The DMA serial interface is a double buffered serial interface
+// which allows printing to screen with no processor overhead.
+//
+// The serial buffer will be flushed when enough bytes are ready to be transmitted,
+// or a timer overflow has occurred.
+
+void board_serial_dma_config(void)
+{
+	// Configure the timer interface (timer 0 channel 0) to overflow after 10 ms
+	clock_peripheral_clock_enable(ID_TC0_CHANNEL0);
+	
+	timer_write_protection_disable(TC0);
+	timer_capture_mode_config(TC0, TIMER_CHANNEL_0, TIMER_NONE, TIMER_NONE, TIMER_CAPTURE_MODE, 1, 0, 0, TIMER_INCREMENT_RISING_EDGE, TIMER_CLOCK_MCK_DIV_128);
+	timer_set_compare_c(TC0, TIMER_CHANNEL_0, 11719);
+	timer_interrupt_enable(TC0, TIMER_CHANNEL_0, TIMER_INTERRUPT_C_COMPARE);
+	
+	interrupt_enable_peripheral_interrupt(TC0_IRQn, IRQ_LEVEL_6);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_dma_print(char* data)
+{
+	
 }
 
 

@@ -423,14 +423,14 @@ uint32_t dma_read_channel_status_register(Xdmac* hardware)
 
 void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descriptor* dma_descriptor)
 {	
-	// The recipe for performing a single microblock transaction is
+	// The recipe for performing a single micro block transaction is
 	//
 	// Read the channel status register to choose a free channel
 	// Clear pending status bits
 	// Write source address, destination address and size
 	// Program the config register
 	// Clear 5 registers
-	// Enable microblock interrupt
+	// Enable micro block interrupt
 	// Enable channel
 	
 	uint32_t channel_status = dma_read_channel_status_register(hardware);
@@ -470,18 +470,7 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 		return;
 	}
 	
-	uint32_t dma_config_register =	(XDMAC_CC_PERID_Msk & (dma_descriptor->peripheral_id << XDMAC_CC_PERID_Pos)) |
-									(dma_descriptor->destination_adressing_mode << XDMAC_CC_DAM_Pos) |
-									(dma_descriptor->source_addressing_mode << XDMAC_CC_SAM_Pos) |
-									(dma_descriptor->destination_bus_interface << XDMAC_CC_DIF_Pos) |
-									(dma_descriptor->source_bus_inteface << XDMAC_CC_SIF_Pos) |
-									(dma_descriptor->data_width << XDMAC_CC_DWIDTH_Pos) |
-									(dma_descriptor->chunk_size << XDMAC_CC_CSIZE_Pos) |
-									(dma_descriptor->memory_fill << XDMAC_CC_MEMSET_Pos) |
-									(dma_descriptor->trigger << XDMAC_CC_SWREQ_Pos) |
-									(dma_descriptor->synchronization << XDMAC_CC_DSYNC_Pos) |
-									(dma_descriptor->burst_size << XDMAC_CC_MBSIZE_Pos) |
-									(dma_descriptor->transfer_type << XDMAC_CC_TYPE_Pos);
+	dma_channel_configure(hardware, dma_descriptor);
 	
 	// Now we have gotten a free DMA channel, so we can configure the channel
 	dma_channel_interrupt_disable(hardware, current_channel, DMA_INTERRUPT_ALL);
@@ -490,11 +479,6 @@ void dma_setup_transaction(Xdmac* hardware, dma_microblock_transaction_descripto
 	dma_channel_set_source_address(hardware, current_channel, dma_descriptor->source_pointer);
 	dma_channel_set_destination_address(hardware, current_channel, dma_descriptor->destination_pointer);
 	dma_channel_set_microblock_length(hardware, current_channel, dma_descriptor->size);
-	
-	// Write the channel configuration
-	CRITICAL_SECTION_ENTER()
-	hardware->XdmacChid[current_channel].XDMAC_CC = dma_config_register;
-	CRITICAL_SECTION_LEAVE()
 	
 	// Clear interrupts that can mess with my high
 	dma_clear_unused_register(hardware, current_channel);
@@ -525,7 +509,7 @@ void dma_channel_configure(Xdmac* hardware, dma_microblock_transaction_descripto
 									(dma_descriptor->synchronization << XDMAC_CC_DSYNC_Pos) |
 									(dma_descriptor->burst_size << XDMAC_CC_MBSIZE_Pos) |
 									(dma_descriptor->transfer_type << XDMAC_CC_TYPE_Pos);
-	board_serial_print("Channel: %d\n", dma_descriptor->channel);
+
 	check(dma_descriptor->channel >= 0);
 	
 	CRITICAL_SECTION_ENTER()
@@ -541,7 +525,7 @@ void XDMAC_Handler()
 {
 	int8_t source_channel = -1;
 	uint32_t global_status = dma_read_global_interrupt_status_register(XDMAC);
-	board_serial_print("ok");
+	
 	// Iterate through all the channels
 	for (uint8_t i = 0; i < DMA_NUMBER_OF_CHANNELS; i++)
 	{
@@ -562,13 +546,12 @@ void XDMAC_Handler()
 	if (channel_status & (XDMAC_CIS_ROIS_Msk | XDMAC_CIS_WBEIS_Msk | XDMAC_CIS_RBEIS_Msk))
 	{
 		// An error has occurred
-		board_serial_print("DMA Error\n");
+		board_serial_print("DMA Error on channel %d\n", source_channel);
 		board_serial_print_register("Status code: ", channel_status);
 	}
 	else if (channel_status & XDMAC_CIS_BIS_Msk)
 	{
 		// End of micro block
-		board_serial_print("DMA End of Block on %d\n", source_channel);
 	}
 }
 

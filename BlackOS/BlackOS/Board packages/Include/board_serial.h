@@ -21,12 +21,17 @@
 #define BOARD_SERIAL_RX_PIN		4
 #define BOARD_SERIAL_RX_PORT	PIOB
 
+
 #define BOARD_SERIAL_TX_PIN		21
 #define BOARD_SERIAL_TX_PORT	PIOA
+
 
 #define BOARD_SERIAL_CPU_FREQ	150000000
 #define BOARD_SERIAL_BAUD_RATE	115200
 #define BOARD_SERIAL_CD_VALUE	BOARD_SERIAL_CPU_FREQ / (16 * BOARD_SERIAL_BAUD_RATE)
+
+
+#define BOARD_SERIAL_DMA_CHANNEL 5
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -47,6 +52,16 @@ void board_serial_print_percentage_symbol(char* data, uint8_t percent, uint8_t n
 void board_serial_print_register(char* data, uint32_t reg);
 
 void board_serial_print_hex(char c);
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_dma_config(void);
+
+void board_serial_dma_print(char* data);
+
+void board_serial_dma_flush_buffer(char* source_buffer, uint8_t size);
 
 
 //--------------------------------------------------------------------------------------------------//

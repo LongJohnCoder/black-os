@@ -201,12 +201,12 @@ void timer_capture_mode_config(	Tc* hardware,
 								timer_clock_invert_e clock_invert,
 								timer_clock_source_e clock_source)
 {
-	uint32_t tmp =	(register_b_loading << TC_CMR_LDRB_Pos) |
-					(register_a_loading << TC_CMR_LDRA_Pos) |
+	uint32_t tmp =	(register_b_loading << TC_CMR_CAPTURE_LDRB_Pos) |
+					(register_a_loading << TC_CMR_CAPTURE_LDRA_Pos) |
 					(wavform_mode << TC_CMR_WAVE_Pos) |
-					(reset_on_c_compare << TC_CMR_CPCTRG_Pos) | 
-					(clock_stop_on_b_loading << TC_CMR_LDBSTOP_Pos) |
-					(clock_disable_on_b_loading << TC_CMR_LDBDIS_Pos) |
+					(reset_on_c_compare << TC_CMR_CAPTURE_CPCTRG_Pos) | 
+					(clock_stop_on_b_loading << TC_CMR_CAPTURE_LDBSTOP_Pos) |
+					(clock_disable_on_b_loading << TC_CMR_CAPTURE_LDBDIS_Pos) |
 					(clock_invert << TC_CMR_CLKI_Pos) |
 					(clock_source << TC_CMR_TCCLKS_Pos);
 	

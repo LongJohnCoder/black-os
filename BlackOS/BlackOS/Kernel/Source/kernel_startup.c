@@ -39,9 +39,6 @@
 
 void kernel_startup(void)
 {
-	// First we boot the chip and the peripherals
-	//SystemInit();
-	
 	// Disable interrupt under system configuration
 	interrupt_global_disable();
 	
