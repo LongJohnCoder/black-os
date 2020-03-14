@@ -11,6 +11,7 @@
 #include "interrupt.h"
 #include "config.h"
 #include "check.h"
+#include "board_serial.h"
 
 
 //--------------------------------------------------------------------------------------------------//

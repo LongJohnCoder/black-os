@@ -20,7 +20,7 @@
 
 #define HSMCI_DEBUG			1
 
-#define HSMCI_DMA_CHANNEL	2
+#define HSMCI_DMA_CHANNEL	8
 
 #define HSMCI_STATUS_REGISTER_ERROR_MASK ((1 << HSMCI_SR_ACKRCV_Pos) | (1 << HSMCI_SR_BLKOVRE_Pos) | (1 << HSMCI_SR_CSTOE_Pos) | (1 << HSMCI_SR_DTOE_Pos) | (1 << HSMCI_SR_DCRCE_Pos) | (1 << HSMCI_SR_RTOE_Pos) | (1 << HSMCI_SR_CSTOE_Pos) | (1 << HSMCI_SR_RENDE_Pos) | (1 << HSMCI_SR_RDIRE_Pos) | (1 << HSMCI_SR_RINDE_Pos))
 
@@ -256,6 +256,8 @@ void hsmci_write_command_register(Hsmci* hardware, uint32_t command);
 
 hsmci_status_e hsmci_send_addressed_data_transfer_command(	Hsmci* hardware, uint32_t command_register, uint32_t argument,
 															uint16_t block_size, uint16_t number_of_blocks, uint8_t dma, hsmci_check_crc_e crc);
+
+hsmci_status_e hsmci_stop_addressed_transfer_command(Hsmci* hardware, uint32_t command, uint32_t argument);
 
 uint32_t hsmci_construct_command_register(	uint8_t boot_ack,
 										uint8_t ata_with_command_completion_enable,

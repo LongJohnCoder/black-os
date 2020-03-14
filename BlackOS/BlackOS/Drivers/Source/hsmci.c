@@ -17,7 +17,6 @@
 
 static uint32_t hsmci_transfer_position;
 static uint16_t hsmci_block_size;
-static uint16_t hsmci_last_number_of_blocks;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -297,21 +296,6 @@ uint32_t hsmci_read_status_register(Hsmci* hardware)
 
 hsmci_status_e hsmci_send_command(Hsmci* hardware, uint32_t command, uint32_t argument, hsmci_check_crc_e crc)
 {
-	hsmci_force_byte_transfer_disable(hardware);
-	
-	
-	// These lines guaranties the bandwidth, not the integrity of the data
-	hsmci_read_proof_disable(hardware);
-	hsmci_write_proof_disable(hardware);
-
-	
-	// Disable DMA and the the block length and block count to zero
-	CRITICAL_SECTION_ENTER()
-	hardware->HSMCI_DMA = 0;
-	hardware->HSMCI_BLKR = 0;
-	CRITICAL_SECTION_LEAVE()
-	
-	
 	// White the command and argument
 	hsmci_write_argument_register(hardware, argument);
 	hsmci_write_command_register(hardware, command);
@@ -324,16 +308,24 @@ hsmci_status_e hsmci_send_command(Hsmci* hardware, uint32_t command, uint32_t ar
 		status = hsmci_read_status_register(hardware);
 		
 		// Check errors that might have occurred
+		
+		// The errors we check are
+		//	- Response index error
+		//	- Response direction error
+		//	- Response end bit error
+		//	- Response time out error
+		//	- Completion signal timeout
 		if (status & (HSMCI_SR_RINDE_Msk | HSMCI_SR_RDIRE_Msk | HSMCI_SR_RENDE_Msk | HSMCI_SR_RTOE_Msk | HSMCI_SR_CSTOE_Msk))
 		{
 			#if HSMCI_DEBUG
-			check(0);
+			//check(0);
 			#endif
 			
 			return HSMCI_ERROR;
 		}
 		
 		
+		// If the command requires CRC checksum we have to check that as well
 		if (crc == CHECK_CRC)
 		{
 			if (status & HSMCI_SR_RCRCE_Msk)
@@ -357,13 +349,15 @@ hsmci_status_e hsmci_send_command(Hsmci* hardware, uint32_t command, uint32_t ar
 		do
 		{
 			status = hsmci_read_status_register(hardware);
+			
 			if (timeout-- <= 1)
 			{
 				return HSMCI_ERROR;
 			}
+			
 		} while (!((status & HSMCI_SR_NOTBUSY_Msk) && ((status & HSMCI_SR_DTIP_Msk) == 0)));
 		
-	}
+}	
 	return HSMCI_OK;
 }
 
@@ -375,6 +369,9 @@ hsmci_status_e hsmci_send_addressed_data_transfer_command(	Hsmci* hardware, uint
 															uint16_t block_size, uint16_t number_of_blocks, uint8_t dma, hsmci_check_crc_e crc)
 {
 	// Enable read and write proof
+	// Read proof and write proof allows the processor to stop the HSMCI clock during
+	// read or write transfers if the internal FIFO buffer is full. This guaranties the
+	// data integrity NOT the bandwidth.
 	hsmci_write_proof_enable(hardware);
 	hsmci_read_proof_enable(hardware);
 	
@@ -478,6 +475,17 @@ hsmci_status_e hsmci_send_addressed_data_transfer_command(	Hsmci* hardware, uint
 //--------------------------------------------------------------------------------------------------//
 
 
+hsmci_status_e hsmci_stop_addressed_transfer_command(Hsmci* hardware, uint32_t command, uint32_t argument)
+{
+	uint32_t cmd_register = command | HSMCI_CMDR_TRCMD_STOP_DATA;
+	
+	return hsmci_send_command(hardware, cmd_register, argument, CHECK_CRC);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 hsmci_status_e hsmci_start_read_blocks(void* destination, uint16_t number_of_blocks)
 {
 	// Here we will use the DMA for data transfer
@@ -564,21 +572,26 @@ hsmci_status_e hsmci_wait_end_of_read(void)
 		
 		
 		// Check for errors
+		
+		// The errors we are checking are
+		//	- Under-run error
+		//	- Overrun error
+		//	- Data timeout
+		//	- CRC error
 		if (hsmci_status_register & (HSMCI_SR_UNRE_Msk | HSMCI_SR_OVRE_Msk | HSMCI_SR_DTOE_Msk | HSMCI_SR_DCRCE_Msk))
 		{
 			dma_channel_disable(XDMAC, HSMCI_DMA_CHANNEL);
 			
+			check(0);
+			
 			return HSMCI_ERROR;
 		}
 		
-		if (((uint32_t)hsmci_block_size * hsmci_last_number_of_blocks) > hsmci_transfer_position)
-		{
-			dma_status_register = dma_read_channel_status(XDMAC, HSMCI_DMA_CHANNEL);
+		dma_status_register = dma_read_channel_status(XDMAC, HSMCI_DMA_CHANNEL);
 			
-			if (dma_status_register & XDMAC_CIS_BIS_Msk)
-			{
-				return HSMCI_OK;
-			}
+		if (dma_status_register & XDMAC_CIS_BIS_Msk)
+		{
+			return HSMCI_OK;
 		}
 		
 	} while (!(hsmci_status_register & (1 << HSMCI_SR_XFRDONE_Pos)));

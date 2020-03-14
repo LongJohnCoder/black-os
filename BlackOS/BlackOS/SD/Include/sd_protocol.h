@@ -263,7 +263,7 @@ uint8_t sd_protocol_send_cmd_0(void);
 // Argument:	[31:0] stuff bits
 // Response:	R2
 
-uint8_t sd_protocol_send_cmd_2(sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_2(sd_card* card);
 
 
 // CMD3 SEND_RELATIVE_ADDRESS
@@ -271,7 +271,7 @@ uint8_t sd_protocol_send_cmd_2(sd_card* sd_card);
 
 // Argument:	[31:0] stuff bits
 // Response:	R6
-uint8_t sd_protocol_send_cmd_3(sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_3(sd_card* card);
 
 
 // CMD8 SEND_IF_COND
@@ -288,7 +288,7 @@ uint8_t sd_protocol_send_cmd_8(void);
 
 // Argument:	[31:16] relative card address (RCA)
 // Response:	R2
-uint8_t sd_protocol_send_cmd_9(sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_9(sd_card* card);
 
 
 // CMD55 APP_CMD
@@ -296,7 +296,7 @@ uint8_t sd_protocol_send_cmd_9(sd_card* sd_card);
 
 // Argument:	[31:16] relative card address (RCA)
 // Response:	R1
-uint8_t sd_protocol_send_cmd_55(const sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_55(const sd_card* card);
 
 
 // ACMD41 SD_SEND_OP_COND
@@ -305,7 +305,7 @@ uint8_t sd_protocol_send_cmd_55(const sd_card* sd_card);
 // Argument:	[31] reserved set to 0
 //				[30] host high capacity support
 // Response:	R3
-uint8_t sd_protocol_send_acmd_41(sd_card* sd_card);
+uint8_t sd_protocol_send_acmd_41(sd_card* card);
 
 
 // CMD7 SELECT / DESELECT CARD
@@ -313,7 +313,7 @@ uint8_t sd_protocol_send_acmd_41(sd_card* sd_card);
 
 // Argument:	[31:16] RCA WARNING: address zero de-select all
 // Response:	R1b
-uint8_t sd_protocol_send_cmd_7(const sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_7(const sd_card* card);
 
 
 // ACMD6 SET_BUS_WIDTH
@@ -322,7 +322,7 @@ uint8_t sd_protocol_send_cmd_7(const sd_card* sd_card);
 // Argument:	[31:2] stuff bits
 //				[1:0] bus width
 // Response:	R1
-uint8_t sd_protocol_send_acmd_6(const sd_card* sd_card);
+uint8_t sd_protocol_send_acmd_6(const sd_card* card);
 
 
 // CMD16 SET_BLOCKLEN
@@ -340,7 +340,7 @@ uint8_t sd_protocol_send_cmd_16(void);
 
 // Argument:	[31:0] stuffed bits
 // Response:	R1
-uint8_t sd_protocol_send_acmd_51(sd_card* sd_card);
+uint8_t sd_protocol_send_acmd_51(sd_card* card);
 
 
 // CMD6 SWITCH_FUNC
@@ -353,7 +353,7 @@ uint8_t sd_protocol_send_acmd_51(sd_card* sd_card);
 //				[7:4] command system
 //				[3:0] access mode
 // Response:	R1
-uint8_t sd_protocol_send_cmd_6(sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_6(sd_card* card);
 
 
 // CMD6 SWITCH_FUNC
@@ -366,7 +366,7 @@ uint8_t sd_protocol_send_cmd_6(sd_card* sd_card);
 //				[7:4] command system
 //				[3:0] access mode
 // Response:	R1
-uint8_t sd_protocol_send_cmd_6_check(sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_6_check(sd_card* card);
 
 
 // CMD13 SEND_STATUS
@@ -375,7 +375,7 @@ uint8_t sd_protocol_send_cmd_6_check(sd_card* sd_card);
 // Argument:	[31:16] RCA
 //				[15] send task status register
 // Result:		R1
-uint8_t sd_protocol_send_cmd_13(sd_card* sd_card);
+uint8_t sd_protocol_send_cmd_13(sd_card* card);
 
 
 // send 74 dummy cycles according to the SD Specification due to VDD ramp-up delay
@@ -398,21 +398,21 @@ sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata);
 // just a temporarily function used for debug
 void sd_protocol_print_reg(char* description, uint32_t data, uint8_t number_of_bits);
 
-void sd_protocol_print_csd(const sd_card* sd_card);
+void sd_protocol_print_csd(const sd_card* card);
 
-void sd_protocol_print_card_info(const sd_card* sd_card);
+void sd_protocol_print_card_info(const sd_card* card);
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_initialize(sd_card* sd_card);
+uint8_t sd_protocol_initialize(sd_card* card);
 
-uint8_t sd_protocol_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
+uint8_t sd_protocol_read(sd_card* card, uint8_t *data, uint32_t sector, uint32_t count);
 
-uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count);
+uint8_t sd_protocol_dma_read(sd_card* card, uint8_t *data, uint32_t sector, uint32_t count);
 
-uint8_t sd_protocol_write(sd_card* sd_card, const uint8_t *data, uint32_t sector, uint32_t count);
+uint8_t sd_protocol_write(sd_card* card, const uint8_t *data, uint32_t sector, uint32_t count);
 
 
 //--------------------------------------------------------------------------------------------------//

@@ -74,9 +74,9 @@ uint8_t sd_protocol_send_cmd_8(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_55(const sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_55(const sd_card* card)
 {
-	if(hsmci_send_command(HSMCI, 55 | SD_PROTOCOL_RESPONSE_1, (uint32_t)sd_card->relative_card_address << 16, CHECK_CRC) == HSMCI_ERROR)
+	if(hsmci_send_command(HSMCI, 55 | SD_PROTOCOL_RESPONSE_1, (uint32_t)card->relative_card_address << 16, CHECK_CRC) == HSMCI_ERROR)
 	{
 		return 0;
 	}
@@ -90,7 +90,7 @@ uint8_t sd_protocol_send_cmd_55(const sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_2(sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_2(sd_card* card)
 {
 	if (hsmci_send_command(HSMCI, 2 | SD_PROTOCOL_RESPONSE_2 | HSMCI_CMDR_OPDCMD_OPENDRAIN, 0, CHECK_CRC) == HSMCI_ERROR)
 	{
@@ -102,7 +102,7 @@ uint8_t sd_protocol_send_cmd_2(sd_card* sd_card)
 	
 	hsmci_read_136_bit_response_register_extended(HSMCI, cid_raw);
 	
-	sd_card->card_identification = sd_protocol_cid_decode(cid_raw);
+	card->card_identification = sd_protocol_cid_decode(cid_raw);
 	
 	return 1;
 }
@@ -111,14 +111,14 @@ uint8_t sd_protocol_send_cmd_2(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_acmd_41(sd_card* sd_card)
+uint8_t sd_protocol_send_acmd_41(sd_card* card)
 {	
 	uint32_t retry_count = 0;
 	uint32_t tmp;
 	
 	while (1)
 	{		
-		sd_protocol_send_cmd_55(sd_card);
+		sd_protocol_send_cmd_55(card);
 		
 		// the voltage argument is mandatory in the SD 2.0 specification
 		hsmci_send_command(HSMCI, 41 | SD_PROTOCOL_RESPONSE_3 | HSMCI_CMDR_OPDCMD_OPENDRAIN, (1 << 30) | (0b111111 << 15), DONT_CHECK_CRC);
@@ -130,10 +130,10 @@ uint8_t sd_protocol_send_acmd_41(sd_card* sd_card)
 		{
 			if (tmp & (1 << 30))
 			{
-				sd_card->card_type = SDHC;
+				card->card_type = SDHC;
 				return 1;
 			}
-			sd_card->card_type = SDSC;
+			card->card_type = SDSC;
 			return 1;
 		}
 			
@@ -149,7 +149,7 @@ uint8_t sd_protocol_send_acmd_41(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_3(sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_3(sd_card* card)
 {
 	if (hsmci_send_command(HSMCI, 3 | SD_PROTOCOL_RESPONSE_6 | HSMCI_CMDR_OPDCMD_OPENDRAIN, 0, CHECK_CRC) == HSMCI_ERROR)
 	{
@@ -157,7 +157,7 @@ uint8_t sd_protocol_send_cmd_3(sd_card* sd_card)
 		return 0;
 	}
 	
-	sd_card->relative_card_address = ((hsmci_read_48_bit_response_register(HSMCI) >> 16) & 0xffff);
+	card->relative_card_address = ((hsmci_read_48_bit_response_register(HSMCI) >> 16) & 0xffff);
 		
 	return 1;
 }
@@ -166,9 +166,9 @@ uint8_t sd_protocol_send_cmd_3(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_9(sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_9(sd_card* card)
 {
-	if (hsmci_send_command(HSMCI, 9 | SD_PROTOCOL_RESPONSE_2, (uint32_t)(sd_card->relative_card_address << 16), CHECK_CRC) == HSMCI_ERROR)
+	if (hsmci_send_command(HSMCI, 9 | SD_PROTOCOL_RESPONSE_2, (uint32_t)(card->relative_card_address << 16), CHECK_CRC) == HSMCI_ERROR)
 	{
 		board_serial_print("[  FAIL ]\tCMD9\n");
 		return 0;
@@ -177,24 +177,24 @@ uint8_t sd_protocol_send_cmd_9(sd_card* sd_card)
 	uint8_t csd_raw[16];
 	hsmci_read_136_bit_response_register_extended(HSMCI, csd_raw);
 	
-	if (sd_card->card_type == SDHC)
+	if (card->card_type == SDHC)
 	{
-		sd_card->card_specific_data_2_0 = sd_protocol_csd_decode_version_2_0(csd_raw);
-		sd_card->card_size = (uint32_t)(sd_card->card_specific_data_2_0.c_size*512);
+		card->card_specific_data_2_0 = sd_protocol_csd_decode_version_2_0(csd_raw);
+		card->card_size = (uint32_t)(card->card_specific_data_2_0.c_size*512);
 		
 		// Update the number_of_blocks field too
-		sd_card->number_of_blocks = sd_card->card_specific_data_2_0.c_size * 1000;
+		card->number_of_blocks = card->card_specific_data_2_0.c_size * 1000;
 	}
-	else if (sd_card->card_type == SDSC)
+	else if (card->card_type == SDSC)
 	{
-		sd_card->card_specific_data_1_0 = sd_protocol_csd_decode_version_1_0(csd_raw);
-		sd_card->card_size =	((sd_card->card_specific_data_1_0.c_size + 1) *
-								(1 << (sd_card->card_specific_data_1_0.c_size_multipliation + 2)) *
-								(1 << sd_card->card_specific_data_1_0.read_block_length)) / 1000;
+		card->card_specific_data_1_0 = sd_protocol_csd_decode_version_1_0(csd_raw);
+		card->card_size =	((card->card_specific_data_1_0.c_size + 1) *
+								(1 << (card->card_specific_data_1_0.c_size_multipliation + 2)) *
+								(1 << card->card_specific_data_1_0.read_block_length)) / 1000;
 								
 		// Update the number_of_blocks field too
-		sd_card->number_of_blocks = (sd_card->card_specific_data_1_0.c_size + 1) *
-									(1 << (sd_card->card_specific_data_1_0.c_size_multipliation + 2));
+		card->number_of_blocks = (card->card_specific_data_1_0.c_size + 1) *
+									(1 << (card->card_specific_data_1_0.c_size_multipliation + 2));
 	}
 	
 	return 1;
@@ -204,9 +204,9 @@ uint8_t sd_protocol_send_cmd_9(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_7(const sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_7(const sd_card* card)
 {
-	if (hsmci_send_command(HSMCI, 7 | SD_PROTOCOL_RESPONSE_1b, (uint32_t)sd_card->relative_card_address << 16, CHECK_CRC) == HSMCI_ERROR)
+	if (hsmci_send_command(HSMCI, 7 | SD_PROTOCOL_RESPONSE_1b, (uint32_t)card->relative_card_address << 16, CHECK_CRC) == HSMCI_ERROR)
 	{
 		board_serial_print("[  FAIL ]\tCMD7\n");
 		return 0;
@@ -218,9 +218,9 @@ uint8_t sd_protocol_send_cmd_7(const sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_acmd_6(const sd_card* sd_card)
+uint8_t sd_protocol_send_acmd_6(const sd_card* card)
 {
-	if (sd_protocol_send_cmd_55(sd_card) == 0)
+	if (sd_protocol_send_cmd_55(card) == 0)
 	{
 		return 0;
 	}
@@ -253,11 +253,11 @@ uint8_t sd_protocol_send_acmd_16(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_acmd_51(sd_card* sd_card)
+uint8_t sd_protocol_send_acmd_51(sd_card* card)
 {
 	uint8_t scr[8];
 	
-	if (sd_protocol_send_cmd_55(sd_card) == 0)
+	if (sd_protocol_send_cmd_55(card) == 0)
 	{
 		return 0;
 	}
@@ -273,22 +273,22 @@ uint8_t sd_protocol_send_acmd_51(sd_card* sd_card)
 	
 	if (((scr[6] >> 2) & 0b1) == 0b1)
 	{
-		sd_card->four_bit_bus_width_support = 1;
+		card->four_bit_bus_width_support = 1;
 	}
 	else
 	{
-		sd_card->four_bit_bus_width_support = 0;
+		card->four_bit_bus_width_support = 0;
 	}
 	
 	uint8_t version = (scr[7] & 0b1111);
 	if (version > 0)
 	{
 		
-		sd_card->version_1_10_and_later = 1;
+		card->version_1_10_and_later = 1;
 	}
 	else
 	{
-		sd_card->version_1_10_and_later = 0;
+		card->version_1_10_and_later = 0;
 	}
 	
 	return 1;
@@ -298,10 +298,10 @@ uint8_t sd_protocol_send_acmd_51(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_6(sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_6(sd_card* card)
 {	
-	sd_card->high_speed_support = 0;
-	sd_card->bus_speed = 25000000;
+	card->high_speed_support = 0;
+	card->bus_speed = 25000000;
 	
 	// the command receive 64 bytes of data
 	uint8_t data_buffer[64];
@@ -345,8 +345,8 @@ uint8_t sd_protocol_send_cmd_6(sd_card* sd_card)
 		return 0;
 	}
 	
-	sd_card->high_speed_support = 1;
-	sd_card->bus_speed = 50000000;
+	card->high_speed_support = 1;
+	card->bus_speed = 50000000;
 
 	return 1;
 }
@@ -355,7 +355,7 @@ uint8_t sd_protocol_send_cmd_6(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_6_check(sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_6_check(sd_card* card)
 {
 	// the command receive 64 bytes of data
 	uint8_t data_buffer[64];
@@ -398,14 +398,14 @@ uint8_t sd_protocol_send_cmd_6_check(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_send_cmd_13(sd_card* sd_card)
+uint8_t sd_protocol_send_cmd_13(sd_card* card)
 {
 	uint32_t timeout_count = 200000;
 	uint32_t status;
 	
 	do 
 	{
-		if (hsmci_send_command(HSMCI, 13 | SD_PROTOCOL_RESPONSE_1, (uint32_t)(sd_card->relative_card_address << 16), CHECK_CRC) == HSMCI_ERROR)
+		if (hsmci_send_command(HSMCI, 13 | SD_PROTOCOL_RESPONSE_1, (uint32_t)(card->relative_card_address << 16), CHECK_CRC) == HSMCI_ERROR)
 		{
 			return 0;
 		}
@@ -534,11 +534,11 @@ sd_protocol_csd_2_0 sd_protocol_csd_decode_version_2_0(uint8_t* raw_data)
 //--------------------------------------------------------------------------------------------------//
 
 
-void sd_protocol_print_csd(const sd_card* sd_card)
+void sd_protocol_print_csd(const sd_card* card)
 {
-	if (sd_card->card_type == SDSC)
+	if (card->card_type == SDSC)
 	{
-		sd_protocol_csd_1_0 csd = sd_card->card_specific_data_1_0;
+		sd_protocol_csd_1_0 csd = card->card_specific_data_1_0;
 		
 		sd_protocol_print_reg("CSD structure", (uint32_t)csd.csd_structure, 2);
 		sd_protocol_print_reg("TAAC", (uint32_t)csd.taac, 8);
@@ -574,7 +574,7 @@ void sd_protocol_print_csd(const sd_card* sd_card)
 	}
 	else
 	{
-		sd_protocol_csd_2_0 csd = sd_card->card_specific_data_2_0;
+		sd_protocol_csd_2_0 csd = card->card_specific_data_2_0;
 		
 		sd_protocol_print_reg("CSD structure", (uint32_t)csd.csd_structure, 2);
 		sd_protocol_print_reg("TAAC", (uint32_t)csd.taac, 8);
@@ -606,29 +606,29 @@ void sd_protocol_print_csd(const sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-void sd_protocol_print_card_info(const sd_card* sd_card)
+void sd_protocol_print_card_info(const sd_card* card)
 {
-	if (sd_card->card_initialized)
+	if (card->card_initialized)
 	{
 		// Print card type
 		board_serial_print("Card type: ");
-		if (sd_card->card_type == SDHC)
+		if (card->card_type == SDHC)
 		{
 			board_serial_print("SDHC\n");
 		}
-		else if (sd_card->card_type == SDSC)
+		else if (card->card_type == SDSC)
 		{
 			board_serial_print("SDSC\n");	
 		}
 		
 		// Print product name
-		board_serial_print("Card name: %s\n", sd_card->card_identification.name);
+		board_serial_print("Card name: %s\n", card->card_identification.name);
 		
 		// Print card size
-		board_serial_print("Card size: %dMbyte\n", sd_card->card_size / 1000);
+		board_serial_print("Card size: %dMbyte\n", card->card_size / 1000);
 		
 		// Print bus width
-		if (sd_card->four_bit_bus_width_support)
+		if (card->four_bit_bus_width_support)
 		{
 			board_serial_print("Using 4-bit bus\n");
 		}
@@ -638,7 +638,7 @@ void sd_protocol_print_card_info(const sd_card* sd_card)
 		}
 		
 		// Print high speed
-		if (sd_card->high_speed_support)
+		if (card->high_speed_support)
 		{
 			board_serial_print("Using high speed ");
 		}
@@ -646,7 +646,7 @@ void sd_protocol_print_card_info(const sd_card* sd_card)
 		{
 			board_serial_print("Using default speed ");
 		}
-		board_serial_print("@ %dMHz\n", sd_card->bus_speed / 1000000);
+		board_serial_print("@ %dMHz\n", card->bus_speed / 1000000);
 	}
 }
 
@@ -686,7 +686,7 @@ sd_protocol_cid sd_protocol_cid_decode(uint8_t* raw_rata)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_initialize(sd_card* sd_card)
+uint8_t sd_protocol_initialize(sd_card* card)
 {
 	HSMCI->HSMCI_CR = (1 << HSMCI_CR_SWRST_Pos);
 	
@@ -698,15 +698,15 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 	// Since the local variable does not get initialized we have
 	// to manually set the relative_card_address to zero.
 	// Otherwise we will get an error on CMD55.
-	sd_card->relative_card_address = 0;
-	sd_card->slot = HSMCI_SLOT_A;
-	sd_card->card_initialized = 0;
+	card->relative_card_address = 0;
+	card->slot = HSMCI_SLOT_A;
+	card->card_initialized = 0;
 	
 	// disable write protection before writing to the HSMCI registers
 	hsmci_write_protection_disable(HSMCI);
 	
 	// write control register
-	hsmci_set_bus_width(HSMCI, HSMCI_SD_BUS_WIDTH_1_BIT, sd_card->slot);
+	hsmci_set_bus_width(HSMCI, HSMCI_SD_BUS_WIDTH_1_BIT, card->slot);
 	
 	// set the data and completion timeout to 2.000.000 cycles
 	hsmci_set_data_timeout(HSMCI, HSMCI_TIMEOUT_MULTIPLIER_1048576, 3);
@@ -743,7 +743,7 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 	}
 	
 	// try to read operating condition and return when the card do not return busy
-	if (sd_protocol_send_acmd_41(sd_card) == 0)
+	if (sd_protocol_send_acmd_41(card) == 0)
 	{
 		return 0;
 	}
@@ -751,13 +751,13 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 	// maybe add CMD11 in the future	
 	
 	// retrieve CID info
-	if (sd_protocol_send_cmd_2(sd_card) == 0)
+	if (sd_protocol_send_cmd_2(card) == 0)
 	{
 		return 0;
 	}
 	
 	//get the relative address	
-	if (sd_protocol_send_cmd_3(sd_card) == 0)
+	if (sd_protocol_send_cmd_3(card) == 0)
 	{
 		return 0;
 	}
@@ -765,47 +765,47 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 	// now the SD card is in standby state
 	
 	// get card specific data
-	if (sd_protocol_send_cmd_9(sd_card) == 0)
+	if (sd_protocol_send_cmd_9(card) == 0)
 	{
 		return 0;
 	}
 	
 	// get the card into transfer mode
-	if (sd_protocol_send_cmd_7(sd_card) == 0)
+	if (sd_protocol_send_cmd_7(card) == 0)
 	{
 		return 0;
 	}
 	
 	// retrieve SCR register
-	if (sd_protocol_send_acmd_51(sd_card) == 0)
+	if (sd_protocol_send_acmd_51(card) == 0)
 	{
 		return 0;
 	}
 	
 	// set bus width
-	if (sd_card->four_bit_bus_width_support)
+	if (card->four_bit_bus_width_support)
 	{
-		if (sd_protocol_send_acmd_6(sd_card) == 0)
+		if (sd_protocol_send_acmd_6(card) == 0)
 		{
 			return 0;
 		}
-		hsmci_set_bus_width(HSMCI, HSMCI_SD_BUS_WIDTH_4_BIT, sd_card->slot);
+		hsmci_set_bus_width(HSMCI, HSMCI_SD_BUS_WIDTH_4_BIT, card->slot);
 	}
 	
-	if (sd_card->version_1_10_and_later)
+	if (card->version_1_10_and_later)
 	{
-		if (sd_protocol_send_cmd_6(sd_card) == 0)
+		if (sd_protocol_send_cmd_6(card) == 0)
 		{
 			return 0;
 		}
-		if (sd_card->high_speed_support)
+		if (card->high_speed_support)
 		{
 			hsmci_high_speed_enable(HSMCI);
 		}
 	}
-	hsmci_set_bus_speed(HSMCI, sd_card->bus_speed, 150000000);
+	hsmci_set_bus_speed(HSMCI, card->bus_speed, 150000000);
 	
-	sd_card->card_initialized = 1;
+	card->card_initialized = 1;
 	
 	return 1;
 }
@@ -814,10 +814,10 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count)
+uint8_t sd_protocol_read(sd_card* card, uint8_t *data, uint32_t sector, uint32_t count)
 {
 	// First check if the section is supported on the card
-	if (sector + count >= sd_card->number_of_blocks)
+	if (sector + count >= card->number_of_blocks)
 	{
 		return 0;
 	}
@@ -829,19 +829,19 @@ uint8_t sd_protocol_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint3
 	{
 		// For each sector
 		// Check if card is ready
-		if (sd_protocol_send_cmd_13(sd_card) == 0)
+		if (sd_protocol_send_cmd_13(card) == 0)
 		{
 			return 0;	
 		}
 		
 		command |= (17 | HSMCI_CMDR_TRTYP_SINGLE | SD_PROTOCOL_ADDRESSED_DATA_TRANSFER_READ | SD_PROTOCOL_RESPONSE_1);
 		
-		if (sd_card->card_type == SDSC)
+		if (card->card_type == SDSC)
 		{
 			// Standard capacity
 			argument = (sector + i) * 512;
 		}
-		else if (sd_card->card_type == SDHC)
+		else if (card->card_type == SDHC)
 		{
 			// High capacity
 			argument = sector + i;
@@ -880,10 +880,10 @@ uint8_t sd_protocol_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint3
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_write(sd_card* sd_card, const uint8_t *data, uint32_t sector, uint32_t count)
+uint8_t sd_protocol_write(sd_card* card, const uint8_t *data, uint32_t sector, uint32_t count)
 {
 	// First check if the section is supported on the card
-	if (sector + count >= sd_card->number_of_blocks)
+	if (sector + count >= card->number_of_blocks)
 	{
 		return 0;
 	}
@@ -895,19 +895,19 @@ uint8_t sd_protocol_write(sd_card* sd_card, const uint8_t *data, uint32_t sector
 	{
 		// For each sector
 		// Check if card is ready
-		if (sd_protocol_send_cmd_13(sd_card) == 0)
+		if (sd_protocol_send_cmd_13(card) == 0)
 		{
 			return 0;
 		}
 		
 		command |= (24 | HSMCI_CMDR_TRTYP_SINGLE | SD_PROTOCOL_ADDRESSED_DATA_TRANSFER_WRITE | SD_PROTOCOL_RESPONSE_1);
 		
-		if (sd_card->card_type == SDSC)
+		if (card->card_type == SDSC)
 		{
 			// Standard capacity
 			argument = (sector + i) * 512;
 		} 
-		else if (sd_card->card_type == SDHC)
+		else if (card->card_type == SDHC)
 		{
 			// High capacity
 			argument = sector + i;
@@ -952,11 +952,11 @@ uint8_t sd_protocol_write(sd_card* sd_card, const uint8_t *data, uint32_t sector
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, uint32_t count)
+uint8_t sd_protocol_dma_read(sd_card* card, uint8_t *data, uint32_t sector, uint32_t count)
 {
 	board_serial_print("x\n");
 	// First check if the section is supported on the card
-	if (sector + count >= sd_card->number_of_blocks)
+	if (sector + count >= card->number_of_blocks)
 	{
 		return 0;
 	}
@@ -966,7 +966,7 @@ uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, u
 	uint32_t argument = 0;
 	
 	// Check if the card is ready for new data
-	if (sd_protocol_send_cmd_13(sd_card) == 0)
+	if (sd_protocol_send_cmd_13(card) == 0)
 	{
 		return 0;
 	}
@@ -980,12 +980,12 @@ uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, u
 		command |= (17 | HSMCI_CMDR_TRTYP_SINGLE | SD_PROTOCOL_ADDRESSED_DATA_TRANSFER_READ | SD_PROTOCOL_RESPONSE_1);
 	}
 	
-	if (sd_card->card_type == SDSC)
+	if (card->card_type == SDSC)
 	{
 		// Standard capacity
 		argument = sector * 512;
 	}
-	else if (sd_card->card_type == SDHC)
+	else if (card->card_type == SDHC)
 	{
 		// High capacity
 		argument = sector;
@@ -996,6 +996,8 @@ uint8_t sd_protocol_dma_read(sd_card* sd_card, uint8_t *data, uint32_t sector, u
 	hsmci_start_read_blocks(data, count);
 	
 	hsmci_wait_end_of_read();
+	
+	hsmci_send_command(HSMCI, 12 | SD_PROTOCOL_RESPONSE_1b, 0, CHECK_CRC);
 	
 	SCB_InvalidateDCache_by_Addr((uint32_t *)((uint32_t)data & ~32), count * 512 + 32);
 	

@@ -12,6 +12,7 @@
 #include "board_serial_programming.h"
 #include "check.h"
 #include "core.h"
+#include "board_serial.h"
 
 
 //--------------------------------------------------------------------------------------------------//
