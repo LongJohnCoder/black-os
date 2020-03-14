@@ -19,6 +19,7 @@
 
 
 #define HSMCI_DEBUG			1
+
 #define HSMCI_DMA_CHANNEL	2
 
 #define HSMCI_STATUS_REGISTER_ERROR_MASK ((1 << HSMCI_SR_ACKRCV_Pos) | (1 << HSMCI_SR_BLKOVRE_Pos) | (1 << HSMCI_SR_CSTOE_Pos) | (1 << HSMCI_SR_DTOE_Pos) | (1 << HSMCI_SR_DCRCE_Pos) | (1 << HSMCI_SR_RTOE_Pos) | (1 << HSMCI_SR_CSTOE_Pos) | (1 << HSMCI_SR_RENDE_Pos) | (1 << HSMCI_SR_RDIRE_Pos) | (1 << HSMCI_SR_RINDE_Pos))
@@ -193,6 +194,14 @@ void hsmci_software_reset(Hsmci* hardware);
 
 void hsmci_soft_reset(Hsmci* hardware);
 
+void hsmci_powersave_enable(Hsmci* hardware);
+
+void hsmci_powersave_disable(Hsmci* hardware);
+
+void hsmci_enable(Hsmci* hardware);
+
+void hsmci_disable(Hsmci* hardware);
+
 
 //--------------------------------------------------------------------------------------------------//
 
@@ -207,7 +216,7 @@ void hsmci_set_data_timeout(Hsmci* hardware, hsmci_data_timeout_multiplier_e dat
 
 void hsmci_write_control_register(Hsmci* hardware, hsmci_control_enable_e enable, hsmci_control_powersave_e powersave);
 
-void hsmci_sd_card_config(Hsmci* hardware, hsmci_sd_bus_width_e bus_width, hsmci_sd_slot_select_e slot_selct);
+void hsmci_set_bus_width(Hsmci* hardware, hsmci_sd_bus_width_e bus_width, hsmci_sd_slot_select_e slot_selct);
 
 void hsmci_set_block_length(Hsmci* hardware, uint32_t block_length, uint32_t block_count);
 

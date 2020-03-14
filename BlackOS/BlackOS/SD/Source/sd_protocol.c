@@ -706,7 +706,7 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 	hsmci_write_protection_disable(HSMCI);
 	
 	// write control register
-	hsmci_sd_card_config(HSMCI, HSMCI_SD_BUS_WIDTH_1_BIT, sd_card->slot);
+	hsmci_set_bus_width(HSMCI, HSMCI_SD_BUS_WIDTH_1_BIT, sd_card->slot);
 	
 	// set the data and completion timeout to 2.000.000 cycles
 	hsmci_set_data_timeout(HSMCI, HSMCI_TIMEOUT_MULTIPLIER_1048576, 3);
@@ -722,7 +722,7 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 	hsmci_set_bus_speed(HSMCI, 400000, 150000000);
 	
 	// enable the interface
-	hsmci_write_control_register(HSMCI, HSMCI_ENABLE, HSMCI_POWERSAVE_OFF);
+	hsmci_enable(HSMCI);
 	
 	// send 74 clock cycles
 	if (sd_protocol_boot() == 0)
@@ -789,7 +789,7 @@ uint8_t sd_protocol_initialize(sd_card* sd_card)
 		{
 			return 0;
 		}
-		hsmci_sd_card_config(HSMCI, HSMCI_SD_BUS_WIDTH_4_BIT, sd_card->slot);
+		hsmci_set_bus_width(HSMCI, HSMCI_SD_BUS_WIDTH_4_BIT, sd_card->slot);
 	}
 	
 	if (sd_card->version_1_10_and_later)

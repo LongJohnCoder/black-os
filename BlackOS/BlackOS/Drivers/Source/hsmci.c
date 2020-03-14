@@ -82,6 +82,50 @@ void hsmci_soft_reset(Hsmci* hardware)
 //--------------------------------------------------------------------------------------------------//
 
 
+void hsmci_powersave_enable(Hsmci* hardware)
+{
+	CRITICAL_SECTION_ENTER()
+	hardware->HSMCI_CR = (1 << HSMCI_CR_PWSEN_Pos);
+	CRITICAL_SECTION_LEAVE()
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void hsmci_powersave_disable(Hsmci* hardware)
+{
+	CRITICAL_SECTION_ENTER()
+	hardware->HSMCI_CR = (1 << HSMCI_CR_PWSDIS_Pos);
+	CRITICAL_SECTION_LEAVE()
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void hsmci_enable(Hsmci* hardware)
+{
+	CRITICAL_SECTION_ENTER()
+	hardware->HSMCI_CR = (1 << HSMCI_CR_MCIEN_Pos);
+	CRITICAL_SECTION_LEAVE()
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void hsmci_disable(Hsmci* hardware)
+{
+	CRITICAL_SECTION_ENTER()
+	hardware->HSMCI_CR = (1 << HSMCI_CR_MCIDIS_Pos);
+	CRITICAL_SECTION_LEAVE()
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void hsmci_set_data_timeout(Hsmci* hardware, hsmci_data_timeout_multiplier_e data_timeout_multiplier, uint8_t data_timeout_cycle_number)
 {
 	uint32_t tmp = (data_timeout_multiplier << HSMCI_DTOR_DTOMUL_Pos) | ((0b1111 & data_timeout_cycle_number) << HSMCI_DTOR_DTOCYC_Pos);
@@ -106,37 +150,7 @@ void hsmci_set_completion_timeout(Hsmci* hardware, hsmci_data_timeout_multiplier
 //--------------------------------------------------------------------------------------------------//
 
 
-void hsmci_write_control_register(Hsmci* hardware, hsmci_control_enable_e enable, hsmci_control_powersave_e powersave)
-{
-	uint32_t tmp_reg = 0;
-	
-	if (enable == HSMCI_ENABLE)
-	{
-		tmp_reg |= (1 << HSMCI_CR_MCIEN_Pos);
-	}
-	else
-	{
-		tmp_reg |= (1 << HSMCI_CR_MCIDIS_Pos);
-	}
-	if (powersave == HSMCI_POWERSAVE_ON)
-	{
-		tmp_reg |= (1 << HSMCI_CR_PWSEN_Pos);
-	}
-	else
-	{
-		tmp_reg |= (1 << HSMCI_CR_PWSDIS_Pos);
-	}
-	
-	CRITICAL_SECTION_ENTER()
-	hardware->HSMCI_CR = tmp_reg;
-	CRITICAL_SECTION_LEAVE()
-}
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-void hsmci_sd_card_config(Hsmci* hardware, hsmci_sd_bus_width_e bus_width, hsmci_sd_slot_select_e slot_selct)
+void hsmci_set_bus_width(Hsmci* hardware, hsmci_sd_bus_width_e bus_width, hsmci_sd_slot_select_e slot_selct)
 {
 	uint32_t tmp = (bus_width << HSMCI_SDCR_SDCBUS_Pos) | (slot_selct << HSMCI_SDCR_SDCSEL_Pos);
 	
@@ -309,42 +323,35 @@ hsmci_status_e hsmci_send_command(Hsmci* hardware, uint32_t command, uint32_t ar
 	{
 		status = hsmci_read_status_register(hardware);
 		
-	} while (!(status & (1 << HSMCI_SR_CMDRDY_Pos)));
-	
-	
-	// Read the status register to check for errors
-	if (status & HSMCI_STATUS_REGISTER_ERROR_MASK)
-	{
-		#if HSMCI_DEBUG
-		// Print out error message including which command that caused the error
-		// End print out the status register as well
-		board_serial_print("[  FAIL ] CMD%d ", (HSMCI_CMDR_CMDNB_Msk & command));
-		board_serial_print_register("status: ", status);
-		#endif
-		
-		return HSMCI_ERROR;
-	}
-	
-	// The CRC error detection is not included in the above mask. This is because not
-	// every command requires a CRC check.
-	if (status & (1 << HSMCI_SR_RCRCE_Pos))
-	{
-		// If CRC error, and we are supposed to check it
-		if (crc == CHECK_CRC)
+		// Check errors that might have occurred
+		if (status & (HSMCI_SR_RINDE_Msk | HSMCI_SR_RDIRE_Msk | HSMCI_SR_RENDE_Msk | HSMCI_SR_RTOE_Msk | HSMCI_SR_CSTOE_Msk))
 		{
 			#if HSMCI_DEBUG
-			// Print that it has occurred an CRC error
-			board_serial_print("[WARNING] CRC error\n");
+			check(0);
 			#endif
 			
 			return HSMCI_ERROR;
 		}
-	}
+		
+		
+		if (crc == CHECK_CRC)
+		{
+			if (status & HSMCI_SR_RCRCE_Msk)
+			{
+				#if HSMCI_DEBUG
+				check(0);
+				#endif
+				
+				return HSMCI_ERROR;
+			}
+		}
+		
+	} while (!(status & HSMCI_SR_CMDRDY_Msk));
 	
-	// TODO: The data sheet says that the response should be read here  
 	
 	// If the response is R1b wait for the device to NOT return busy
 	uint32_t timeout = 0xffffffff;
+	
 	if ((command & HSMCI_CMDR_RSPTYP_R1B) == HSMCI_CMDR_RSPTYP_R1B)
 	{
 		do
@@ -354,7 +361,7 @@ hsmci_status_e hsmci_send_command(Hsmci* hardware, uint32_t command, uint32_t ar
 			{
 				return HSMCI_ERROR;
 			}
-		} while (!((status & HSMCI_SR_NOTBUSY_Msk) && ((status & HSMCI_SR_DTOE_Msk) == 0)));
+		} while (!((status & HSMCI_SR_NOTBUSY_Msk) && ((status & HSMCI_SR_DTIP_Msk) == 0)));
 		
 	}
 	return HSMCI_OK;
@@ -584,16 +591,16 @@ hsmci_status_e hsmci_wait_end_of_read(void)
 
 
 uint32_t hsmci_construct_command_register(	uint8_t boot_ack,
-										uint8_t ata_with_command_completion_enable,
-										hsmci_command_sdio_special_command_e sdio_special_command,
-										hsmci_command_transfer_type_e transfer_type,
-										hsmci_command_transfer_direction_e transfer_direction,
-										hsmci_command_transfer_command_e transfer_command,
-										hsmci_command_max_latency_e max_latency,
-										uint8_t open_drain_enable,
-										hsmci_command_special_command_e special_command,
-										hsmci_command_responce_type_e responce_type,
-										uint8_t command_number)
+											uint8_t ata_with_command_completion_enable,
+											hsmci_command_sdio_special_command_e sdio_special_command,
+											hsmci_command_transfer_type_e transfer_type,
+											hsmci_command_transfer_direction_e transfer_direction,
+											hsmci_command_transfer_command_e transfer_command,
+											hsmci_command_max_latency_e max_latency,
+											uint8_t open_drain_enable,
+											hsmci_command_special_command_e special_command,
+											hsmci_command_responce_type_e responce_type,
+											uint8_t command_number)
 {
 	uint32_t tmp =	((0b1 & boot_ack) << HSMCI_CMDR_BOOT_ACK_Pos) |
 					((0b1 & ata_with_command_completion_enable) << HSMCI_CMDR_ATACS_Pos) |
