@@ -13,6 +13,7 @@
 #include "check.h"
 #include "core.h"
 #include "board_serial.h"
+#include "cache.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -152,6 +153,9 @@ thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void
 		
 		kernel_list_insert_first(&(new_thread->list_item), &running_queue);
 	}
+	
+	//cache_clean_addresses((uint32_t *)new_thread, sizeof(thread_s));
+	//cache_clean_addresses((uint32_t *)new_thread->stack_base, stack_size);
 	
 	SCB_CleanDCache();
 	
