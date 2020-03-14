@@ -6,6 +6,7 @@
 // the software.
 
 #include "board_serial.h"
+#include "config.h"
 #include "usart.h"
 #include "clock.h"
 #include "gpio.h"
@@ -24,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-static char serial_print_buffer[256];
+static char serial_print_buffer[SERIAL_PRINTF_BUFFER_SIZE];
 
 static const unsigned s_value[] = {1000000000u, 100000000u, 10000000u, 1000000u, 100000u, 10000u, 1000u, 100u, 10u, 1u};
 
@@ -67,6 +68,8 @@ void board_serial_config(void)
 	board_serial_port_config();
 	board_serial_clock_config();
 	board_serial_mode_config();
+	
+	board_serial_dma_config();
 }
 
 
@@ -221,11 +224,13 @@ void board_serial_print(char* data, ...)
 	va_end(ap);
 	*s = 0;
 
-	while (*start != '\0')
+	/*while (*start != '\0')
 	{
 		usart_write(USART1, *start);
 		start++;
-	}
+	}*/
+	
+	board_serial_dma_print(start);
 }
 
 
@@ -329,15 +334,36 @@ void board_serial_print_register(char* data, uint32_t reg)
 //--------------------------------------------------------------------------------------------------//
 
 
-static char* serial_buffer_a[128];
-static char* serial_buffer_b[128];
+typedef struct
+{
+	char data[SERIAL_DMA_BUFFER_SIZE];
+	uint16_t position;
+	
+	uint8_t dma_active;
+	
+} serial_buffer;
 
 
-static uint8_t serial_buffer_a_size;
-static uint8_t serial_buffer_b_size; 
+
+static serial_buffer buffer_a;
+static serial_buffer buffer_b;
 
 
-static char* serial_current_buffer;
+static serial_buffer* current_buffer;
+static serial_buffer* dma_buffer;
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+// This function gets called when a DMA serial transaction has completed. The dma_buffer pointer
+// points to data that is successfully transmitted. 
+
+void board_serial_dma_callback(uint8_t channel)
+{
+	dma_buffer->dma_active = 0;
+	dma_buffer->position = 0;
+}
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -345,7 +371,7 @@ static char* serial_current_buffer;
 
 // This function will set up a DMA serial transaction 
 
-void board_serial_dma_flush_buffer(char* source_buffer, uint8_t size)
+void board_serial_dma_flush_buffer(char* source_buffer, uint32_t size)
 {	
 	dma_microblock_transaction_descriptor dma_desc;
 
@@ -373,6 +399,11 @@ void board_serial_dma_flush_buffer(char* source_buffer, uint8_t size)
 	dma_desc.synchronization = DMA_SYNC_MEMORY_TO_PERIPHERAL;
 	dma_desc.transfer_type = DMA_TRANSFER_TYPE_PERIPHERAL_TRANSFER;
 	dma_desc.trigger = DMA_TRIGGER_HARDWARE;
+	
+	
+	
+	// Set a callback handler
+	dma_channel_set_callback(BOARD_SERIAL_DMA_CHANNEL, board_serial_dma_callback);
 
 
 	// The serial buffer that is flushed might be located in the cache. Therefore
@@ -382,7 +413,10 @@ void board_serial_dma_flush_buffer(char* source_buffer, uint8_t size)
 
 	// Cache can only be cleaned at 32-bytes alignment
 	SCB_CleanDCache_by_Addr(cache_addr, size + 32);
+	
+	SCB_CleanDCache();
 
+	dma_buffer->dma_active = 1;
 
 	// Start the transfer
 	dma_setup_transaction(XDMAC, &dma_desc);
@@ -405,10 +439,57 @@ void board_serial_dma_config(void)
 	
 	timer_write_protection_disable(TC0);
 	timer_capture_mode_config(TC0, TIMER_CHANNEL_0, TIMER_NONE, TIMER_NONE, TIMER_CAPTURE_MODE, 1, 0, 0, TIMER_INCREMENT_RISING_EDGE, TIMER_CLOCK_MCK_DIV_128);
-	timer_set_compare_c(TC0, TIMER_CHANNEL_0, 11719);
+	timer_set_compare_c(TC0, TIMER_CHANNEL_0, 58595);
 	timer_interrupt_enable(TC0, TIMER_CHANNEL_0, TIMER_INTERRUPT_C_COMPARE);
 	
 	interrupt_enable_peripheral_interrupt(TC0_IRQn, IRQ_LEVEL_6);
+	
+	dma_buffer = &buffer_b;
+	current_buffer = &buffer_a;
+	
+	current_buffer->dma_active = 0;
+	dma_buffer->dma_active = 0;
+	
+	current_buffer->position = 0;
+	dma_buffer->position = 0;
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_timer_start(void)
+{
+	timer_clock_enable(TC0, TIMER_CHANNEL_0);
+	timer_software_trigger(TC0, TIMER_CHANNEL_0);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_timer_stop(void)
+{
+	timer_clock_disable(TC0, TIMER_CHANNEL_0);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_dma_switch_buffers(void)
+{
+	// We must check that the dma buffer is ready
+	while (dma_buffer->dma_active)
+	{
+		
+	}
+	
+	// After the DMA transaction is complete we switch the buffers
+	serial_buffer* tmp = dma_buffer;
+	
+	dma_buffer = current_buffer;
+	current_buffer = tmp;
 }
 
 
@@ -417,7 +498,91 @@ void board_serial_dma_config(void)
 
 void board_serial_dma_print(char* data)
 {
+	while (*data)
+	{
+		current_buffer->data[current_buffer->position] = *data;
+		
+		current_buffer->position++;
+		data++;
+		
+		if (current_buffer->position == SERIAL_DMA_BUFFER_SIZE)
+		{
+			// We have to disable the timer here
+			board_serial_timer_stop();
+			
+			// The buffer is filled up
+			board_serial_dma_switch_buffers();
+			
+			// Start flushing the DMA buffer
+			board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
+		}
+	}
 	
+	/*
+	// The buffer is filled up
+	board_serial_dma_switch_buffers();
+	
+	// Start flushing the DMA buffer
+	board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
+	*/
+	
+	board_serial_timer_start();
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void board_serial_dma_print_size(char* data, uint32_t size)
+{
+	while (size)
+	{
+		current_buffer->data[current_buffer->position] = *data;
+		
+		current_buffer->position++;
+		data++;
+		size--;
+		
+		if (current_buffer->position == SERIAL_DMA_BUFFER_SIZE)
+		{
+			// We have to disable the timer here
+			board_serial_timer_stop();
+			
+			// The buffer is filled up
+			board_serial_dma_switch_buffers();
+			
+			// Start flushing the DMA buffer
+			board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
+		}
+	}
+	
+	/*
+	// The buffer is filled up
+	board_serial_dma_switch_buffers();
+	
+	// Start flushing the DMA buffer
+	board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
+	*/
+	
+	board_serial_timer_start();
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void TC0_Handler()
+{
+	timer_read_interrupt_status(TC0, TIMER_CHANNEL_0);
+	
+	// We have to disable the timer here
+	board_serial_timer_stop();
+	
+	// The buffer is filled up
+	board_serial_dma_switch_buffers();
+	
+	// Start flushing the DMA buffer
+	board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
 }
 
 

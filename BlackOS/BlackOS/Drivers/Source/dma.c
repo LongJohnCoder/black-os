@@ -16,6 +16,12 @@
 //--------------------------------------------------------------------------------------------------//
 
 
+static dma_callback dma_handlers[10];
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dma_reset(Xdmac* hardware)
 {
 	// Clear interrupt status bits
@@ -521,6 +527,17 @@ void dma_channel_configure(Xdmac* hardware, dma_microblock_transaction_descripto
 //--------------------------------------------------------------------------------------------------//
 
 
+// This functions set a custom callback for the DMA channels
+
+void dma_channel_set_callback(uint8_t dma_channel, dma_callback callback)
+{
+	dma_handlers[dma_channel] = callback;
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void XDMAC_Handler()
 {
 	int8_t source_channel = -1;
@@ -552,6 +569,8 @@ void XDMAC_Handler()
 	else if (channel_status & XDMAC_CIS_BIS_Msk)
 	{
 		// End of micro block
+		// We call the appropriate handler
+		dma_handlers[source_channel](source_channel);
 	}
 }
 

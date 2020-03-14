@@ -58,7 +58,7 @@ void file_system_command_line_thread(void* args);
 
 #define FILE_SYSTEM_MAX_PATH_LENGTH		1000
 #define FILE_SYSTEM_MAX_LIST_LENGTH		30
-#define FILE_SYSTEM_BUFFER_SIZE			128
+#define FILE_SYSTEM_BUFFER_SIZE			512
 #define FILE_SYSTEM_COMMAND_BUFFER_SIZE	100
 #define MAX_ARGUEMTNS 6
 #define LENGTH_ARGUMENT 50
@@ -318,11 +318,13 @@ file_result_t file_system_command_line_cat(char* arg)
 		{
 			return res;
 		}
-
+		
+		/*
 		for (uint16_t i = 0; i < bytes_read; i++)
 		{
 			board_serial_write(file_system_buffer[i]);
-		}
+		}*/
+		board_serial_dma_print_size(file_system_buffer, bytes_read);
 
 
 	} while (bytes_read == FILE_SYSTEM_BUFFER_SIZE);

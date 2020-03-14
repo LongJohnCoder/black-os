@@ -27,7 +27,7 @@
 
 
 #define BOARD_SERIAL_CPU_FREQ	150000000
-#define BOARD_SERIAL_BAUD_RATE	115200
+#define BOARD_SERIAL_BAUD_RATE	230400
 #define BOARD_SERIAL_CD_VALUE	BOARD_SERIAL_CPU_FREQ / (16 * BOARD_SERIAL_BAUD_RATE)
 
 
@@ -61,7 +61,9 @@ void board_serial_dma_config(void);
 
 void board_serial_dma_print(char* data);
 
-void board_serial_dma_flush_buffer(char* source_buffer, uint8_t size);
+void board_serial_dma_print_size(char* data, uint32_t size);
+
+void board_serial_dma_flush_buffer(char* source_buffer, uint32_t size);
 
 
 //--------------------------------------------------------------------------------------------------//

@@ -18,6 +18,12 @@
 //--------------------------------------------------------------------------------------------------//
 
 
+typedef void (*dma_callback)(uint8_t channel);
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 //interrupt source defines
 #define DMA_INTERRUPT_END_OF_BLOCK			XDMAC_CIE_BIE_Msk
 #define DMA_INTERRUPT_END_OF_LINKED_LIST	XDMAC_CIE_LIE_Msk
@@ -254,6 +260,8 @@ void dma_channel_set_data_stride_memory_pattern(Xdmac* hardware, uint8_t channel
 void dma_channel_set_microblock_stride_memory_pattern(Xdmac* hardware, uint8_t channel_number, int32_t stride);
 
 void dma_channel_configure(Xdmac* hardware, dma_microblock_transaction_descriptor* dma_descriptor);
+
+void dma_channel_set_callback(uint8_t dma_channel, dma_callback callback);
 
 
 //--------------------------------------------------------------------------------------------------//

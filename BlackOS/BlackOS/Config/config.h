@@ -16,14 +16,14 @@
 #include "board_serial.h"
 
 
-//============================================ F L A S H ============================================//
+//--------------------------------------------------------------------------------------------------//
+
 
 #define FLASH_NUMBER_OF_WAIT_STATES			10			// This must be set according to the processor frequency
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//============================================= H E A P =============================================//
 
 #define DYNAMIC_MEMORY_ALIGN				8			// This defined the heap alignment in number of bytes
 #define DYNAMIC_MEMORY_MINIMUM_BLOCK_SIZE	8			// This defines the minimum allowed block size in bytes
@@ -34,8 +34,8 @@
 #define DYNAMIC_MEMORY_SECTION_NAME_SIZE	32			// Max name length for a memory section
 
 
+//--------------------------------------------------------------------------------------------------//
 
-//============================================ C L O C K ============================================//
 
 #define CPU_FREQUENCY						300000000
 
@@ -49,16 +49,14 @@
 #define CLOCK_USB_FULL_SPEED_DIVIDER		5
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//========================================== S Y S T I C K ==========================================//
 
 #define SYSTICK_FREQUENCY					CPU_FREQUENCY
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//============================================ C H E C K ============================================//
 
 #define CHECK_ENABLE						1			// Must be 1 to enable the check attribute
 #define CHECK_ENABLE_BREAKPOINT				1			// Controls whether check triggers a breakpoint
@@ -69,9 +67,8 @@
 #define CHECK_PRINT_HANDLER					board_serial_print	// Function pointer to a print function
 
 
+//--------------------------------------------------------------------------------------------------//
 
-
-//=========================================== K E R N E L ===========================================//
 
 #define KERNEL_THREAD_MAX_NAME_LENGTH		32			// Defines the maximum allowed thread name length
 
@@ -88,5 +85,15 @@
 
 
 #define DMA_INTERRUPT_PRIORITY				IRQ_LEVEL_3
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+#define SERIAL_PRINTF_BUFFER_SIZE 512
+#define SERIAL_DMA_BUFFER_SIZE 1024
+
+
+//--------------------------------------------------------------------------------------------------//
 
 #endif
