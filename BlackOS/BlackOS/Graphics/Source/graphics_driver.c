@@ -16,6 +16,36 @@
 //--------------------------------------------------------------------------------------------------//
 
 
+static uint16_t previous_x;
+static uint16_t previous_y;
+
+
+static uint16_t cursor_bitmap[] = 
+{
+	0x0000, 0x0000, 0x0000, 0x0000, 0x0841, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x2124, 0x8c51, 0x2965, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x0861, 0x1082, 0x0000, 0x0000, 0x0000, 0x6b6d, 0xf79e, 0x4a49, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x39e7, 0x9492, 0x18c3, 0x0000, 0x10a2, 0xbdf7, 0xbdf7, 0x1082, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xef7d, 0x9cf3, 0x1082, 0x4a49, 0xf79e, 0x6b4d, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0x9cf3, 0xad75, 0xd6ba, 0x2104, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0xffff, 0xffff, 0xad75, 0x39e7, 0x4228, 0x4228, 0x3186, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0xffff, 0xffff, 0xffdf, 0xf79e, 0xf7be, 0xe71c, 0x52aa, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xef7d, 0x630c, 0x0020, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0xffff, 0xffff, 0xffff, 0xef5d, 0x630c, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0xffff, 0xffff, 0xef7d, 0x630c, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0xffff, 0xef7d, 0x630c, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xffff, 0xef7d, 0x630c, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xf79e, 0xef7d, 0x630c, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x4208, 0xdefb, 0x630c, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x3186, 0x52aa, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+};
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 static void graphic_driver_pin_config (void)
 {
 	// Configure SPI pins
@@ -194,6 +224,9 @@ void graphics_driver_draw_framebuffer(uint16_t* framebuffer)
 
 void graphics_driver_configuration_sequence()
 {
+	// To guarantee the data integrity we lower the SPI bus speed during the initialization
+	spi_set_bus_speed(SPI0, SPI_CHIP_SELECT_0, 30);
+	
 	// Perform hardware reset
 	graphics_driver_reset_on();
 	for (volatile uint32_t i = 0; i < 5000000; i++)
@@ -327,6 +360,10 @@ void graphics_driver_configuration_sequence()
 	graphics_driver_config_write_data(0x80);
 	
 	
+	// To guarantee the data integrity we lower the SPI bus speed during the initialization
+	spi_set_bus_speed(SPI0, SPI_CHIP_SELECT_0, 3);
+	
+	
 	graphics_driver_set_address_window(0, 0, GRAPHICS_DRIVER_DISPLAY_WIDTH, GRAPHICS_DRIVER_DISPLAY_HEIGHT);
 	
 	spi_flush(SPI0);
@@ -337,7 +374,71 @@ void graphics_driver_configuration_sequence()
 	{
 		spi_trasmit_data_16_bit(SPI0, 0x0000);
 	}
-	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);	
+	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+
+void graphics_draw_cursor(uint16_t x, uint16_t y)
+{
+	graphics_driver_set_address_window(x, y, 12, 18);
+	
+	spi_flush(SPI0);
+	graphics_driver_data();
+	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_16_BIT);
+	
+	for (uint32_t i = 0; i < 12*18; i++)
+	{
+		spi_trasmit_data_16_bit(SPI0, cursor_bitmap[i]);
+	}
+	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void graphics_clear_cursor(uint16_t x, uint16_t y)
+{
+	graphics_driver_set_address_window(x, y, 12, 18);
+	
+	spi_flush(SPI0);
+	graphics_driver_data();
+	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_16_BIT);
+	
+	for (uint32_t i = 0; i < 12*18; i++)
+	{
+		spi_trasmit_data_16_bit(SPI0, 0x0000);
+	}
+	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void graphics_update_cursor(uint16_t x, uint16_t y)
+{
+	// Check boundaries
+	y = GRAPHICS_DRIVER_DISPLAY_HEIGHT - y - 2;
+	
+	if (y + 18 >= GRAPHICS_DRIVER_DISPLAY_HEIGHT)
+	{
+		y = GRAPHICS_DRIVER_DISPLAY_HEIGHT - 18;
+	}
+	if (x + 12 >= GRAPHICS_DRIVER_DISPLAY_WIDTH)
+	{
+		x = GRAPHICS_DRIVER_DISPLAY_WIDTH - 12;
+	}
+	
+	graphics_clear_cursor(previous_x, previous_y);
+	graphics_draw_cursor(x, y);
+	
+	previous_x = x;
+	previous_y = y;
 }
 
 

@@ -171,3 +171,20 @@ void spi_set_bit_size(Spi* hardware, spi_chip_select_e chip_select, spi_bits_per
 
 
 //--------------------------------------------------------------------------------------------------//
+
+
+void spi_set_bus_speed(Spi* hardware, spi_chip_select_e chip_slect, uint8_t bit_rate)
+{
+	uint32_t tmp = hardware->SPI_CSR[chip_slect];
+	
+	// Mask out the new variable
+	tmp &= ~SPI_CSR_SCBR_Msk;
+	tmp |= (bit_rate << SPI_CSR_SCBR_Pos);
+	
+	CRITICAL_SECTION_ENTER()
+	hardware->SPI_CSR[chip_slect] = tmp;
+	CRITICAL_SECTION_LEAVE()
+}
+
+
+//--------------------------------------------------------------------------------------------------//

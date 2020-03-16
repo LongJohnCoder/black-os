@@ -118,6 +118,8 @@ void spi_chip_select_config(Spi* hardware, spi_chip_select_e chip_select, uint8_
 
 void spi_set_bit_size(Spi* hardware, spi_chip_select_e chip_select, spi_bits_per_transfer_e bits_per_transfer);
 
+void spi_set_bus_speed(Spi* hardware, spi_chip_select_e chip_slect, uint8_t bit_rate);
+
 
 //--------------------------------------------------------------------------------------------------//
 

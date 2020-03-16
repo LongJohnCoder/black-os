@@ -10,6 +10,18 @@
 #include "interrupt.h"
 #include "gpio.h"
 #include "uart.h"
+#include "graphics_driver.h"
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+static volatile char cursor_buffer[4];
+
+volatile uint16_t location_x;
+volatile uint16_t location_y;
+
+static volatile char cursor_index = -1;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -82,9 +94,34 @@ void UART4_Handler()
 	uart_read_interrupt_status(UART4);
 	
 	// Here we will read the mouse data that is sent to the beard
-	uint8_t data_received = uart_read(UART4);
+	char data_received = uart_read(UART4);
 	
-	uart_write(UART4, data_received);
+	/*
+	
+	if (data_received == 0xfb)
+	{
+		cursor_index = 0;
+	}
+	else
+	{
+		if (cursor_index != -1)
+		{
+			cursor_buffer[cursor_index++] = data_received;
+		}
+	}
+	
+	if (cursor_index >= 4)
+	{
+		cursor_index = -1;
+		
+		location_x = (uint16_t)cursor_buffer[0] | (uint16_t)((cursor_buffer[1] << 8));
+		location_y = cursor_buffer[2] | (cursor_buffer[3] << 8);
+		
+		graphics_update_cursor(location_x, location_y);
+	}
+	*/
+	
+	(void)data_received;
 }
 
 

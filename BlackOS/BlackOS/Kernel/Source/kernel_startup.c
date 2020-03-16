@@ -82,11 +82,6 @@ void kernel_startup(void)
 	
 	// Configure the DMA core
 	dma_config();
-
-
-	// Critical section ended so we enable interrupt
-	// Note the the kernel_config will turn off interrupt
- 	interrupt_global_enable();	
 	
 	
 	// Start the serial interfaces
