@@ -335,7 +335,7 @@ void graphics_driver_configuration_sequence()
 	
 	for (uint32_t i = 0; i < GRAPHICS_DRIVER_DISPLAY_HEIGHT*GRAPHICS_DRIVER_DISPLAY_WIDTH; i++)
 	{
-		spi_trasmit_data_16_bit(SPI0, ILI9341_YELLOW);
+		spi_trasmit_data_16_bit(SPI0, 0x0000);
 	}
 	spi_set_bit_size(SPI0, SPI_CHIP_SELECT_1, SPI_8_BIT);	
 }

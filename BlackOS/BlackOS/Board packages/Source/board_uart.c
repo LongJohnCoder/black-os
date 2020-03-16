@@ -46,6 +46,7 @@ static void board_uart_mode_config(void)
 	interrupt_enable_peripheral_interrupt(UART4_IRQn, IRQ_LEVEL_4);
 	
 	uart_transmitter_enable(UART4);
+	uart_receiver_enable(UART4);
 }
 
 
@@ -81,6 +82,9 @@ void UART4_Handler()
 	uart_read_interrupt_status(UART4);
 	
 	// Here we will read the mouse data that is sent to the beard
+	uint8_t data_received = uart_read(UART4);
+	
+	uart_write(UART4, data_received);
 }
 
 
