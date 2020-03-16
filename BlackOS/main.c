@@ -14,6 +14,7 @@
 #include "clock.h"
 #include "interrupt.h"
 #include "board_serial.h"
+#include "board_uart.h"
 
 
 //--------------------------------------------------------------------------------------------------//
