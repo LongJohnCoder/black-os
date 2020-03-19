@@ -60,7 +60,7 @@ typedef struct kernel_list_item_s
 
 
 	// Pointer to the thread
-	struct kernel_thread_control_s* thread_control;
+	void* thread_control;
 	
 } kernel_list_item;
 

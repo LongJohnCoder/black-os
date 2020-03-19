@@ -230,7 +230,7 @@ void kernel_print_running_queue(kernel_list* list)
 		board_serial_print("FIRST\t\t");
 		while (list_iterator != NULL)
 		{
-			board_serial_print("%s\t\t", list_iterator->thread_control->name);
+			board_serial_print("%s\t\t", ((thread_s *)(list_iterator->thread_control))->name);
 			
 			list_iterator = list_iterator->next;
 		}
@@ -281,7 +281,7 @@ void kernel_print_running_queue(kernel_list* list)
 
 		while (list_iterator != NULL)
 		{
-			board_serial_print("%d\t", list_iterator->thread_control->tick_to_wake);
+			board_serial_print("%d\t", ((thread_s *)(list_iterator->thread_control))->tick_to_wake);
 			board_serial_print("\t");
 			list_iterator = list_iterator->next;
 		}
@@ -434,7 +434,7 @@ void kernel_scheduler(void)
 					kernel_list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_queue);
 					
 					// Update the kernel tick to wake
-					kernel_tick_to_wake = delay_queue.first->thread_control->tick_to_wake;
+					kernel_tick_to_wake = ((thread_s *)(delay_queue.first->thread_control))->tick_to_wake;
 				}
 				
 				kernel_current_thread_pointer->next_list = NULL;
@@ -452,13 +452,13 @@ void kernel_scheduler(void)
 		{
 			kernel_list_item* list_iterator = delay_queue.first;
 			
-			check(delay_queue.first->thread_control->tick_to_wake <= kernel_tick_to_wake);
+			check(((thread_s *)(delay_queue.first->thread_control))->tick_to_wake <= kernel_tick_to_wake);
 			
 			uint16_t  i;
 			
 			for (i = 0; i < delay_queue.size; i++)
 			{
-				if (list_iterator->thread_control->tick_to_wake > kernel_tick_to_wake)
+				if (((thread_s *)(list_iterator->thread_control))->tick_to_wake > kernel_tick_to_wake)
 				{
 					break;
 				}
@@ -480,7 +480,7 @@ void kernel_scheduler(void)
 			}
 			else
 			{
-				kernel_tick_to_wake = delay_queue.first->thread_control->tick_to_wake;
+				kernel_tick_to_wake = ((thread_s *)(delay_queue.first->thread_control))->tick_to_wake;
 			}
 		}
 		
@@ -554,16 +554,16 @@ void kernel_reset_runtime(void)
 	{
 		for (kernel_list_item* i = running_queue.first; i != NULL; i = i->next)
 		{
-			i->thread_control->last_runtime = i->thread_control->runtime;
-			i->thread_control->runtime = 0;
+			((thread_s *)(i->thread_control))->last_runtime = ((thread_s *)(i->thread_control))->runtime;
+			((thread_s *)(i->thread_control))->runtime = 0;
 		}
 	}
 	if (delay_queue.size != 0)
 	{
 		for (kernel_list_item* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			i->thread_control->last_runtime = i->thread_control->runtime;
-			i->thread_control->runtime = 0;
+			((thread_s *)(i->thread_control))->last_runtime = ((thread_s *)(i->thread_control))->runtime;
+			((thread_s *)(i->thread_control))->runtime = 0;
 		}
 	}
 }
@@ -574,6 +574,8 @@ void kernel_reset_runtime(void)
 
 void kernel_print_runtime_statistics(void)
 {
+	thread_s* tmp_thread;
+	
 	int32_t cpu_usage = 1000 - kernel_idle_thread_pointer->last_runtime;
 	char k = cpu_usage / 10;
 	board_serial_programming_write_percent(k, cpu_usage - (k * 10));
@@ -584,13 +586,15 @@ void kernel_print_runtime_statistics(void)
 	{
 		for (kernel_list_item* i = running_queue.first; i != NULL; i = i->next)
 		{
-			uint32_t used_stack = i->thread_control->stack_size - ((uint32_t)i->thread_control->stack_pointer - (uint32_t)i->thread_control->stack_base);
-			board_serial_programming_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
+			tmp_thread = (thread_s *)(i->thread_control);
+			
+			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
+			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
 			board_serial_programming_print("\t");
 			
-			uint8_t tmp = i->thread_control->last_runtime / 10;
-			board_serial_programming_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
-			board_serial_programming_print(" : %s", i->thread_control->name);
+			uint8_t tmp = tmp_thread->last_runtime / 10;
+			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime - (tmp * 10));
+			board_serial_programming_print(" : %s", tmp_thread->name);
 			board_serial_programming_print("\n");
 		}
 	}
@@ -598,13 +602,15 @@ void kernel_print_runtime_statistics(void)
 	{
 		for (kernel_list_item* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			uint32_t used_stack = i->thread_control->stack_size - ((uint32_t)i->thread_control->stack_pointer - (uint32_t)i->thread_control->stack_base);
-			board_serial_programming_write_percent(used_stack * 100 / i->thread_control->stack_size, 0);
+			tmp_thread = (thread_s *)(i->thread_control);
+			
+			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
+			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
 			board_serial_programming_print("\t");
 			
-			uint8_t tmp = i->thread_control->last_runtime / 10;
-			board_serial_programming_write_percent(tmp, i->thread_control->last_runtime - (tmp * 10));
-			board_serial_programming_print(" : %s", i->thread_control->name);
+			uint8_t tmp = tmp_thread->last_runtime / 10;
+			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime - (tmp * 10));
+			board_serial_programming_print(" : %s", tmp_thread->name);
 			board_serial_programming_print("\n");
 		}
 	}
@@ -786,16 +792,16 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 		check(kernel_list_search(list_item, list) == 0);
 		
 		// Check the tick value
-		uint32_t tick = list_item->thread_control->tick_to_wake;
+		uint32_t tick = ((thread_s*)(list_item->thread_control))->tick_to_wake;
 		
-		if (tick <= list->first->thread_control->tick_to_wake)
+		if (tick <= ((thread_s*)(list->first->thread_control))->tick_to_wake)
 		{
 			// Insert at the beginning
 			kernel_list_insert_first(list_item, list);
 			
 			// Increment handled
 		}
-		else if (tick >= list->last->thread_control->tick_to_wake)
+		else if (tick >= ((thread_s*)(list->last->thread_control))->tick_to_wake)
 		{
 			// Insert at the end
 			kernel_list_insert_last(list_item, list);
@@ -810,7 +816,7 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 			while (list_iterator != NULL)
 			{
 				// Check tick against the following item
-				if (tick < list_iterator->thread_control->tick_to_wake)
+				if (tick < ((thread_s*)(list_iterator->thread_control))->tick_to_wake)
 				{
 					// Insert the item behind list_iterator
 					kernel_list_item* prev_item = list_iterator->previous;

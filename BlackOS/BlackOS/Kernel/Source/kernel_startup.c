@@ -94,7 +94,7 @@ void kernel_startup(void)
 	//
 	// The UART is used for mouse / keyboard interface until the USB stack is done
 	board_serial_config();
-	//board_serial_programming_config();
+	board_serial_programming_config();
 	board_uart_config();
 	
 	
@@ -103,7 +103,7 @@ void kernel_startup(void)
 	
 	
 	// Start the graphics core	
-	graphics_driver_config();
+	//graphics_driver_config();
 
 	
 	// Now we start up the kernel and its components
