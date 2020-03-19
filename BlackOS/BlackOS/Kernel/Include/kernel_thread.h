@@ -14,6 +14,7 @@
 
 #include "sam.h"
 #include "config.h"
+#include "list.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -48,41 +49,6 @@ typedef enum
 //--------------------------------------------------------------------------------------------------//
 
 
-typedef struct List_node_s
-{
-	// Pointers to the next and previous element
-	struct List_node_s* next;
-	struct List_node_s* prev;
-
-
-	uint64_t value;
-
-
-	// Pointer to the thread
-	void* object;
-	
-} list_node_s;
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-typedef struct List_s
-{
-	// Pointer to the first and last element in the list
-	struct List_node_s* first;
-	struct List_node_s* last;
-	
-	
-	// Keep track of the size of the list
-	uint16_t size;
-	
-} list_s;
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
 typedef struct kernel_thread_control_s
 {
 	// Points to the top of the stack
@@ -94,7 +60,7 @@ typedef struct kernel_thread_control_s
 	
 	
 	// We use the list interface
-	struct List_node_s list_item;
+	list_node_s list_item;
 	
 	
 	struct List_s* current_list;
@@ -148,22 +114,6 @@ thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void
 void kernel_reschedule(void);
 
 void kernel_thread_delay(uint32_t ticks);
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-void kernel_list_insert_first(list_node_s* list_item, list_s* list);
-
-void kernel_list_insert_last(list_node_s* list_item, list_s* list);
-
-void kernel_list_insert_delay(list_node_s* list_item, list_s* list);
-
-uint8_t kernel_list_remove_first(list_s* list);
-
-uint8_t kernel_list_remove_last(list_s* list);
-
-uint8_t kernel_list_remove_item(list_node_s* list_item, list_s* list);
 
 
 //--------------------------------------------------------------------------------------------------//
