@@ -382,7 +382,7 @@
     <Compile Include="BlackOS\Kernel\Include\kernel_startup.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\kernel_thread.h">
+    <Compile Include="BlackOS\Kernel\Include\scheduler.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Include\list.h">
@@ -403,7 +403,7 @@
     <Compile Include="BlackOS\Kernel\Source\kernel_startup.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\kernel_thread.c">
+    <Compile Include="BlackOS\Kernel\Source\scheduler.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\list.c">

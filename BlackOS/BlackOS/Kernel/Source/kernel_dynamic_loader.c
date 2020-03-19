@@ -6,7 +6,7 @@
 // the software.
 
 #include "kernel_dynamic_loader.h"
-#include "kernel_thread.h"
+#include "scheduler.h"
 #include "config.h"
 #include "board_serial.h"
 #include "dynamic_memory.h"

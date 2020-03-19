@@ -13,7 +13,7 @@
 
 
 #include "kernel_startup.h"
-#include "kernel_thread.h"
+#include "scheduler.h"
 #include "kernel_service.h"
 
 

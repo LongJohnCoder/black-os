@@ -5,8 +5,8 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#ifndef KERNEL_THREAD_H
-#define KERNEL_THREAD_H
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
 
 
 //--------------------------------------------------------------------------------------------------//

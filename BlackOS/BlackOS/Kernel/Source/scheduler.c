@@ -5,7 +5,7 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#include "kernel_thread.h"
+#include "scheduler.h"
 #include "systick.h"
 #include "interrupt.h"
 #include "dynamic_memory.h"
