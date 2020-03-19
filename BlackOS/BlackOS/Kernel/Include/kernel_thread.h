@@ -48,10 +48,6 @@ typedef enum
 //--------------------------------------------------------------------------------------------------//
 
 
-// Just a forward declaration
-struct List_s;
-
-
 typedef struct List_node_s
 {
 	// Pointers to the next and previous element

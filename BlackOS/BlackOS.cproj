@@ -382,6 +382,9 @@
     <Compile Include="BlackOS\Kernel\Include\kernel_thread.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="BlackOS\Kernel\Include\list.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="BlackOS\Kernel\Source\kernel_dynamic_loader.c">
       <SubType>compile</SubType>
     </Compile>
@@ -395,6 +398,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\kernel_thread.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BlackOS\Kernel\Source\list.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Memory\Include\dynamic_memory.h">
