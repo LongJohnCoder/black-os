@@ -49,36 +49,39 @@ typedef enum
 
 
 // Just a forward declaration
-struct kernel_list_s;
+struct List_s;
 
 
-typedef struct kernel_list_item_s
+typedef struct List_node_s
 {
 	// Pointers to the next and previous element
-	struct kernel_list_item_s* next;
-	struct kernel_list_item_s* previous;
+	struct List_node_s* next;
+	struct List_node_s* prev;
+
+
+	uint64_t value;
 
 
 	// Pointer to the thread
-	void* thread_control;
+	void* object;
 	
-} kernel_list_item;
+} list_node_s;
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-typedef struct kernel_list_s
+typedef struct List_s
 {
 	// Pointer to the first and last element in the list
-	struct kernel_list_item_s* first;
-	struct kernel_list_item_s* last;
+	struct List_node_s* first;
+	struct List_node_s* last;
 	
 	
 	// Keep track of the size of the list
 	uint16_t size;
 	
-} kernel_list;
+} list_s;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -95,11 +98,11 @@ typedef struct kernel_thread_control_s
 	
 	
 	// We use the list interface
-	struct kernel_list_item_s list_item;
+	struct List_node_s list_item;
 	
 	
-	struct kernel_list_s* current_list;
-	struct kernel_list_s* next_list;
+	struct List_s* current_list;
+	struct List_s* next_list;
 
 
 	// Pointer to the stack base so that we can delete the memory
@@ -132,9 +135,9 @@ typedef struct kernel_thread_control_s
 //--------------------------------------------------------------------------------------------------//
 
 
-extern kernel_list running_queue;
+extern list_s running_queue;
 extern thread_s* kernel_current_thread_pointer;
-extern kernel_list delay_queue;
+extern list_s delay_queue;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -154,23 +157,23 @@ void kernel_thread_delay(uint32_t ticks);
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list);
+void kernel_list_insert_first(list_node_s* list_item, list_s* list);
 
-void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list);
+void kernel_list_insert_last(list_node_s* list_item, list_s* list);
 
-void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list);
+void kernel_list_insert_delay(list_node_s* list_item, list_s* list);
 
-uint8_t kernel_list_remove_first(kernel_list* list);
+uint8_t kernel_list_remove_first(list_s* list);
 
-uint8_t kernel_list_remove_last(kernel_list* list);
+uint8_t kernel_list_remove_last(list_s* list);
 
-uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list);
+uint8_t kernel_list_remove_item(list_node_s* list_item, list_s* list);
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_print_running_queue(kernel_list* list);
+void kernel_print_running_queue(list_s* list);
 
 void kernel_print_runtime_statistics(void);
 

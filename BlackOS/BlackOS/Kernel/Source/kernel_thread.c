@@ -60,9 +60,9 @@ thread_s* kernel_idle_thread_pointer;
 kernel_scheduler_status scheduler_status;
 
 // Some lists that the kernel will use for the threads
-kernel_list running_queue;
-kernel_list delay_queue;
-kernel_list suspended_list;
+list_s running_queue;
+list_s delay_queue;
+list_s suspended_list;
 
 // Global tick to wake variable. This variable gets updated every time a thread is added or removed from the delay
 // list. It holds the tick to wake value of the first thread to be put in the running queue again. This reduces the
@@ -149,7 +149,7 @@ thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void
 	{		
 		new_thread->current_list = &running_queue;
 		new_thread->next_list = NULL;
-		new_thread->list_item.thread_control = new_thread;
+		new_thread->list_item.object = new_thread;
 		
 		kernel_list_insert_first(&(new_thread->list_item), &running_queue);
 	}
@@ -209,7 +209,7 @@ uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function thre
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_print_running_queue(kernel_list* list)
+void kernel_print_running_queue(list_s* list)
 {
 	if (list->first == NULL)
 	{
@@ -226,11 +226,11 @@ void kernel_print_running_queue(kernel_list* list)
 		{
 			board_serial_print("Delay queue:\t\t\t");
 		}
-		kernel_list_item* list_iterator = list->first;
+		list_node_s* list_iterator = list->first;
 		board_serial_print("FIRST\t\t");
 		while (list_iterator != NULL)
 		{
-			board_serial_print("%s\t\t", ((thread_s *)(list_iterator->thread_control))->name);
+			board_serial_print("%s\t\t", ((thread_s *)(list_iterator->object))->name);
 			
 			list_iterator = list_iterator->next;
 		}
@@ -266,7 +266,7 @@ void kernel_print_running_queue(kernel_list* list)
 
 		while (list_iterator != NULL)
 		{
-			board_serial_print_address("", (uint32_t)list_iterator->previous);
+			board_serial_print_address("", (uint32_t)list_iterator->prev);
 			board_serial_print("\t");
 			list_iterator = list_iterator->next;
 		}
@@ -281,7 +281,7 @@ void kernel_print_running_queue(kernel_list* list)
 
 		while (list_iterator != NULL)
 		{
-			board_serial_print("%d\t", ((thread_s *)(list_iterator->thread_control))->tick_to_wake);
+			board_serial_print("%d\t", ((thread_s *)(list_iterator->object))->tick_to_wake);
 			board_serial_print("\t");
 			list_iterator = list_iterator->next;
 		}
@@ -320,7 +320,7 @@ void kernel_start(void)
 	// Set the current thread to point to the first thread to run
 	if (running_queue.last != NULL)
 	{
-		kernel_current_thread_pointer = running_queue.last->thread_control;
+		kernel_current_thread_pointer = running_queue.last->object;
 	}
 	else
 	{
@@ -434,7 +434,7 @@ void kernel_scheduler(void)
 					kernel_list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_queue);
 					
 					// Update the kernel tick to wake
-					kernel_tick_to_wake = ((thread_s *)(delay_queue.first->thread_control))->tick_to_wake;
+					kernel_tick_to_wake = ((thread_s *)(delay_queue.first->object))->tick_to_wake;
 				}
 				
 				kernel_current_thread_pointer->next_list = NULL;
@@ -450,15 +450,15 @@ void kernel_scheduler(void)
 		// Now we check if some delays has expired
 		if (kernel_tick_to_wake <= kernel_tick)
 		{
-			kernel_list_item* list_iterator = delay_queue.first;
+			list_node_s* list_iterator = delay_queue.first;
 			
-			check(((thread_s *)(delay_queue.first->thread_control))->tick_to_wake <= kernel_tick_to_wake);
+			check(((thread_s *)(delay_queue.first->object))->tick_to_wake <= kernel_tick_to_wake);
 			
 			uint16_t  i;
 			
 			for (i = 0; i < delay_queue.size; i++)
 			{
-				if (((thread_s *)(list_iterator->thread_control))->tick_to_wake > kernel_tick_to_wake)
+				if (((thread_s *)(list_iterator->object))->tick_to_wake > kernel_tick_to_wake)
 				{
 					break;
 				}
@@ -467,7 +467,7 @@ void kernel_scheduler(void)
 			
 			for (uint16_t k = 0; k < i; k++)
 			{
-				kernel_list_item* tmp = delay_queue.first;
+				list_node_s* tmp = delay_queue.first;
 				
 				kernel_list_remove_first(&delay_queue);
 				kernel_list_insert_first(tmp, &running_queue);
@@ -480,7 +480,7 @@ void kernel_scheduler(void)
 			}
 			else
 			{
-				kernel_tick_to_wake = ((thread_s *)(delay_queue.first->thread_control))->tick_to_wake;
+				kernel_tick_to_wake = ((thread_s *)(delay_queue.first->object))->tick_to_wake;
 			}
 		}
 		
@@ -501,7 +501,7 @@ void kernel_scheduler(void)
 		}
 		else
 		{
-			kernel_next_thread_pointer = running_queue.last->thread_control;
+			kernel_next_thread_pointer = running_queue.last->object;
 		}
 	}
 	else
@@ -552,18 +552,18 @@ void kernel_reset_runtime(void)
 	
 	if (running_queue.size != 0)
 	{
-		for (kernel_list_item* i = running_queue.first; i != NULL; i = i->next)
+		for (list_node_s* i = running_queue.first; i != NULL; i = i->next)
 		{
-			((thread_s *)(i->thread_control))->last_runtime = ((thread_s *)(i->thread_control))->runtime;
-			((thread_s *)(i->thread_control))->runtime = 0;
+			((thread_s *)(i->object))->last_runtime = ((thread_s *)(i->object))->runtime;
+			((thread_s *)(i->object))->runtime = 0;
 		}
 	}
 	if (delay_queue.size != 0)
 	{
-		for (kernel_list_item* i = delay_queue.first; i != NULL; i = i->next)
+		for (list_node_s* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			((thread_s *)(i->thread_control))->last_runtime = ((thread_s *)(i->thread_control))->runtime;
-			((thread_s *)(i->thread_control))->runtime = 0;
+			((thread_s *)(i->object))->last_runtime = ((thread_s *)(i->object))->runtime;
+			((thread_s *)(i->object))->runtime = 0;
 		}
 	}
 }
@@ -584,9 +584,9 @@ void kernel_print_runtime_statistics(void)
 	
 	if (running_queue.size != 0)
 	{
-		for (kernel_list_item* i = running_queue.first; i != NULL; i = i->next)
+		for (list_node_s* i = running_queue.first; i != NULL; i = i->next)
 		{
-			tmp_thread = (thread_s *)(i->thread_control);
+			tmp_thread = (thread_s *)(i->object);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
@@ -600,9 +600,9 @@ void kernel_print_runtime_statistics(void)
 	}
 	if (delay_queue.size != 0)
 	{
-		for (kernel_list_item* i = delay_queue.first; i != NULL; i = i->next)
+		for (list_node_s* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			tmp_thread = (thread_s *)(i->thread_control);
+			tmp_thread = (thread_s *)(i->object);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
@@ -668,14 +668,14 @@ void kernel_resume_scheduler(void)
 // functionality will be messed up. This simple function searched a list for a match. This
 // function should be called before inserting a new element.
 
-static uint8_t kernel_list_search(kernel_list_item* list_item, kernel_list* list)
+static uint8_t kernel_list_search(list_node_s* list_item, list_s* list)
 {
 	if (list->first == NULL)
 	{
 		return 0;
 	}
 	
-	kernel_list_item* list_iterator = list->first;
+	list_node_s* list_iterator = list->first;
 	
 	while (list_iterator != NULL)
 	{
@@ -695,7 +695,7 @@ static uint8_t kernel_list_search(kernel_list_item* list_item, kernel_list* list
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
+void kernel_list_insert_first(list_node_s* list_item, list_s* list)
 {
 	// Check if the size is zero
 	if (list->size == 0)
@@ -706,7 +706,7 @@ void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 		
 		// Update the list item pointer
 		list_item->next = NULL;
-		list_item->previous = NULL;
+		list_item->prev = NULL;
 	}
 	else
 	{
@@ -715,11 +715,11 @@ void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 		
 		// Update the list item pointers
 		list_item->next = list->first;
-		list_item->previous = NULL;
+		list_item->prev = NULL;
 		
 		// Link backwards from first node
-		check(list->first->previous == NULL);
-		list->first->previous = list_item;
+		check(list->first->prev == NULL);
+		list->first->prev = list_item;
 		
 		// Update the first pointer
 		list->first = list_item;
@@ -733,7 +733,7 @@ void kernel_list_insert_first(kernel_list_item* list_item, kernel_list* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list)
+void kernel_list_insert_last(list_node_s* list_item, list_s* list)
 {
 	// Check if the size is zero
 	if (list->size == 0)
@@ -744,7 +744,7 @@ void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list)
 		
 		// Update the list item pointer
 		list_item->next = NULL;
-		list_item->previous = NULL;
+		list_item->prev = NULL;
 	}
 	else
 	{
@@ -753,7 +753,7 @@ void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list)
 		
 		// Update the list item pointers
 		list_item->next = NULL;
-		list_item->previous = list->last;
+		list_item->prev = list->last;
 		
 		// Link backwards from first node
 		check(list->last->next == NULL);
@@ -771,7 +771,7 @@ void kernel_list_insert_last(kernel_list_item* list_item, kernel_list* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
+void kernel_list_insert_delay(list_node_s* list_item, list_s* list)
 {
 	// Check if the size if zero
 	if (list->size == 0)
@@ -782,7 +782,7 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 		
 		// Update the list item pointer
 		list_item->next = NULL;
-		list_item->previous = NULL;
+		list_item->prev = NULL;
 		
 		list->size = 1;
 	}
@@ -792,16 +792,16 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 		check(kernel_list_search(list_item, list) == 0);
 		
 		// Check the tick value
-		uint32_t tick = ((thread_s*)(list_item->thread_control))->tick_to_wake;
+		uint32_t tick = ((thread_s*)(list_item->object))->tick_to_wake;
 		
-		if (tick <= ((thread_s*)(list->first->thread_control))->tick_to_wake)
+		if (tick <= ((thread_s*)(list->first->object))->tick_to_wake)
 		{
 			// Insert at the beginning
 			kernel_list_insert_first(list_item, list);
 			
 			// Increment handled
 		}
-		else if (tick >= ((thread_s*)(list->last->thread_control))->tick_to_wake)
+		else if (tick >= ((thread_s*)(list->last->object))->tick_to_wake)
 		{
 			// Insert at the end
 			kernel_list_insert_last(list_item, list);
@@ -810,22 +810,22 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 		}
 		else
 		{
-			kernel_list_item* list_iterator = list->first->next;
+			list_node_s* list_iterator = list->first->next;
 			
 			// Iterate though the list
 			while (list_iterator != NULL)
 			{
 				// Check tick against the following item
-				if (tick < ((thread_s*)(list_iterator->thread_control))->tick_to_wake)
+				if (tick < ((thread_s*)(list_iterator->object))->tick_to_wake)
 				{
 					// Insert the item behind list_iterator
-					kernel_list_item* prev_item = list_iterator->previous;
+					list_node_s* prev_item = list_iterator->prev;
 					
 					list_item->next = list_iterator;
-					list_iterator->previous = list_item;
+					list_iterator->prev = list_item;
 					
 					prev_item->next = list_item;
-					list_item->previous = prev_item;
+					list_item->prev = prev_item;
 					
 					list->size++;
 					
@@ -845,7 +845,7 @@ void kernel_list_insert_delay(kernel_list_item* list_item, kernel_list* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t kernel_list_remove_first(kernel_list* list)
+uint8_t kernel_list_remove_first(list_s* list)
 {
 	if (list->size == 0)
 	{
@@ -856,7 +856,7 @@ uint8_t kernel_list_remove_first(kernel_list* list)
 	{
 		// Remove the only element present
 		list->first->next = NULL;
-		list->first->previous = NULL;
+		list->first->prev = NULL;
 		
 		// Update the list first and last element
 		list->first = NULL;
@@ -873,10 +873,10 @@ uint8_t kernel_list_remove_first(kernel_list* list)
 		list->first = list->first->next;
 		
 		// Remove the forward link from the first element
-		list->first->previous->next = NULL;
+		list->first->prev->next = NULL;
 		
 		// Remove the backward link from the new first item
-		list->first->previous = NULL;
+		list->first->prev = NULL;
 		
 		list->size--;
 	}
@@ -888,7 +888,7 @@ uint8_t kernel_list_remove_first(kernel_list* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t kernel_list_remove_last(kernel_list* list)
+uint8_t kernel_list_remove_last(list_s* list)
 {
 	if (list->size == 0)
 	{
@@ -899,7 +899,7 @@ uint8_t kernel_list_remove_last(kernel_list* list)
 	{
 		// Remove the only element present
 		list->first->next = NULL;
-		list->first->previous = NULL;
+		list->first->prev = NULL;
 		
 		// Update the list first and last element
 		list->first = NULL;
@@ -910,10 +910,10 @@ uint8_t kernel_list_remove_last(kernel_list* list)
 	else
 	{
 		// Remove the last element
-		list->last = list->last->previous;
+		list->last = list->last->prev;
 		
 		// Remove the forward link from the first element
-		list->last->next->previous = NULL;
+		list->last->next->prev = NULL;
 		
 		// Remove the backward link from the new first item
 		list->last->next = NULL;
@@ -928,7 +928,7 @@ uint8_t kernel_list_remove_last(kernel_list* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list)
+uint8_t kernel_list_remove_item(list_node_s* list_item, list_s* list)
 {
 	if (list->size == 0)
 	{
@@ -946,7 +946,7 @@ uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list)
 	{
 		// The element is not the first and not the last
 		// Start at the second element
-		kernel_list_item* list_iterator = list->first->next;
+		list_node_s* list_iterator = list->first->next;
 		
 		while (list_iterator != list->last)
 		{
@@ -954,12 +954,12 @@ uint8_t kernel_list_remove_item(kernel_list_item* list_item, kernel_list* list)
 			if (list_item == list_iterator)
 			{
 				// Remove the connections
-				list_item->next->previous = list_item->previous;
-				list_item->previous->next = list_item->next;
+				list_item->next->prev = list_item->prev;
+				list_item->prev->next = list_item->next;
 				
 				// Update the list_item pointers
 				list_item->next = NULL;
-				list_item->previous = NULL;
+				list_item->prev = NULL;
 				
 				list->size--;
 				
