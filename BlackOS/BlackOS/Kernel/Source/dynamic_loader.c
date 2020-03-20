@@ -5,7 +5,7 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#include "kernel_dynamic_loader.h"
+#include "dynamic_loader.h"
 #include "scheduler.h"
 #include "config.h"
 #include "board_serial.h"
@@ -22,10 +22,10 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_dynamic_loader_run(uint32_t* data, uint32_t size)
+void dynamic_loader_run(uint32_t* data, uint32_t size)
 {
 	// Start with relocating the .GOT and .GOT PLT table addresses
-	kernel_dynamic_loader_relocate(data);
+	dynamic_loader_relocate(data);
 	
 	// This is the address that contains the entry for the program
 	uint8_t* program_entry = (uint8_t *)((uint8_t *)data + *(data + 1));
@@ -43,7 +43,7 @@ void kernel_dynamic_loader_run(uint32_t* data, uint32_t size)
 	char* name = (char *)data;
 	
 	// Check if the name if valid and start the thread
-	if (kernel_dynamic_loader_check_name(name, name_length))
+	if (dynamic_loader_check_name(name, name_length))
 	{
 		kernel_add_thread(name, (thread_function)program_entry, NULL, THREAD_PRIORITY_NORMAL, stack_size);
 	}
@@ -54,7 +54,7 @@ void kernel_dynamic_loader_run(uint32_t* data, uint32_t size)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t kernel_dynamic_loader_check_name(char* data, uint32_t size)
+uint8_t dynamic_loader_check_name(char* data, uint32_t size)
 {
 	if (size > KERNEL_THREAD_MAX_NAME_LENGTH)
 	{
@@ -77,7 +77,7 @@ uint8_t kernel_dynamic_loader_check_name(char* data, uint32_t size)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_dynamic_loader_relocate(uint32_t* data)
+void dynamic_loader_relocate(uint32_t* data)
 {
 	// This functions will resolve the absolute addressing in the application.
 	// It will relocate the entries in the .GOT and .GOT PLT section
@@ -201,7 +201,7 @@ void USART0_Handler()
 			
 			SCB_CleanDCache();
 			
-			kernel_dynamic_loader_run((uint32_t *)program_buffer, program_size);
+			dynamic_loader_run((uint32_t *)program_buffer, program_size);
 		}
 		
 		fast_programming_state = FAST_PROGRAMMING_IDLE;

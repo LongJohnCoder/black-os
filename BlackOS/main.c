@@ -23,7 +23,7 @@ void runtime_agent(void* arg)
 {
 	while (1)
 	{
-		service_thread_delay(1000);
+		syscall_sleep(1000);
 		kernel_print_runtime_statistics();
 	}
 }

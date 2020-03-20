@@ -5,8 +5,8 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#ifndef KERNEL_SERVICE_H
-#define KERNEL_SERVICE_H
+#ifndef SYSCALL_H
+#define SYSCALL_H
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -18,7 +18,7 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-#define KERNEL_SERVICE_NOINLINE __attribute__((noinline))
+#define SYSCALL_NOINLINE __attribute__((noinline))
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -30,12 +30,8 @@
 
 typedef enum
 {
-	SERVICE_THREAD_DELAY = 1,
-	SERVICE_SERIAL_PRINT = 10,
-	SERVICE_DISPLAY_FLUSH = 11,
-	SERVICE_DISPLAY_WRITE_FRAMEBUFFER = 12,
-	SERVICE_DISAPLY_SCROLL = 13,
-	SERVICE_GET_PIN_VALUE = 14
+	SYSCALL_DELAY = 1,
+	SYSCALL_PRINT = 10
 } kernel_services;
 
 
@@ -43,15 +39,9 @@ typedef enum
 
 
 // Prototypes for the services that the kernel provide
-void KERNEL_SERVICE_NOINLINE service_serial_print(char* data);
+void SYSCALL_NOINLINE syscall_print(char* data);
 
-void KERNEL_SERVICE_NOINLINE service_thread_delay(uint32_t ticks);
-
-void KERNEL_SERVICE_NOINLINE serivice_display_flush(void);
-
-void KERNEL_SERVICE_NOINLINE service_display_write_frame_buffer(uint16_t x, uint16_t y, uint16_t color);
-
-void KERNEL_SERVICE_NOINLINE service_display_scroll(uint16_t amount);
+void SYSCALL_NOINLINE syscall_sleep(uint32_t ticks);
 
 
 //--------------------------------------------------------------------------------------------------//

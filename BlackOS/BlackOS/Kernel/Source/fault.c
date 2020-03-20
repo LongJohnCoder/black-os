@@ -5,7 +5,7 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#include "kernel_fault.h"
+#include "fault.h"
 #include "config.h"
 #include "board_serial.h"
 

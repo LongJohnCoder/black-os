@@ -49,7 +49,7 @@ static uint8_t kernel_list_search(list_node_s* list_item, list_s* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_first(list_node_s* list_item, list_s* list)
+void list_insert_first(list_node_s* list_item, list_s* list)
 {
 	// Check if the size is zero
 	if (list->size == 0)
@@ -87,7 +87,7 @@ void kernel_list_insert_first(list_node_s* list_item, list_s* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_last(list_node_s* list_item, list_s* list)
+void list_insert_last(list_node_s* list_item, list_s* list)
 {
 	// Check if the size is zero
 	if (list->size == 0)
@@ -125,7 +125,7 @@ void kernel_list_insert_last(list_node_s* list_item, list_s* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_delay(list_node_s* list_item, list_s* list)
+void list_insert_delay(list_node_s* list_item, list_s* list)
 {
 	// Check if the size if zero
 	if (list->size == 0)
@@ -151,14 +151,14 @@ void kernel_list_insert_delay(list_node_s* list_item, list_s* list)
 		if (tmp_value <= list->first->value)
 		{
 			// Insert at the beginning
-			kernel_list_insert_first(list_item, list);
+			list_insert_first(list_item, list);
 			
 			// Increment handled
 		}
 		else if (tmp_value >= list->last->value)
 		{
 			// Insert at the end
-			kernel_list_insert_last(list_item, list);
+			list_insert_last(list_item, list);
 			
 			// Increment handled
 		}
@@ -199,7 +199,7 @@ void kernel_list_insert_delay(list_node_s* list_item, list_s* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t kernel_list_remove_first(list_s* list)
+uint8_t list_remove_first(list_s* list)
 {
 	if (list->size == 0)
 	{
@@ -242,7 +242,7 @@ uint8_t kernel_list_remove_first(list_s* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t kernel_list_remove_last(list_s* list)
+uint8_t list_remove_last(list_s* list)
 {
 	if (list->size == 0)
 	{
@@ -282,7 +282,7 @@ uint8_t kernel_list_remove_last(list_s* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint8_t kernel_list_remove_item(list_node_s* list_item, list_s* list)
+uint8_t list_remove_item(list_node_s* list_item, list_s* list)
 {
 	if (list->size == 0)
 	{
@@ -290,11 +290,11 @@ uint8_t kernel_list_remove_item(list_node_s* list_item, list_s* list)
 	}
 	else if (list_item == list->first)
 	{
-		return kernel_list_remove_first(list);
+		return list_remove_first(list);
 	}
 	else if (list_item == list->last)
 	{
-		return kernel_list_remove_last(list);
+		return list_remove_last(list);
 	}
 	else
 	{

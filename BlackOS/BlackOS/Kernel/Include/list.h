@@ -53,17 +53,17 @@ typedef struct List_s
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_list_insert_first(list_node_s* list_item, list_s* list);
+void list_insert_first(list_node_s* list_item, list_s* list);
 
-void kernel_list_insert_last(list_node_s* list_item, list_s* list);
+void list_insert_last(list_node_s* list_item, list_s* list);
 
-void kernel_list_insert_delay(list_node_s* list_item, list_s* list);
+void list_insert_delay(list_node_s* list_item, list_s* list);
 
-uint8_t kernel_list_remove_first(list_s* list);
+uint8_t list_remove_first(list_s* list);
 
-uint8_t kernel_list_remove_last(list_s* list);
+uint8_t list_remove_last(list_s* list);
 
-uint8_t kernel_list_remove_item(list_node_s* list_item, list_s* list);
+uint8_t list_remove_item(list_node_s* list_item, list_s* list);
 
 
 //--------------------------------------------------------------------------------------------------//

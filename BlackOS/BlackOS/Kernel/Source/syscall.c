@@ -5,7 +5,7 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#include "kernel_service.h"
+#include "syscall.h"
 #include "board_serial.h"
 #include "kernel.h"
 #include "gpio.h"
@@ -15,38 +15,34 @@
 
 
 // Attribute for the SVC handler
-#define KERNEL_SERVICE_NAKED __attribute__((naked))
+#define SYSCALL_NAKED __attribute__((naked))
+
 
 // Macro for calling the SVC handler with the specified SVC number
-#define KERNEL_SERVICE(svc_number) asm volatile ("svc %[arg]" : : [arg] "I" (svc_number))
+#define SYSCALL(svc_number) asm volatile ("svc %[arg]" : : [arg] "I" (svc_number))
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-// Implementation of the kernel services
-// Note that service 0-10 should not be used since these
-// provides kernel services
-
-void KERNEL_SERVICE_NOINLINE service_serial_print(char* data)
+void SYSCALL_NOINLINE syscall_print(char* data)
 {
-	KERNEL_SERVICE(SERVICE_SERIAL_PRINT);
+	SYSCALL(SYSCALL_PRINT);
 }
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void KERNEL_SERVICE_NOINLINE service_thread_delay(uint32_t ticks)
+void SYSCALL_NOINLINE syscall_sleep(uint32_t ticks)
 {
-	KERNEL_SERVICE(SERVICE_THREAD_DELAY);
+	SYSCALL(SYSCALL_DELAY);
 }
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-// IMPORTANT!!!!
 // The kernel services runs in from an interrupt handler with low priority
 // (lowest of the cortex-m7 implemented interrupts) and should therefore execute
 // as fast as possible. If a service takes long to execute, it will destroy
@@ -59,13 +55,13 @@ void kernel_service_handler(uint32_t* svc_argv)
 
 	switch (svc_number)
 	{
-		case SERVICE_THREAD_DELAY:
-		kernel_thread_delay((uint32_t)svc_argv[0]);
-		break;
+		case SYSCALL_DELAY:
+			kernel_thread_delay((uint32_t)svc_argv[0]);
+			break;
 		
-		case SERVICE_SERIAL_PRINT:
-		board_serial_print((char*)svc_argv[0]);
-		break;
+		case SYSCALL_PRINT:
+			board_serial_print((char*)svc_argv[0]);
+			break;
 	}
 }
 

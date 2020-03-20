@@ -5,17 +5,15 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#include "kernel_startup.h"
+#include "kernel.h"
 #include "watchdog.h"
 #include "interrupt.h"
 #include "config.h"
 #include "clock.h"
 #include "flash.h"
-
 #include "board_serial.h"
 #include "board_button.h"
 #include "board_serial_programming.h"
-
 #include "systick.h"
 #include "dynamic_memory.h"
 #include "kernel.h"

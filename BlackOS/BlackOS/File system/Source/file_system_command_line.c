@@ -14,7 +14,7 @@
 #include "core.h"
 #include "board_sd_card.h"
 #include "interrupt.h"
-#include "kernel_dynamic_loader.h"
+#include "dynamic_loader.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -80,7 +80,7 @@ directory_t directory;
 file_info_t file_info;
 
 
-thread_s* file_thread;
+tcb_s* file_thread;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -105,12 +105,12 @@ void file_system_command_line_thread(void* args)
 	{
 		while (board_sd_card_get_status() == SD_DISCONNECTED)
 		{
-			service_thread_delay(100);
+			syscall_sleep(100);
 		}
 		
 		board_serial_print("Card connected\n");
 		
-		service_thread_delay(200);
+		syscall_sleep(200);
 		
 		uint8_t retry_count = 0;
 		while (retry_count++ < 5)
@@ -120,7 +120,7 @@ void file_system_command_line_thread(void* args)
 				file_system_command_line_print_directory();
 				break;
 			}
-			service_thread_delay(200);
+			syscall_sleep(200);
 		}
 		if (retry_count >= 5)
 		{
@@ -140,7 +140,7 @@ void file_system_command_line_thread(void* args)
 				file_system_command_line_print_directory();
 				
 			}
-			service_thread_delay(100);
+			syscall_sleep(100);
 			
 		}
 	}
@@ -485,7 +485,7 @@ file_result_t file_system_command_line_run(char* arg)
 		return res;
 	}
 	
-	kernel_dynamic_loader_run((uint32_t *)application, bytes_read);
+	dynamic_loader_run((uint32_t *)application, bytes_read);
 
 	return FR_OK;
 }

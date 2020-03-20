@@ -5,8 +5,8 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#ifndef KERNEL_STARTUP_H
-#define KERNEL_STARTUP_H
+#ifndef FAULT_H
+#define FAULT_H
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -18,7 +18,7 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_startup(void);
+// This file contains backup routines in case of a system crash
 
 
 //--------------------------------------------------------------------------------------------------//

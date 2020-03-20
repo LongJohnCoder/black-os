@@ -52,9 +52,9 @@ uint32_t kernel_statistics_timer;
 //		- The current pointer points to the current thread to be run
 //		- The next pointer is set by the scheduler and points to the next thread to run
 //
-thread_s* kernel_current_thread_pointer;
-thread_s* kernel_next_thread_pointer;
-thread_s* kernel_idle_thread_pointer;
+tcb_s* kernel_current_thread_pointer;
+tcb_s* kernel_next_thread_pointer;
+tcb_s* kernel_idle_thread_pointer;
 
 // This variable will hold the current state of the scheduler
 kernel_scheduler_status scheduler_status;
@@ -94,14 +94,14 @@ void kernel_reset_runtime(void);
 //--------------------------------------------------------------------------------------------------//
 
 
-thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
+tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
 {
 	// We do NOT want any scheduler interrupting inside here
 	kernel_suspend_scheduler();
 	
 	// First we have to allocate memory for the thread and 
 	// for the stack that is going to be used by that thread
-	thread_s* new_thread = (thread_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(thread_s));
+	tcb_s* new_thread = (tcb_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(tcb_s));
 	
 	// Allocate the stack
 	new_thread->stack_base = (uint32_t*)dynamic_memory_new(DRAM_BANK_0, stack_size * sizeof(uint32_t));
@@ -137,6 +137,12 @@ thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void
 	
 	new_thread->stack_size = 4 * stack_size;
 	
+	
+	
+	
+	
+	
+	
 	// The first thread to be made is the IDLE thread
 	if (kernel_idle_thread_pointer == NULL)
 	{
@@ -151,7 +157,7 @@ thread_s* kernel_add_thread(char* thread_name, thread_function thread_func, void
 		new_thread->next_list = NULL;
 		new_thread->list_item.object = new_thread;
 		
-		kernel_list_insert_first(&(new_thread->list_item), &running_queue);
+		list_insert_first(&(new_thread->list_item), &running_queue);
 	}
 	
 	//cache_clean_addresses((uint32_t *)new_thread, sizeof(thread_s));
@@ -230,7 +236,7 @@ void kernel_print_running_queue(list_s* list)
 		board_serial_print("FIRST\t\t");
 		while (list_iterator != NULL)
 		{
-			board_serial_print("%s\t\t", ((thread_s *)(list_iterator->object))->name);
+			board_serial_print("%s\t\t", ((tcb_s *)(list_iterator->object))->name);
 			
 			list_iterator = list_iterator->next;
 		}
@@ -281,7 +287,7 @@ void kernel_print_running_queue(list_s* list)
 
 		while (list_iterator != NULL)
 		{
-			board_serial_print("%d\t", ((thread_s *)(list_iterator->object))->tick_to_wake);
+			board_serial_print("%d\t", ((tcb_s *)(list_iterator->object))->tick_to_wake);
 			board_serial_print("\t");
 			list_iterator = list_iterator->next;
 		}
@@ -416,7 +422,7 @@ void kernel_scheduler(void)
 	
 	
 	// Check the integrity of the scheduler
-	volatile thread_s* thread_pointer_check = kernel_current_thread_pointer;
+	volatile tcb_s* thread_pointer_check = kernel_current_thread_pointer;
 	
 	kernel_current_thread_pointer->runtime++;
 	
@@ -431,11 +437,11 @@ void kernel_scheduler(void)
 				if (kernel_current_thread_pointer->next_list == &delay_queue)
 				{
 					// Put the element into the delay queue
-					kernel_list_remove_last(&running_queue);
-					kernel_list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_queue);
+					list_remove_last(&running_queue);
+					list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_queue);
 					
 					// Update the kernel tick to wake
-					kernel_tick_to_wake = ((thread_s *)(delay_queue.first->object))->tick_to_wake;
+					kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
 				}
 				
 				kernel_current_thread_pointer->next_list = NULL;
@@ -443,8 +449,8 @@ void kernel_scheduler(void)
 			else
 			{
 				// The thread should just be place first in the running queue
-				kernel_list_remove_last(&running_queue);
-				kernel_list_insert_first(&(kernel_current_thread_pointer->list_item), &running_queue);
+				list_remove_last(&running_queue);
+				list_insert_first(&(kernel_current_thread_pointer->list_item), &running_queue);
 			}
 		}
 		
@@ -453,13 +459,13 @@ void kernel_scheduler(void)
 		{
 			list_node_s* list_iterator = delay_queue.first;
 			
-			check(((thread_s *)(delay_queue.first->object))->tick_to_wake <= kernel_tick_to_wake);
+			check(((tcb_s *)(delay_queue.first->object))->tick_to_wake <= kernel_tick_to_wake);
 			
 			uint16_t  i;
 			
 			for (i = 0; i < delay_queue.size; i++)
 			{
-				if (((thread_s *)(list_iterator->object))->tick_to_wake > kernel_tick_to_wake)
+				if (((tcb_s *)(list_iterator->object))->tick_to_wake > kernel_tick_to_wake)
 				{
 					break;
 				}
@@ -470,8 +476,8 @@ void kernel_scheduler(void)
 			{
 				list_node_s* tmp = delay_queue.first;
 				
-				kernel_list_remove_first(&delay_queue);
-				kernel_list_insert_first(tmp, &running_queue);
+				list_remove_first(&delay_queue);
+				list_insert_first(tmp, &running_queue);
 			}
 			
 			if (list_iterator == NULL)
@@ -481,14 +487,14 @@ void kernel_scheduler(void)
 			}
 			else
 			{
-				kernel_tick_to_wake = ((thread_s *)(delay_queue.first->object))->tick_to_wake;
+				kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
 			}
 		}
 		
 		if (kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING)
 		{
 			// The thread has to be removed
-			kernel_list_remove_last(&running_queue);
+			list_remove_last(&running_queue);
 			
 			// Then we have to delete the memory resources
 			dynamic_memory_free(kernel_current_thread_pointer->stack_base);
@@ -555,16 +561,16 @@ void kernel_reset_runtime(void)
 	{
 		for (list_node_s* i = running_queue.first; i != NULL; i = i->next)
 		{
-			((thread_s *)(i->object))->last_runtime = ((thread_s *)(i->object))->runtime;
-			((thread_s *)(i->object))->runtime = 0;
+			((tcb_s *)(i->object))->last_runtime = ((tcb_s *)(i->object))->runtime;
+			((tcb_s *)(i->object))->runtime = 0;
 		}
 	}
 	if (delay_queue.size != 0)
 	{
 		for (list_node_s* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			((thread_s *)(i->object))->last_runtime = ((thread_s *)(i->object))->runtime;
-			((thread_s *)(i->object))->runtime = 0;
+			((tcb_s *)(i->object))->last_runtime = ((tcb_s *)(i->object))->runtime;
+			((tcb_s *)(i->object))->runtime = 0;
 		}
 	}
 }
@@ -575,7 +581,7 @@ void kernel_reset_runtime(void)
 
 void kernel_print_runtime_statistics(void)
 {
-	thread_s* tmp_thread;
+	tcb_s* tmp_thread;
 	
 	int32_t cpu_usage = 1000 - kernel_idle_thread_pointer->last_runtime;
 	char k = cpu_usage / 10;
@@ -587,7 +593,7 @@ void kernel_print_runtime_statistics(void)
 	{
 		for (list_node_s* i = running_queue.first; i != NULL; i = i->next)
 		{
-			tmp_thread = (thread_s *)(i->object);
+			tmp_thread = (tcb_s *)(i->object);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
@@ -603,7 +609,7 @@ void kernel_print_runtime_statistics(void)
 	{
 		for (list_node_s* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			tmp_thread = (thread_s *)(i->object);
+			tmp_thread = (tcb_s *)(i->object);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);

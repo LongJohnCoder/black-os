@@ -7,7 +7,7 @@
 
 #include "board_led.h"
 #include "gpio.h"
-#include "kernel_service.h"
+#include "syscall.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -21,9 +21,9 @@ void blink_thread(void* arg)
 	while (1)
 	{
 		gpio_clear_pin_value(PIOC, 8);
-		service_thread_delay(30);
+		syscall_sleep(30);
 		gpio_set_pin_value(PIOC, 8);
-		service_thread_delay(970);
+		syscall_sleep(970);
 	}
 }
 
