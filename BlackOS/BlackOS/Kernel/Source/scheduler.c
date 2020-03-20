@@ -71,6 +71,11 @@ uint32_t kernel_tick_to_wake;
 uint32_t kernel_runtime_tick;
 
 
+uint8_t reschedule_pending;
+uint32_t reschedule_runtime;
+uint32_t systick_divider;
+
+
 //--------------------------------------------------------------------------------------------------//
 
 
@@ -311,6 +316,8 @@ void kernel_start(void)
 	systick_set_reload_value(300000000 / KERNEL_TICK_FREQUENCY);
 	
 	
+	systick_divider = 300000000 / KERNEL_TICK_FREQUENCY / 1000;
+	
 	// Start the scheduler
 	scheduler_status = SCHEDULER_STATUS_RUNNING;
 	
@@ -373,6 +380,9 @@ void kernel_thread_config(void)
 
 void kernel_reschedule(void)
 {
+	reschedule_runtime = 1000 - systick_get_counter_value() / systick_divider;
+	reschedule_pending = 1;
+	
 	// Not sure is this is a good idea, since it might fuck up the timing
 	systick_set_counter_value(0);
 	
@@ -392,7 +402,7 @@ void kernel_thread_delay(uint32_t ticks)
 	kernel_suspend_scheduler();
 	
 	// Calculate the right tick to wake
-	uint32_t tmp = kernel_tick + ticks;
+	uint32_t tmp = kernel_tick + ticks * 1000;
 	
 	// Write the value to the thread control block
 	kernel_current_thread_pointer->tick_to_wake = tmp;
@@ -424,8 +434,6 @@ void kernel_scheduler(void)
 	
 	// Check the integrity of the scheduler
 	volatile tcb_s* thread_pointer_check = kernel_current_thread_pointer;
-	
-	kernel_current_thread_pointer->runtime++;
 	
 	// Do not allow any context switch when the scheduler is suspended
 	if (scheduler_status == SCHEDULER_STATUS_RUNNING)
@@ -533,10 +541,22 @@ void kernel_scheduler(void)
 
 void SysTick_Handler()
 {
-	kernel_tick++;
-	kernel_runtime_tick++;
+	if (reschedule_pending)
+	{
+		reschedule_pending = 0;
+		
+		kernel_tick += reschedule_runtime;
+		kernel_runtime_tick += reschedule_runtime;
+		kernel_current_thread_pointer->runtime += reschedule_runtime;
+	}
+	else
+	{
+		kernel_tick += 1000;
+		kernel_runtime_tick += 1000;
+		kernel_current_thread_pointer->runtime += 1000;
+	}
 	
-	if (kernel_runtime_tick >= 1000)
+	if (kernel_runtime_tick >= 1000000)
 	{
 		kernel_reset_runtime();
 		kernel_runtime_tick = 0;
@@ -584,9 +604,9 @@ void kernel_print_runtime_statistics(void)
 {
 	tcb_s* tmp_thread;
 	
-	int32_t cpu_usage = 1000 - kernel_idle_thread_pointer->last_runtime;
-	char k = cpu_usage / 10;
-	board_serial_programming_write_percent(k, cpu_usage - (k * 10));
+	int32_t cpu_usage = 1000000 - kernel_idle_thread_pointer->last_runtime;
+	char k = cpu_usage / 10000;
+	board_serial_programming_write_percent(k, cpu_usage / 1000 - (k * 10));
 	board_serial_programming_print(" : CPU Usage");
 	board_serial_programming_print("\n");
 	
@@ -600,8 +620,8 @@ void kernel_print_runtime_statistics(void)
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
 			board_serial_programming_print("\t");
 			
-			uint8_t tmp = tmp_thread->last_runtime / 10;
-			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime - (tmp * 10));
+			uint8_t tmp = tmp_thread->last_runtime / 10000;
+			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime / 1000 - (tmp * 10));
 			board_serial_programming_print(" : %s", tmp_thread->name);
 			board_serial_programming_print("\n");
 		}
@@ -616,8 +636,8 @@ void kernel_print_runtime_statistics(void)
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
 			board_serial_programming_print("\t");
 			
-			uint8_t tmp = tmp_thread->last_runtime / 10;
-			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime - (tmp * 10));
+			uint8_t tmp = tmp_thread->last_runtime / 10000;
+			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime / 1000 - (tmp * 10));
 			board_serial_programming_print(" : %s", tmp_thread->name);
 			board_serial_programming_print("\n");
 		}
