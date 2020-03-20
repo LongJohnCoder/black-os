@@ -101,10 +101,15 @@ tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* t
 	
 	// First we have to allocate memory for the thread and 
 	// for the stack that is going to be used by that thread
-	tcb_s* new_thread = (tcb_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(tcb_s));
+	//tcb_s* new_thread = (tcb_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(tcb_s));
+	tcb_s* new_thread = (tcb_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(tcb_s) + stack_size * sizeof(uint32_t));
 	
 	// Allocate the stack
-	new_thread->stack_base = (uint32_t*)dynamic_memory_new(DRAM_BANK_0, stack_size * sizeof(uint32_t));
+	//new_thread->stack_base = (uint32_t*)dynamic_memory_new(DRAM_BANK_0, stack_size * sizeof(uint32_t));
+	new_thread->stack_base = (uint32_t *)((uint8_t *)new_thread + sizeof(tcb_s));
+	
+	board_serial_print("Thread address: %d\n", (uint32_t)new_thread);
+	board_serial_print("Stack address: %d\n", (uint32_t)(new_thread->stack_base));
 
 	if ((new_thread == NULL) || (new_thread->stack_base == NULL))
 	{
@@ -497,7 +502,7 @@ void kernel_scheduler(void)
 			list_remove_last(&running_queue);
 			
 			// Then we have to delete the memory resources
-			dynamic_memory_free(kernel_current_thread_pointer->stack_base);
+			//dynamic_memory_free(kernel_current_thread_pointer->stack_base);
 			dynamic_memory_free(kernel_current_thread_pointer);
 		}
 		
