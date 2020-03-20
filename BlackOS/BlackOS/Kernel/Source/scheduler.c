@@ -132,9 +132,7 @@ tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* t
 	
 	// Set the thread priority
 	new_thread->priority = priority;
-	
 	new_thread->state = THREAD_STATE_RUNNING;
-	
 	new_thread->stack_size = 4 * stack_size;
 	
 	
@@ -427,7 +425,7 @@ void kernel_scheduler(void)
 	
 	// Do not allow any context switch when the scheduler is suspended
 	if (scheduler_status == SCHEDULER_STATUS_RUNNING)
-	{		
+	{
 		if (kernel_current_thread_pointer != kernel_idle_thread_pointer)
 		{
 			if (kernel_current_thread_pointer->next_list != NULL)
@@ -447,9 +445,22 @@ void kernel_scheduler(void)
 			}
 			else
 			{
-				// The thread should just be place first in the running queue
-				list_remove_last(&running_queue);
-				list_insert_first(&(kernel_current_thread_pointer->list_item), &running_queue);
+				
+				if (kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING)
+				{
+					// The thread has to be removed
+					list_remove_last(&running_queue);
+			
+					// Then we have to delete the memory resources
+					//dynamic_memory_free(kernel_current_thread_pointer->stack_base);
+					dynamic_memory_free(kernel_current_thread_pointer);
+				}
+				else
+				{
+					// The thread should just be place first in the running queue
+					list_remove_last(&running_queue);
+					list_insert_first(&(kernel_current_thread_pointer->list_item), &running_queue);
+				}
 			}
 		}
 		
@@ -490,16 +501,6 @@ void kernel_scheduler(void)
 			}
 		}
 		
-		if (kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING)
-		{
-			// The thread has to be removed
-			list_remove_last(&running_queue);
-			
-			// Then we have to delete the memory resources
-			//dynamic_memory_free(kernel_current_thread_pointer->stack_base);
-			dynamic_memory_free(kernel_current_thread_pointer);
-		}
-		
 		// Update the next thread to run
 		if (running_queue.last == NULL)
 		{
@@ -537,13 +538,13 @@ void SysTick_Handler()
 		
 		kernel_tick += reschedule_runtime;
 		kernel_runtime_tick += reschedule_runtime;
-		kernel_current_thread_pointer->runtime += reschedule_runtime;
+		kernel_current_thread_pointer->thread_time.new_window_time += reschedule_runtime;
 	}
 	else
 	{
 		kernel_tick += 1000;
 		kernel_runtime_tick += 1000;
-		kernel_current_thread_pointer->runtime += 1000;
+		kernel_current_thread_pointer->thread_time.new_window_time += 1000;
 	}
 	
 	if (kernel_runtime_tick >= 1000000)
@@ -565,23 +566,23 @@ void SysTick_Handler()
 
 void kernel_reset_runtime(void)
 {
-	kernel_idle_thread_pointer->last_runtime = kernel_idle_thread_pointer->runtime;
-	kernel_idle_thread_pointer->runtime = 0;
+	kernel_idle_thread_pointer->thread_time.window_time = kernel_idle_thread_pointer->thread_time.new_window_time;
+	kernel_idle_thread_pointer->thread_time.new_window_time = 0;
 	
 	if (running_queue.size != 0)
 	{
 		for (list_node_s* i = running_queue.first; i != NULL; i = i->next)
 		{
-			((tcb_s *)(i->object))->last_runtime = ((tcb_s *)(i->object))->runtime;
-			((tcb_s *)(i->object))->runtime = 0;
+			((tcb_s *)(i->object))->thread_time.window_time = ((tcb_s *)(i->object))->thread_time.new_window_time;
+			((tcb_s *)(i->object))->thread_time.new_window_time = 0;
 		}
 	}
 	if (delay_queue.size != 0)
 	{
 		for (list_node_s* i = delay_queue.first; i != NULL; i = i->next)
 		{
-			((tcb_s *)(i->object))->last_runtime = ((tcb_s *)(i->object))->runtime;
-			((tcb_s *)(i->object))->runtime = 0;
+			((tcb_s *)(i->object))->thread_time.window_time = ((tcb_s *)(i->object))->thread_time.new_window_time;
+			((tcb_s *)(i->object))->thread_time.new_window_time = 0;
 		}
 	}
 }
@@ -594,7 +595,7 @@ void kernel_print_runtime_statistics(void)
 {
 	tcb_s* tmp_thread;
 	
-	int32_t cpu_usage = 1000000 - kernel_idle_thread_pointer->last_runtime;
+	int32_t cpu_usage = 1000000 - kernel_idle_thread_pointer->thread_time.window_time;
 	char k = cpu_usage / 10000;
 	board_serial_programming_write_percent(k, cpu_usage / 1000 - (k * 10));
 	board_serial_programming_print(" : CPU Usage");
@@ -610,8 +611,8 @@ void kernel_print_runtime_statistics(void)
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
 			board_serial_programming_print("\t");
 			
-			uint8_t tmp = tmp_thread->last_runtime / 10000;
-			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime / 1000 - (tmp * 10));
+			uint8_t tmp = tmp_thread->thread_time.window_time / 10000;
+			board_serial_programming_write_percent(tmp, tmp_thread->thread_time.window_time / 1000 - (tmp * 10));
 			board_serial_programming_print(" : %s", tmp_thread->name);
 			board_serial_programming_print("\n");
 		}
@@ -626,8 +627,8 @@ void kernel_print_runtime_statistics(void)
 			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
 			board_serial_programming_print("\t");
 			
-			uint8_t tmp = tmp_thread->last_runtime / 10000;
-			board_serial_programming_write_percent(tmp, tmp_thread->last_runtime / 1000 - (tmp * 10));
+			uint8_t tmp = tmp_thread->thread_time.window_time / 10000;
+			board_serial_programming_write_percent(tmp, tmp_thread->thread_time.window_time / 1000 - (tmp * 10));
 			board_serial_programming_print(" : %s", tmp_thread->name);
 			board_serial_programming_print("\n");
 		}

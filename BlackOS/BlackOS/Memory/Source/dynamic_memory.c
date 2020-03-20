@@ -14,6 +14,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <core_cm7.h>
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -386,6 +387,8 @@ void dynamic_memory_free(void* memory_object)
 				
 				// Insert the block in the linked list of free elements
 				dynamic_memory_insert_block(sect, block);
+				
+				SCB_CleanDCache();
 			}
 			
 			// If any of the below checks are hit by the processor the memory is lost

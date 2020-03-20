@@ -8,6 +8,7 @@
 #include "kernel.h"
 #include "board_led.h"
 #include "board_serial.h"
+#include "gpio.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -25,6 +26,21 @@ void runtime_agent(void* arg)
 	{
 		syscall_sleep(1000);
 		kernel_print_runtime_statistics();
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void waveform(void* arg)
+{
+	gpio_set_pin_function(PIOB, 2, PERIPHERAL_FUNCTION_OFF);
+	gpio_set_pin_direction_output(PIOB, 2);
+	while (1)
+	{
+		syscall_sleep(1);
+		gpio_toogle_pin_value(PIOB, 2);
 	}
 }
 
@@ -52,8 +68,9 @@ int main(void)
 	kernel_add_thread("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 200);
 	kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
 	kernel_add_thread("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
+	kernel_add_thread("waveform", waveform, NULL, THREAD_PRIORITY_LOW, 200);
 	
-
+	
 	// Start the kernel
 	kernel_start();
 	

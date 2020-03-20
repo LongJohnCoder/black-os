@@ -52,11 +52,15 @@ typedef enum
 typedef struct Thread_time_s
 {
 	// Total runtime in microseconds
-	uint64_t total_runtime;
+	uint64_t					runtime;
 	
-	// Window run time in microseconds - typically calculated over a 1 second interval
-	uint32_t w_runtime;
-	uint32_t w_new_runtime;
+	// Window runtime in microseconds
+	// Typically calculated over a 1 second interval and used for runtime statistics.
+	// This value will be reset every second if used and uint32_t is therefore sufficient.
+	// Window time holds the microsecond runtime from the last seconds, while the new window
+	// time holds the microsecond runtime from the current second. 
+	uint32_t					window_time;
+	uint32_t					new_window_time;
 	
 } thread_time_s;
 
@@ -106,7 +110,7 @@ typedef struct Tcb_s
 	// New section
 	
 	// This section deals with timing and stuff
-	thread_time_s				time;
+	thread_time_s				thread_time;
 	
 	
 	// Store the name of the thread
