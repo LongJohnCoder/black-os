@@ -92,12 +92,12 @@ typedef struct Tcb_s
 	
 	
 	// Time to wake is used for the thread delay function
-	uint32_t					tick_to_wake;
+	uint64_t					tick_to_wake;
 	
 	
 	// These variables are used to calculate the runtime statistics
-	uint32_t					last_runtime;
-	uint32_t					runtime;
+	uint64_t					last_runtime;
+	uint64_t					runtime;
 	
 	
 	thread_state				state;

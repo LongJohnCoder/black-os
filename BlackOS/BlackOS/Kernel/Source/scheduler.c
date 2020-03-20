@@ -26,12 +26,6 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-#define KERNEL_DEBUG 1
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
 typedef enum
 {
 	SCHEDULER_STATUS_RUNNING,
@@ -43,8 +37,8 @@ typedef enum
 
 
 // The kernel tick count the number of milliseconds / time-slices that the kernel has run for
-uint32_t kernel_tick;
-uint32_t kernel_statistics_timer;
+uint64_t kernel_tick;
+uint64_t kernel_statistics_timer;
 
 // We use three pointers for the kernel
 //
@@ -67,12 +61,12 @@ list_s suspended_list;
 // Global tick to wake variable. This variable gets updated every time a thread is added or removed from the delay
 // list. It holds the tick to wake value of the first thread to be put in the running queue again. This reduces the
 // overhead.
-uint32_t kernel_tick_to_wake;
-uint32_t kernel_runtime_tick;
+uint64_t kernel_tick_to_wake;
+uint64_t kernel_runtime_tick;
 
 
 uint8_t reschedule_pending;
-uint32_t reschedule_runtime;
+uint64_t reschedule_runtime;
 uint32_t systick_divider;
 
 
@@ -348,13 +342,9 @@ void kernel_start(void)
 	// crash. This is because the SysTick exception handler will print things to the
 	// screen, and therefore not return within the new time slice. This means that
 	// the scheduler runs several times without a context-switch.
-	#if KERNEL_DEBUG
-	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_7);
-	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_6);
-	#else
 	interrupt_enable_peripheral_interrupt(SysTick_IRQn, IRQ_LEVEL_0);
 	interrupt_enable_peripheral_interrupt(PendSV_IRQn, IRQ_LEVEL_7);
-	#endif
+	
 	
 	// This configures the kernels context switch mechanism
 	// That includes configuring the new program stack

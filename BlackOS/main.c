@@ -53,10 +53,7 @@ int main(void)
 	kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
 	kernel_add_thread("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
 	
-	volatile uint64_t k = 0;
-	k = 5670223425534;
-	
-	
+
 	// Start the kernel
 	kernel_start();
 	

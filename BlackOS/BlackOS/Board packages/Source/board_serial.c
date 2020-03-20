@@ -482,7 +482,7 @@ void board_serial_dma_switch_buffers(void)
 	// We must check that the dma buffer is ready
 	while (dma_buffer->dma_active)
 	{
-		
+		asm volatile ("nop");
 	}
 	
 	// After the DMA transaction is complete we switch the buffers
