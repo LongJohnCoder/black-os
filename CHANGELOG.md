@@ -6,6 +6,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v1.4] - New runtime stats system
+
+This release contains several major fixes. The operating system is stable with new runtime stat calculation.
+
+### Changed
+
+- Added non-blocking double buffered serial print interface with timeout and DMA support. The 1 kB serial buffer is either flushed when overflow, or after 10 ms.
+-  Written simple cache interface
+- Added UART driver package
+- Added HID mouse support with special windows software
+- Lists completely independent of the scheduler. Faster access.
+- Atomic read -  modify - write support
+- Reorganization of kernel files
+- Combined tcb and the thread stack to reduce fragmentation
+- Improvement on scheduler
+- Runtime stats independent of reschedule, thus 64-bit time support
+
 ## [v1.3] - Cleanup
 
 ### Changed
@@ -46,8 +63,9 @@ run application.exe
 - Added runtime statistics support
 
 
-[Unreleased]: https://github.com/bjornbrodtkorb/BlackOS/compare/v1.3...HEAD
+[Unreleased]: https://github.com/bjornbrodtkorb/BlackOS/compare/v1.4...HEAD
 [v1.0]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.0
 [v1.1]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.1
 [v1.2]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.2
 [v1.3]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.3
+[v1.4]: https://github.com/bjornbrodtkorb/BlackOS/releases/tag/v1.4
