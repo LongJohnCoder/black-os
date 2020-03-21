@@ -74,6 +74,10 @@ typedef struct Tcb_s
 	uint32_t*					stack_pointer;
 	
 	
+	// Thread ID
+	uint32_t					ID;
+	
+	
 	// Points to the next thread in the list
 	struct Tcb_s*				next;
 	
@@ -143,6 +147,8 @@ void kernel_print_runtime_statistics(void);
 void kernel_resume_scheduler(void);
 
 void kernel_suspend_scheduler(void);
+
+void scheduler_set_dynamic_loader_handler(void (*handler)(void));
 
 
 //--------------------------------------------------------------------------------------------------//

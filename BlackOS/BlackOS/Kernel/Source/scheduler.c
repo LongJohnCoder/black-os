@@ -70,6 +70,9 @@ uint64_t reschedule_runtime;
 uint32_t systick_divider;
 
 
+void (*fast_program_interface_delete)(void);
+
+
 //--------------------------------------------------------------------------------------------------//
 
 
@@ -166,6 +169,15 @@ tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* t
 	kernel_resume_scheduler();
 	
 	return new_thread;
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void scheduler_set_dynamic_loader_handler(void (*handler)(void))
+{
+	fast_program_interface_delete = handler;
 }
 
 
@@ -447,7 +459,17 @@ void kernel_scheduler(void)
 			{
 				
 				if (kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING)
-				{			
+				{
+					if (kernel_current_thread_pointer->ID == 6969)
+					{
+						// This thread belong to the fast programming interface. So we must
+						// delete the program memory buffer as well
+						if (fast_program_interface_delete != NULL)
+						{
+							fast_program_interface_delete();
+						}
+					}
+					
 					// Then we have to delete the memory resources
 					//dynamic_memory_free(kernel_current_thread_pointer->stack_base);
 					dynamic_memory_free(kernel_current_thread_pointer);

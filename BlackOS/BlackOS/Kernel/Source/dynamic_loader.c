@@ -22,6 +22,40 @@
 //--------------------------------------------------------------------------------------------------//
 
 
+typedef enum
+{
+	FAST_PROGRAMMING_IDLE,
+	FAST_PROGRAMMING_SIZE,
+	FAST_PROGRAMMING_SIZE_PLUS,
+	FAST_PROGRAMMING_DATA,
+	FAST_PROGRAMMING_CHECK
+} kernel_fast_programming_state;
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+
+volatile kernel_fast_programming_state fast_programming_state;
+uint8_t program_size_index;
+uint32_t program_size;
+uint32_t program_index;
+uint32_t program_size_total;
+uint8_t* program_buffer;
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void delete_handler(void)
+{
+	dynamic_memory_free(program_buffer);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void dynamic_loader_run(uint32_t* data, uint32_t size)
 {
 	// Start with relocating the .GOT and .GOT PLT table addresses
@@ -45,7 +79,9 @@ void dynamic_loader_run(uint32_t* data, uint32_t size)
 	// Check if the name if valid and start the thread
 	if (dynamic_loader_check_name(name, name_length))
 	{
-		kernel_add_thread(name, (thread_function)program_entry, NULL, THREAD_PRIORITY_NORMAL, stack_size);
+		scheduler_set_dynamic_loader_handler(delete_handler);
+		tcb_s* tmp = kernel_add_thread(name, (thread_function)program_entry, NULL, THREAD_PRIORITY_NORMAL, stack_size);
+		tmp->ID = 6969;
 	}
 
 }
@@ -114,31 +150,6 @@ void dynamic_loader_relocate(uint32_t* data)
 
 
 //--------------------------------------------------------------------------------------------------//
-
-
-typedef enum
-{
-	FAST_PROGRAMMING_IDLE,
-	FAST_PROGRAMMING_SIZE,
-	FAST_PROGRAMMING_SIZE_PLUS,
-	FAST_PROGRAMMING_DATA,
-	FAST_PROGRAMMING_CHECK
-} kernel_fast_programming_state;
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-volatile kernel_fast_programming_state fast_programming_state;
-uint8_t program_size_index;
-uint32_t program_size;
-uint32_t program_index;
-uint32_t program_size_total;
-uint8_t* program_buffer;
-
-
-//--------------------------------------------------------------------------------------------------//
-
 
 // This USART handler is used for the fast programming interface.
 // This interface will dynamically download a user program and run it immediately.
