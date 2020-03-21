@@ -50,6 +50,21 @@ void waveform(void* arg)
 //--------------------------------------------------------------------------------------------------//
 
 
+void waveform_2(void* arg)
+{
+	gpio_set_pin_function(PIOB, 3, PERIPHERAL_FUNCTION_OFF);
+	gpio_set_pin_direction_output(PIOB, 3);
+	while (1)
+	{
+		syscall_sleep(1);
+		gpio_toogle_pin_value(PIOB, 3);
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void welcome_thread(void* arg)
 {
 	// Print a happy message to the screen
@@ -71,6 +86,7 @@ int main(void)
 	kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
 	kernel_add_thread("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
 	kernel_add_thread("waveform", waveform, NULL, THREAD_PRIORITY_LOW, 200);
+	kernel_add_thread("waveform_2", waveform_2, NULL, THREAD_PRIORITY_LOW, 200);
 	
 	
 	// Start the kernel

@@ -229,12 +229,12 @@ typedef struct
 
 
 
-static serial_programming_buffer prog_buffer_a;
-static serial_programming_buffer prog_buffer_b;
+static volatile serial_programming_buffer prog_buffer_a;
+static volatile serial_programming_buffer prog_buffer_b;
 
 
-static serial_programming_buffer* prog_current_buffer;
-static serial_programming_buffer* prog_dma_buffer;
+static volatile serial_programming_buffer* prog_current_buffer;
+static volatile serial_programming_buffer* prog_dma_buffer;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -366,11 +366,11 @@ void board_serial_programming_dma_switch_buffers(void)
 	// We must check that the DMA buffer is ready
 	while (prog_dma_buffer->dma_active)
 	{
-		asm volatile ("nop");
+
 	}
 	
 	// After the DMA transaction is complete we switch the buffers
-	serial_programming_buffer* tmp = prog_dma_buffer;
+	serial_programming_buffer* tmp = (serial_programming_buffer *)prog_dma_buffer;
 	
 	prog_dma_buffer = prog_current_buffer;
 	prog_current_buffer = tmp;
@@ -398,7 +398,7 @@ void board_serial_programming_dma_print(char* data)
 			board_serial_programming_dma_switch_buffers();
 			
 			// Start flushing the DMA buffer
-			board_serial_programming_dma_flush_buffer(prog_dma_buffer->data, prog_dma_buffer->position);
+			board_serial_programming_dma_flush_buffer((char *)(prog_dma_buffer->data), prog_dma_buffer->position);
 		}
 	}
 	
@@ -428,7 +428,7 @@ void TC1_Handler()
 	board_serial_programming_dma_switch_buffers();
 	
 	// Start flushing the DMA buffer
-	board_serial_programming_dma_flush_buffer(prog_dma_buffer->data, prog_dma_buffer->position);
+	board_serial_programming_dma_flush_buffer((char *)(prog_dma_buffer->data), prog_dma_buffer->position);
 }
 
 

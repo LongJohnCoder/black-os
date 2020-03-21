@@ -345,12 +345,12 @@ typedef struct
 
 
 
-static serial_buffer buffer_a;
-static serial_buffer buffer_b;
+static volatile serial_buffer buffer_a;
+static volatile serial_buffer buffer_b;
 
 
-static serial_buffer* current_buffer;
-static serial_buffer* dma_buffer;
+static volatile serial_buffer* current_buffer;
+static volatile serial_buffer* dma_buffer;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -482,11 +482,11 @@ void board_serial_dma_switch_buffers(void)
 	// We must check that the dma buffer is ready
 	while (dma_buffer->dma_active)
 	{
-		asm volatile ("nop");
+
 	}
 	
 	// After the DMA transaction is complete we switch the buffers
-	serial_buffer* tmp = dma_buffer;
+	serial_buffer* tmp = (serial_buffer *)dma_buffer;
 	
 	dma_buffer = current_buffer;
 	current_buffer = tmp;
@@ -514,7 +514,7 @@ void board_serial_dma_print(char* data)
 			board_serial_dma_switch_buffers();
 			
 			// Start flushing the DMA buffer
-			board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
+			board_serial_dma_flush_buffer((char *)(dma_buffer->data), dma_buffer->position);
 		}
 	}
 	
@@ -552,7 +552,7 @@ void board_serial_dma_print_size(char* data, uint32_t size)
 			board_serial_dma_switch_buffers();
 			
 			// Start flushing the DMA buffer
-			board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
+			board_serial_dma_flush_buffer((char *)(dma_buffer->data), dma_buffer->position);
 		}
 	}
 	
@@ -582,7 +582,7 @@ void TC0_Handler()
 	board_serial_dma_switch_buffers();
 	
 	// Start flushing the DMA buffer
-	board_serial_dma_flush_buffer(dma_buffer->data, dma_buffer->position);
+	board_serial_dma_flush_buffer((char *)(dma_buffer->data), dma_buffer->position);
 }
 
 

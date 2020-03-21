@@ -327,6 +327,8 @@ void kernel_start(void)
 	if (running_queue.last != NULL)
 	{
 		kernel_current_thread_pointer = running_queue.last->object;
+		
+		list_remove_last(&running_queue);
 	}
 	else
 	{
@@ -433,8 +435,6 @@ void kernel_scheduler(void)
 				// Check which list the thread is going to be placed in
 				if (kernel_current_thread_pointer->next_list == &delay_queue)
 				{
-					// Put the element into the delay queue
-					list_remove_last(&running_queue);
 					list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_queue);
 					
 					// Update the kernel tick to wake
@@ -447,18 +447,13 @@ void kernel_scheduler(void)
 			{
 				
 				if (kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING)
-				{
-					// The thread has to be removed
-					list_remove_last(&running_queue);
-			
+				{			
 					// Then we have to delete the memory resources
 					//dynamic_memory_free(kernel_current_thread_pointer->stack_base);
 					dynamic_memory_free(kernel_current_thread_pointer);
 				}
 				else
 				{
-					// The thread should just be place first in the running queue
-					list_remove_last(&running_queue);
 					list_insert_first(&(kernel_current_thread_pointer->list_item), &running_queue);
 				}
 			}
@@ -487,7 +482,7 @@ void kernel_scheduler(void)
 				list_node_s* tmp = delay_queue.first;
 				
 				list_remove_first(&delay_queue);
-				list_insert_first(tmp, &running_queue);
+				list_insert_last(tmp, &running_queue);
 			}
 			
 			if (list_iterator == NULL)
@@ -509,6 +504,8 @@ void kernel_scheduler(void)
 		else
 		{
 			kernel_next_thread_pointer = running_queue.last->object;
+			
+			list_remove_last(&running_queue);
 		}
 	}
 	else
