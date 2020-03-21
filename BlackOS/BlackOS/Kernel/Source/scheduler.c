@@ -595,10 +595,48 @@ void kernel_print_runtime_statistics(void)
 {
 	tcb_s* tmp_thread;
 	
+	board_serial_programming_print("Stack\tCPU\n");
+	
 	int32_t cpu_usage = 1000000 - kernel_idle_thread_pointer->thread_time.window_time;
 	char k = cpu_usage / 10000;
+	board_serial_programming_print("\t");
 	board_serial_programming_write_percent(k, cpu_usage / 1000 - (k * 10));
-	board_serial_programming_print(" : CPU Usage");
+	board_serial_programming_print(" : CPU");
+	
+	
+	uint32_t use;
+	uint32_t tot;
+	
+	use = dynamic_memory_get_used_size(DRAM_BANK_0);
+	tot = dynamic_memory_get_total_size(DRAM_BANK_0);
+	
+	k = 100 * use / tot;
+	uint32_t l = (100 * use) % tot;
+	
+	board_serial_programming_print("\t\t");
+	board_serial_programming_write_percent(k, 100 * l / tot);
+	board_serial_programming_print("DRAM Bank 0");
+	
+	use = dynamic_memory_get_used_size(DRAM_BANK_1);
+	tot = dynamic_memory_get_total_size(DRAM_BANK_1);
+	
+	k = 100 * use / tot;
+	l = (100 * use) % tot;
+	
+	board_serial_programming_print("\t\t");
+	board_serial_programming_write_percent(k, 100 * l / tot);
+	board_serial_programming_print("DRAM Bank 1");
+	
+	use = dynamic_memory_get_used_size(SRAM);
+	tot = dynamic_memory_get_total_size(SRAM);
+	
+	k = 100 * use / tot;
+	l = (100 * use) % tot;
+	
+	board_serial_programming_print("\t\t");
+	board_serial_programming_write_percent(k, 100 * l / tot);
+	board_serial_programming_print("SRAM");
+	
 	board_serial_programming_print("\n");
 	
 	if (running_queue.size != 0)
@@ -608,7 +646,9 @@ void kernel_print_runtime_statistics(void)
 			tmp_thread = (tcb_s *)(i->object);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
-			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
+			k = used_stack * 100 / tmp_thread->stack_size;
+			l = (used_stack * 100) % tmp_thread->stack_size;
+			board_serial_programming_write_percent(k, 100 * l / tmp_thread->stack_size);
 			board_serial_programming_print("\t");
 			
 			uint8_t tmp = tmp_thread->thread_time.window_time / 10000;
@@ -624,7 +664,9 @@ void kernel_print_runtime_statistics(void)
 			tmp_thread = (tcb_s *)(i->object);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
-			board_serial_programming_write_percent(used_stack * 100 / tmp_thread->stack_size, 0);
+			k = used_stack * 100 / tmp_thread->stack_size;
+			l = (used_stack * 100) % tmp_thread->stack_size;
+			board_serial_programming_write_percent(k, 100 * l / tmp_thread->stack_size);
 			board_serial_programming_print("\t");
 			
 			uint8_t tmp = tmp_thread->thread_time.window_time / 10000;

@@ -38,10 +38,13 @@ void mutex_lock(volatile mutex_s *mutex)
 
 
 void mutex_unlock(volatile mutex_s *mutex)
-{ // Note: __LDREXW and __STREXW are CMSIS functions
-	__DMB(); // Ensure memory operations completed before
-	// releasing lock
-	(mutex->lock) = 0;
+{
+	__DMB();
+
+
+	mutex->lock = 0;
+	
+
 	return;
 }
 

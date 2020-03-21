@@ -19,6 +19,39 @@
 //--------------------------------------------------------------------------------------------------//
 
 
+// This memory implementation uses the 4 most significant bits of the memory block size to determine
+// the memory section and memory status. This can be quite confusing when debugging the system.
+// The table below shows how to interpret the info-byte.
+//
+// Due to big-endian data storage, the memory size will be shown like below in debug sessions,
+// where the last byte represents the info we want
+//                         __
+// 0x00000000  00  00  00  00
+//
+//------------------------------------------------------//
+// Memory section	|	Memory used		|	Memory free	//
+//------------------------------------------------------//
+// SRAM				|		80			|		00		//
+//------------------------------------------------------//
+// DRAM Bank 0		|		90			|		10		//
+//------------------------------------------------------//
+// DRAM Bank 1		|		A0			|		20		//
+//------------------------------------------------------//
+// Section 3		|		B0			|		30		//
+//------------------------------------------------------//
+// Section 4		|		C0			|		40		//
+//------------------------------------------------------//
+// Section 5		|		D0			|		50		//
+//------------------------------------------------------//
+// Section 6		|		E0			|		60		//
+//------------------------------------------------------//
+// Section 7		|		F0			|		70		//
+//------------------------------------------------------//
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 // List of sections with dynamic memory support
 // This will be the input to all dynamic memory functions
 

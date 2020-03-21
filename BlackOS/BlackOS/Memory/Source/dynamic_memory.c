@@ -116,7 +116,7 @@ void dynamic_memory_config(void)
 	it->end_address = (uint32_t)(&_eheap);
 	
 	while (it != NULL)
-	{
+	{		
 		// Zero-initializes the memory sections
 		// Due to a bug the Cortex-M7 only responds to 8-bit and 32-bit accesses here
 		volatile uint8_t* start = (volatile uint8_t *)it->start_address;
@@ -283,7 +283,7 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 		block_iterator_previous = current_section->start_descriptor;
 		block_iterator_current = current_section->start_descriptor->next;
 		
-		while ((block_iterator_current->size < size) && (block_iterator_current->next != NULL))
+		while ((MEMORY_GET_RAW_SIZE(block_iterator_current->size) < size) && (block_iterator_current->next != NULL))
 		{
 			block_iterator_previous = block_iterator_current;
 			block_iterator_current = block_iterator_current->next;
@@ -341,14 +341,15 @@ void* dynamic_memory_new(Dynamic_memory_section memory_section, uint32_t size)
 		// Allocation failed
 		// This means that the memory is full or a bug has been discovered
 		// Call the fault handler to try to fix the bug
-		check(0); // REMOVE
+		//check(0); // REMOVE
 	}
 	
 	uint8_t* tmp = (uint8_t *)return_value;
+	
+	// Fill memory with zeros
 	for (uint32_t i = 0; i < (size - 8); i++)
 	{
-		*tmp = 0;
-		tmp++;
+		*tmp++ = 0;
 	}
 	
 	return return_value;

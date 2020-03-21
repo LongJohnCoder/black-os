@@ -10,6 +10,7 @@
 #include "board_serial.h"
 #include "gpio.h"
 #include "mutex.h"
+#include "dynamic_memory.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -48,27 +49,17 @@ void waveform(void* arg)
 
 //--------------------------------------------------------------------------------------------------//
 
-
-void welcome_thread(void* arg)
-{
-	// Print a happy message to the screen
-	board_serial_print("Kernel successfully started\n\n");
-}
-
-
-//--------------------------------------------------------------------------------------------------//
-
 volatile uint32_t counter = 1000;
 
 volatile mutex_s test_mutex;
 
 void increment(void* arg)
-{	
+{
 	for (uint32_t i = 0; i < 10000; i++)
 	{
 		mutex_lock(&test_mutex);
 		counter++;
-		mutex_unlock(&test_mutex);	
+		mutex_unlock(&test_mutex);
 	}
 	board_serial_print("Counter increment: %d\n", counter);
 }
@@ -92,6 +83,19 @@ void decrement(void* arg)
 
 //--------------------------------------------------------------------------------------------------//
 
+void welcome_thread(void* arg)
+{
+	// Print a happy message to the screen
+	board_serial_print("Kernel successfully started\n\n");
+
+	kernel_add_thread("increment", increment, NULL, THREAD_PRIORITY_LOW, 200);
+	kernel_add_thread("decrement", decrement, NULL, THREAD_PRIORITY_LOW, 200);
+
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 int main(void)
 {
@@ -101,11 +105,11 @@ int main(void)
 	
 	// Add some threads for test & debug purposes
 	kernel_add_thread("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 200);
-	kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
+	tcb_s* t = kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
+	
 	kernel_add_thread("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
 	kernel_add_thread("waveform", waveform, NULL, THREAD_PRIORITY_LOW, 200);
-	kernel_add_thread("increment", increment, NULL, THREAD_PRIORITY_LOW, 200);
-	kernel_add_thread("decrement", decrement, NULL, THREAD_PRIORITY_LOW, 200);
+	
 	
 	
 	// Start the kernel
