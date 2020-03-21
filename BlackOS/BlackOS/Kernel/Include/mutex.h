@@ -5,11 +5,34 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#ifndef MUTEX_H_
-#define MUTEX_H_
+#ifndef MUTEX_H
+#define MUTEX_H
 
 
+//--------------------------------------------------------------------------------------------------//
 
 
+#include "sam.h"
 
-#endif /* MUTEX_H_ */
+
+//--------------------------------------------------------------------------------------------------//
+
+
+typedef struct Mutex_s
+{
+	uint32_t lock;
+} mutex_s;
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void mutex_lock(volatile mutex_s* mutex);
+
+void mutex_unlock(volatile mutex_s* mutex);
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+#endif

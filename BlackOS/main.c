@@ -9,6 +9,7 @@
 #include "board_led.h"
 #include "board_serial.h"
 #include "gpio.h"
+#include "mutex.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -59,11 +60,15 @@ void welcome_thread(void* arg)
 
 volatile uint32_t counter = 1000;
 
+volatile mutex_s test_mutex;
+
 void increment(void* arg)
-{
-	for (uint32_t i = 0; i < 100000000; i++)
+{	
+	for (uint32_t i = 0; i < 10000; i++)
 	{
-		counter++;	
+		mutex_lock(&test_mutex);
+		counter++;
+		mutex_unlock(&test_mutex);	
 	}
 	board_serial_print("Counter increment: %d\n", counter);
 }
@@ -74,9 +79,11 @@ void increment(void* arg)
 
 void decrement(void* arg)
 {
-	for (uint32_t i = 0; i < 100000000; i++)
+	for (uint32_t i = 0; i < 10000; i++)
 	{
+		mutex_lock(&test_mutex);
 		counter--;
+		mutex_unlock(&test_mutex);
 	}
 	
 	board_serial_print("Counter decrement: %d\n", counter);

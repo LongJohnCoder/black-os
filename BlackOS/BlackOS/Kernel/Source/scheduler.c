@@ -176,7 +176,7 @@ void kernel_delete_thread(void)
 {
 	kernel_current_thread_pointer->state = THREAD_STATE_EXIT_PENDING;
 	
-	kernel_reschedule();
+	reschedule();
 	
 	while (1);
 }
@@ -366,7 +366,7 @@ void kernel_thread_config(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_reschedule(void)
+void reschedule(void)
 {
 	reschedule_runtime = 1000 - systick_get_counter_value() / systick_divider;
 	reschedule_pending = 1;
@@ -403,7 +403,7 @@ void kernel_thread_delay(uint32_t ticks)
 	kernel_resume_scheduler();
 	
 	// Free the resources used
-	kernel_reschedule();
+	reschedule();
 }
 
 

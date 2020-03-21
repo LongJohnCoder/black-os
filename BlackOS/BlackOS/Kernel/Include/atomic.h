@@ -22,7 +22,9 @@ void atomic_increment(uint32_t* memory);
 
 void atomic_decrement(uint32_t* memory);
 
-void atomic_set(uint32_t* memory, uint32_t value);
+void atomic_write(uint32_t* memory, uint32_t value);
+
+uint32_t atomic_read(uint32_t* memory);
 
 
 //--------------------------------------------------------------------------------------------------//

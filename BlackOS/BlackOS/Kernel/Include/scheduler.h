@@ -128,7 +128,7 @@ void kernel_thread_config(void);
 
 tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size);
 
-void kernel_reschedule(void);
+void reschedule(void);
 
 void kernel_thread_delay(uint32_t ticks);
 
@@ -139,6 +139,10 @@ void kernel_thread_delay(uint32_t ticks);
 void kernel_print_running_queue(list_s* list);
 
 void kernel_print_runtime_statistics(void);
+
+void kernel_resume_scheduler(void);
+
+void kernel_suspend_scheduler(void);
 
 
 //--------------------------------------------------------------------------------------------------//
