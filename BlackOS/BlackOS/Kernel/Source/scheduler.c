@@ -76,30 +76,30 @@ void (*fast_program_interface_delete)(void);
 //--------------------------------------------------------------------------------------------------//
 
 
-uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function thread_func, void* param);
+uint32_t* thread_stack_init(uint32_t* stack_pointer, thread_function thread_func, void* param);
 
-void kernel_scheduler(void);
+void round_robin_scheduler(void);
 
-void kernel_scheduler_start(void);
+void scheduler_start(void);
 
-void kernel_idle_thread(void* param);
+void round_robin_idle_thread(void* param);
 
-void kernel_thread_stack_overflow_event(char* data);		// Not implemented
+void thread_stack_overflow_event(char* data);		// Not implemented
 
-void kernel_suspend_scheduler(void);
+void suspend_scheduler(void);
 
-void kernel_resume_scheduler(void);
+void resume_scheduler(void);
 
-void kernel_reset_runtime(void);
+void reset_runtime(void);
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
+tcb_s* thread_new(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
 {
 	// We do NOT want any scheduler interrupting inside here
-	kernel_suspend_scheduler();
+	suspend_scheduler();
 	
 	// First we have to allocate memory for the thread and 
 	// for the stack that is going to be used by that thread
@@ -120,7 +120,7 @@ tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* t
 	new_thread->stack_pointer = new_thread->stack_base + stack_size - 1;
 	
 	// Initialize the stack
-	new_thread->stack_pointer = kernel_thread_stack_init(new_thread->stack_pointer, thread_func, thread_parameter);
+	new_thread->stack_pointer = thread_stack_init(new_thread->stack_pointer, thread_func, thread_parameter);
 	
 	// Set the thread name
 	for (uint32_t i = 0; i < KERNEL_THREAD_MAX_NAME_LENGTH; i++)
@@ -166,7 +166,7 @@ tcb_s* kernel_add_thread(char* thread_name, thread_function thread_func, void* t
 	
 	SCB_CleanDCache();
 	
-	kernel_resume_scheduler();
+	resume_scheduler();
 	
 	return new_thread;
 }
@@ -197,7 +197,7 @@ void kernel_delete_thread(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function thread_func, void* param)
+uint32_t* thread_stack_init(uint32_t* stack_pointer, thread_function thread_func, void* param)
 {
 	// Add a small offset
 	stack_pointer--;
@@ -225,7 +225,7 @@ uint32_t* kernel_thread_stack_init(uint32_t* stack_pointer, thread_function thre
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_print_running_queue(list_s* list)
+void print_running_queue(list_s* list)
 {
 	if (list->first == NULL)
 	{
@@ -313,7 +313,7 @@ void kernel_print_running_queue(list_s* list)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_start(void)
+void kernel_launch(void)
 {
 	// Configure the SysTick timer
 	systick_config();
@@ -360,20 +360,20 @@ void kernel_start(void)
 	
 	// This configures the kernels context switch mechanism
 	// That includes configuring the new program stack
-	kernel_scheduler_start();
+	scheduler_start();
 }
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_thread_config(void)
+void thread_config(void)
 {
 	// Interrupt should already be enabled
 	interrupt_global_disable();
 	
 	// Add the idle thread on priority level 7 (lowest)
-	kernel_add_thread("Idle", kernel_idle_thread, NULL, THREAD_PRIORITY_NORMAL, KERNEL_IDLE_THREAD_STACK_SIZE);
+	thread_new("Idle", round_robin_idle_thread, NULL, THREAD_PRIORITY_NORMAL, KERNEL_IDLE_THREAD_STACK_SIZE);
 }
 
 
@@ -397,11 +397,11 @@ void reschedule(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_thread_delay(uint32_t ticks)
+void thread_delay(uint32_t ticks)
 {
 	// Suspend the scheduler since we do not want
 	// a context switch inside here
-	kernel_suspend_scheduler();
+	suspend_scheduler();
 	
 	// Calculate the right tick to wake
 	uint32_t tmp = kernel_tick + ticks * 1000;
@@ -414,7 +414,7 @@ void kernel_thread_delay(uint32_t ticks)
 	kernel_current_thread_pointer->next_list = &delay_queue;
 	
 	// Let the scheduler start again
-	kernel_resume_scheduler();
+	resume_scheduler();
 	
 	// Free the resources used
 	reschedule();
@@ -428,7 +428,7 @@ void kernel_thread_delay(uint32_t ticks)
 // The next thread to run should be placed in the kernel_current_thread_pointer
 // variable
 
-void kernel_scheduler(void)
+void round_robin_scheduler(void)
 {
 	// Check the stack usage
 	// Check the dynamic memory usage
@@ -568,12 +568,12 @@ void SysTick_Handler()
 	
 	if (kernel_runtime_tick >= 1000000)
 	{
-		kernel_reset_runtime();
+		reset_runtime();
 		kernel_runtime_tick = 0;
 	}
 	
 	// Launch the scheduler
-	kernel_scheduler();
+	round_robin_scheduler();
 	
 	// Pend the PendSV exception that will execute the actual context switch
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
@@ -583,7 +583,7 @@ void SysTick_Handler()
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_reset_runtime(void)
+void reset_runtime(void)
 {
 	kernel_idle_thread_pointer->thread_time.window_time = kernel_idle_thread_pointer->thread_time.new_window_time;
 	kernel_idle_thread_pointer->thread_time.new_window_time = 0;
@@ -610,7 +610,7 @@ void kernel_reset_runtime(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_print_runtime_statistics(void)
+void print_runtime_statistics(void)
 {
 	tcb_s* tmp_thread;
 	
@@ -701,7 +701,7 @@ void kernel_print_runtime_statistics(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_idle_thread(void* param)
+void round_robin_idle_thread(void* param)
 {
 	while (1)
 	{
@@ -713,7 +713,7 @@ void kernel_idle_thread(void* param)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_thread_stack_overflow_event(char* data)
+void thread_stack_overflow_event(char* data)
 {
 	board_serial_print("Warning: Stack overflow on ");
 	board_serial_print(data);
@@ -724,7 +724,7 @@ void kernel_thread_stack_overflow_event(char* data)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_suspend_scheduler(void)
+void suspend_scheduler(void)
 {
 	(void)scheduler_status;
 	scheduler_status = SCHEDULER_STATUS_SUSPENDED;
@@ -734,7 +734,7 @@ void kernel_suspend_scheduler(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-void kernel_resume_scheduler(void)
+void resume_scheduler(void)
 {
 	(void)scheduler_status;
 	scheduler_status = SCHEDULER_STATUS_RUNNING;

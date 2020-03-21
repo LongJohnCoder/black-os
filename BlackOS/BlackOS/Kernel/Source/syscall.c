@@ -56,7 +56,7 @@ void kernel_service_handler(uint32_t* svc_argv)
 	switch (svc_number)
 	{
 		case SYSCALL_DELAY:
-			kernel_thread_delay((uint32_t)svc_argv[0]);
+			thread_delay((uint32_t)svc_argv[0]);
 			break;
 		
 		case SYSCALL_PRINT:

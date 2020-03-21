@@ -90,7 +90,7 @@ void file_system_command_line_config(void)
 {
 	strcpy(file_system_path, "/");
 	
-	file_thread = kernel_add_thread("file", file_system_command_line_thread, NULL, THREAD_PRIORITY_NORMAL, 500);
+	file_thread = thread_new("file", file_system_command_line_thread, NULL, THREAD_PRIORITY_NORMAL, 500);
 }
 
 

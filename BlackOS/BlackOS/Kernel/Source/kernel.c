@@ -105,7 +105,7 @@ void kernel_startup(void)
 
 	
 	// Now we start up the kernel and its components
-	kernel_thread_config();
+	thread_config();
 	
 	
 	// Starts the whole files system in its own thread

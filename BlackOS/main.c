@@ -27,7 +27,7 @@ void runtime_agent(void* arg)
 	while (1)
 	{
 		syscall_sleep(1000);
-		kernel_print_runtime_statistics();
+		print_runtime_statistics();
 	}
 }
 
@@ -82,15 +82,15 @@ int main(void)
 	
 	
 	// Add some threads for test & debug purposes
-	kernel_add_thread("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 200);
-	kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
-	kernel_add_thread("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
-	kernel_add_thread("waveform", waveform, NULL, THREAD_PRIORITY_LOW, 200);
-	kernel_add_thread("waveform_2", waveform_2, NULL, THREAD_PRIORITY_LOW, 200);
+	thread_new("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 200);
+	thread_new("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
+	thread_new("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
+	thread_new("waveform", waveform, NULL, THREAD_PRIORITY_LOW, 200);
+	thread_new("waveform_2", waveform_2, NULL, THREAD_PRIORITY_LOW, 200);
 	
 	
 	// Start the kernel
-	kernel_start();
+	kernel_launch();
 	
 	while (1);
 }

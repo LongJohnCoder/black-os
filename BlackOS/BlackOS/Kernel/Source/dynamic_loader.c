@@ -80,7 +80,7 @@ void dynamic_loader_run(uint32_t* data, uint32_t size)
 	if (dynamic_loader_check_name(name, name_length))
 	{
 		scheduler_set_dynamic_loader_handler(delete_handler);
-		tcb_s* tmp = kernel_add_thread(name, (thread_function)program_entry, NULL, THREAD_PRIORITY_NORMAL, stack_size);
+		tcb_s* tmp = thread_new(name, (thread_function)program_entry, NULL, THREAD_PRIORITY_NORMAL, stack_size);
 		tmp->ID = 6969;
 	}
 
