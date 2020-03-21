@@ -380,6 +380,9 @@
     <Compile Include="BlackOS\Kernel\Include\mutex.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="BlackOS\Kernel\Include\scheduler_v2.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="BlackOS\Kernel\Include\syscall.h">
       <SubType>compile</SubType>
     </Compile>
@@ -399,6 +402,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\mutex.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BlackOS\Kernel\Source\scheduler_v2.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\syscall.c">

@@ -5,20 +5,14 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#ifndef TEXT_H
-#define TEXT_H
+#ifndef SCHEDULER_V2_H
+#define SCHEDULER_V2_H
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
 #include "sam.h"
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-void text_to_buffer(char* output, uint32_t* output_size, const char* input, ...);
 
 
 //--------------------------------------------------------------------------------------------------//

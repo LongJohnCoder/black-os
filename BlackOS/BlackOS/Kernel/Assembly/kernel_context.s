@@ -1,6 +1,6 @@
 // Copyright (c) 2020 Bjørn Brodtkorb
 //
-// This software is provided "as is" without warranty of any kind.
+// This software is provided without warranty of any kind.
 // Permission is granted, free of charge, to copy and modify this
 // software, if this copyright notice is included in all copies of
 // the software.
@@ -99,12 +99,12 @@ PendSV_Handler:
 
 
 // Declare the global function
-.global kernel_scheduler_start
+.global scheduler_start
 	
 // This function will start the scheduler and begin executing the first thread
 .thumb_func
 
-kernel_scheduler_start:
+scheduler_start:
 	
 	// The first line loads a pointer to kernel current thread into r0
 	ldr					r0,					=kernel_current_thread_pointer
