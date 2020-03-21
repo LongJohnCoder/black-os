@@ -57,6 +57,34 @@ void welcome_thread(void* arg)
 
 //--------------------------------------------------------------------------------------------------//
 
+volatile uint32_t counter = 1000;
+
+void increment(void* arg)
+{
+	for (uint32_t i = 0; i < 100000000; i++)
+	{
+		counter++;	
+	}
+	board_serial_print("Counter increment: %d\n", counter);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void decrement(void* arg)
+{
+	for (uint32_t i = 0; i < 100000000; i++)
+	{
+		counter--;
+	}
+	
+	board_serial_print("Counter decrement: %d\n", counter);
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
 
 int main(void)
 {
@@ -69,6 +97,8 @@ int main(void)
 	kernel_add_thread("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 200);
 	kernel_add_thread("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
 	kernel_add_thread("waveform", waveform, NULL, THREAD_PRIORITY_LOW, 200);
+	kernel_add_thread("increment", increment, NULL, THREAD_PRIORITY_LOW, 200);
+	kernel_add_thread("decrement", decrement, NULL, THREAD_PRIORITY_LOW, 200);
 	
 	
 	// Start the kernel

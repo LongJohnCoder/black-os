@@ -28,6 +28,8 @@
 #define BOARD_SERIAL_PROGRAMMING_BAUD_RATE	115200
 #define BOARD_SERIAL_PROGRAMMING_CD_VALUE	BOARD_SERIAL_PROGRAMMING_CPU_FREQ / (16 * BOARD_SERIAL_PROGRAMMING_BAUD_RATE)
 
+#define BOARD_SERIAL_PROGRAMMING_DMA_CHANNEL 6
+
 
 //--------------------------------------------------------------------------------------------------//
 
@@ -39,6 +41,8 @@ void board_serial_programming_write_percent(char first, char second);
 void board_serial_programming_write(char data);
 
 void board_serial_programming_print(char* data, ...);
+
+void board_serial_programming_dma_print(char* data);
 
 
 //--------------------------------------------------------------------------------------------------//
