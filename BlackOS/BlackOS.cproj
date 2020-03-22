@@ -368,6 +368,9 @@
     <Compile Include="BlackOS\Kernel\Include\atomic.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="BlackOS\Kernel\Include\compiler.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="BlackOS\Kernel\Include\kernel.h">
       <SubType>compile</SubType>
     </Compile>

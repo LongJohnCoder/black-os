@@ -14,6 +14,7 @@
 #include "core.h"
 #include "board_serial.h"
 #include "cache.h"
+#include "compiler.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -299,7 +300,7 @@ void round_robin_scheduler(void)
 		}
 		
 		// Now we check if some delays has expired
-		if (kernel_tick_to_wake <= kernel_tick)
+		if (likely(kernel_tick_to_wake <= kernel_tick))
 		{
 			list_node_s* list_iterator = delay_queue.first;
 			
@@ -572,9 +573,11 @@ void print_runtime_statistics(void)
 	
 	if (thread_list.size != 0)
 	{
-		for (list_node_s* i = thread_list.first; i != NULL; i = i->next)
+		list_node_s* node;
+		
+		list_iterate(node, &thread_list)
 		{
-			tmp_thread = (tcb_s *)(i->object);
+			tmp_thread = (tcb_s *)(node->object);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
 			k = used_stack * 100 / tmp_thread->stack_size;

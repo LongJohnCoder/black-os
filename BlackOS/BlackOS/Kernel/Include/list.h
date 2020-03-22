@@ -53,6 +53,12 @@ typedef struct List_s
 //--------------------------------------------------------------------------------------------------//
 
 
+#define list_iterate(item, l) for (item = (l)->first; item; item = (item)->next)
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 void list_insert_first(list_node_s* list_item, list_s* list);
 
 void list_insert_last(list_node_s* list_item, list_s* list);
