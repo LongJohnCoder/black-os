@@ -11,6 +11,7 @@
 #include "board_serial.h"
 #include "dynamic_memory.h"
 #include "usart.h"
+#include "thread.h"
 
 
 //--------------------------------------------------------------------------------------------------//

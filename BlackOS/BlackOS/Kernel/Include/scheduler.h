@@ -84,6 +84,7 @@ typedef struct Tcb_s
 	
 	// We use the list interface
 	list_node_s					list_item;
+	list_node_s					total_node;
 	
 	
 	struct List_s*				current_list;
@@ -129,8 +130,6 @@ typedef struct Tcb_s
 void kernel_launch(void);
 
 void thread_config(void);
-
-tcb_s* thread_new(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size);
 
 void reschedule(void);
 

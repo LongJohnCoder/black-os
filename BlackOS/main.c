@@ -11,6 +11,7 @@
 #include "gpio.h"
 #include "mutex.h"
 #include "dynamic_memory.h"
+#include "thread.h"
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -22,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-void runtime_agent(void* arg)
+void runtime_stats(void* arg)
 {
 	while (1)
 	{
@@ -50,21 +51,6 @@ void waveform(void* arg)
 //--------------------------------------------------------------------------------------------------//
 
 
-void waveform_2(void* arg)
-{
-	gpio_set_pin_function(PIOB, 3, PERIPHERAL_FUNCTION_OFF);
-	gpio_set_pin_direction_output(PIOB, 3);
-	while (1)
-	{
-		syscall_sleep(1);
-		gpio_toogle_pin_value(PIOB, 3);
-	}
-}
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
 void welcome_thread(void* arg)
 {
 	// Print a happy message to the screen
@@ -83,11 +69,10 @@ int main(void)
 	
 	// Add some threads for test & debug purposes
 	thread_new("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 100);
-	thread_new("runtime", runtime_agent, NULL, THREAD_PRIORITY_NORMAL, 100);
+	thread_new("runtime", runtime_stats, NULL, THREAD_PRIORITY_NORMAL, 100);
 	thread_new("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
 	thread_new("waveform", waveform, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("waveform_2", waveform_2, NULL, THREAD_PRIORITY_LOW, 100);
-	
+
 	
 	// Start the kernel
 	kernel_launch();

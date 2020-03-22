@@ -15,6 +15,7 @@
 #include "board_sd_card.h"
 #include "interrupt.h"
 #include "dynamic_loader.h"
+#include "thread.h"
 
 
 //--------------------------------------------------------------------------------------------------//

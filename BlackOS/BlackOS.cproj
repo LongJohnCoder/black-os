@@ -380,9 +380,6 @@
     <Compile Include="BlackOS\Kernel\Include\mutex.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\scheduler_v2.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="BlackOS\Kernel\Include\syscall.h">
       <SubType>compile</SubType>
     </Compile>
@@ -390,6 +387,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Include\list.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BlackOS\Kernel\Include\thread.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\atomic.c">
@@ -404,9 +404,6 @@
     <Compile Include="BlackOS\Kernel\Source\mutex.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\scheduler_v2.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="BlackOS\Kernel\Source\syscall.c">
       <SubType>compile</SubType>
     </Compile>
@@ -417,6 +414,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\list.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BlackOS\Kernel\Source\thread.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Memory\Include\dynamic_memory.h">
