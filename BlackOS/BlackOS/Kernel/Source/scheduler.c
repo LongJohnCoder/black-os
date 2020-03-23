@@ -334,6 +334,8 @@ void round_robin_scheduler(void)
 			
 			list_remove_last(&running_queue);
 		}
+		
+		next_thread->context_switches += (uint64_t)1;
 	}
 	else
 	{
@@ -474,11 +476,11 @@ void print_runtime_statistics(void)
 {
 	tcb_s* tmp_thread;
 	
-	board_serial_programming_print("Stack\tCPU\n");
+	board_serial_programming_print("Runtimes\tStack\tCPU\n");
 	
 	int32_t cpu_usage = 1000000 - idle_thread->thread_time.window_time;
 	char k = cpu_usage / 10000;
-	board_serial_programming_print("\t");
+	board_serial_programming_print("\t\t");
 	board_serial_programming_write_percent(k, cpu_usage / 1000 - (k * 10));
 	board_serial_programming_print(" : CPU");
 	
@@ -525,6 +527,8 @@ void print_runtime_statistics(void)
 		list_iterate(node, &thread_list)
 		{
 			tmp_thread = (tcb_s *)(node->object);
+			
+			board_serial_programming_print("%d\t\t", (uint32_t)tmp_thread->context_switches);
 			
 			uint32_t used_stack = tmp_thread->stack_size - ((uint32_t)tmp_thread->stack_pointer - (uint32_t)tmp_thread->stack_base);
 			k = used_stack * 100 / tmp_thread->stack_size;

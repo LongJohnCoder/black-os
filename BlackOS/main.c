@@ -42,7 +42,7 @@ void waveform_1(void* arg)
 	gpio_set_pin_direction_output(PIOB, 2);
 	while (1)
 	{
-		syscall_sleep(1);
+		syscall_sleep(10);
 		gpio_toogle_pin_value(PIOB, 2);
 	}
 }
@@ -58,7 +58,7 @@ void waveform_2(void* arg)
 	gpio_set_pin_direction_output(PIOB, 3);
 	while (1)
 	{
-		syscall_sleep(1);
+		syscall_sleep(10);
 		gpio_toogle_pin_value(PIOB, 3);
 	}
 }
@@ -73,7 +73,7 @@ void waveform_3(void* arg)
 	gpio_set_pin_direction_output(PIOD, 0);
 	while (1)
 	{
-		syscall_sleep(1);
+		syscall_sleep(10);
 		gpio_toogle_pin_value(PIOD, 0);
 	}
 }
@@ -88,7 +88,7 @@ void waveform_4(void* arg)
 	gpio_set_pin_direction_output(PIOB, 13);
 	while (1)
 	{
-		syscall_sleep(2);
+		syscall_sleep(10);
 		gpio_toogle_pin_value(PIOB, 13);
 	}
 }
@@ -103,7 +103,7 @@ void waveform_5(void* arg)
 	gpio_set_pin_direction_output(PIOC, 31);
 	while (1)
 	{
-		syscall_sleep(1);
+		syscall_sleep(10);
 		gpio_toogle_pin_value(PIOC, 31);
 	}
 }
@@ -118,7 +118,7 @@ void waveform_6(void* arg)
 	gpio_set_pin_direction_output(PIOA, 22);
 	while (1)
 	{
-		syscall_sleep(1);
+		syscall_sleep(10);
 		gpio_toogle_pin_value(PIOA, 22);
 	}
 }
@@ -210,10 +210,10 @@ int main(void)
 	thread_new("waveform", waveform_6, NULL, THREAD_PRIORITY_REAL_TIME, 100);
 
 
-	thread_new("computing", computing_1, NULL, THREAD_PRIORITY_REAL_TIME, 100);
-	thread_new("computing", computing_2, NULL, THREAD_PRIORITY_REAL_TIME, 100);
-	thread_new("computing", computing_3, NULL, THREAD_PRIORITY_REAL_TIME, 100);
-	thread_new("computing", computing_4, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	//thread_new("computing", computing_1, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	//thread_new("computing", computing_2, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	//thread_new("computing", computing_3, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	//thread_new("computing", computing_4, NULL, THREAD_PRIORITY_REAL_TIME, 100);
 	
 	// Start the kernel
 	kernel_launch();

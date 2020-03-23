@@ -121,11 +121,14 @@ typedef struct Tcb_s
 	
 	
 	// State of the thread
-	thread_state				state;
+	thread_state				state : THREAD_STATE_RUNNING;
 	
 	
 	// This section deals with timing and stuff
 	thread_time_s				thread_time;
+	
+	
+	uint64_t				context_switches;
 	
 	
 	// Store the name of the thread

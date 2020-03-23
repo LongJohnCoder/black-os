@@ -96,7 +96,7 @@ tcb_s* thread_new(char* thread_name, thread_function thread_func, void* thread_p
 	new_thread->stack_size = 4 * stack_size;
 	
 	
-	
+	new_thread->context_switches = 57;
 	
 	
 	
