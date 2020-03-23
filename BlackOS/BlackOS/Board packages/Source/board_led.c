@@ -21,9 +21,9 @@ void blink_thread(void* arg)
 	while (1)
 	{
 		gpio_clear_pin_value(PIOC, 8);
-		syscall_sleep(30);
+		syscall_sleep(20);
 		gpio_set_pin_value(PIOC, 8);
-		syscall_sleep(970);
+		syscall_sleep(480);
 	}
 }
 

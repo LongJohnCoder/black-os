@@ -37,9 +37,10 @@ typedef enum
 //--------------------------------------------------------------------------------------------------//
 
 
-// The kernel tick count the number of milliseconds / time-slices that the kernel has run for
+// The kernel tick count the number of 1/1000 millisecond / time slice that the kernel has run for
 uint64_t kernel_tick;
 uint64_t kernel_statistics_timer;
+
 
 // We use three pointers for the kernel
 //
@@ -51,8 +52,10 @@ tcb_s* kernel_current_thread_pointer;
 tcb_s* kernel_next_thread_pointer;
 tcb_s* kernel_idle_thread_pointer;
 
+
 // This variable will hold the current state of the scheduler
 kernel_scheduler_status scheduler_status;
+
 
 // Some lists that the kernel will use for the threads
 list_s running_queue;
@@ -60,20 +63,29 @@ list_s delay_queue;
 list_s suspended_list;
 list_s thread_list;
 
+
 // Global tick to wake variable. This variable gets updated every time a thread is added or removed from the delay
 // list. It holds the tick to wake value of the first thread to be put in the running queue again. This reduces the
-// overhead.
+// overhead. The kernel will not check the list before at least one thread delay has expired. 
 uint64_t kernel_tick_to_wake;
 uint64_t kernel_runtime_tick;
 
 
+// This variables controls the runtime modifications for a reschedule. After a reschedule the SysTick
+// timer is reset, allowing the next thread a full time slice. If the reschedule pending variable is 
+// set the kernel will add the reschedule runtime instead of 1000 us. 
 uint8_t reschedule_pending;
 uint64_t reschedule_runtime;
+
+
 uint32_t systick_divider;
 
 
+//--------------------------------------------------------------------------------------------------//
+
+
 // Temporarily callback for the fast programming interface. When the flashed program
-// gets terminated, this handler will delete the memory of the actual code. 
+// gets terminated, this handler will delete the memory footprint of the actual code. 
 void (*fast_program_interface_delete)(void);
 
 
@@ -93,6 +105,8 @@ void suspend_scheduler(void);
 void resume_scheduler(void);
 
 void reset_runtime(void);
+
+static inline void process_expired_delays(void);
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -156,7 +170,7 @@ void kernel_launch(void)
 	
 	
 	// Set the tick to wake variable to not trigger
-	kernel_tick_to_wake = 0xffffffff;
+	kernel_tick_to_wake = 0xffffffffffffffff;
 	
 	
 	// Set the current thread to point to the first thread to run
@@ -246,16 +260,14 @@ void thread_delay(uint32_t ticks)
 
 void round_robin_scheduler(void)
 {
-	// Check the stack usage
-	// Check the dynamic memory usage
-	
-	
-	// Check the integrity of the scheduler
-	volatile tcb_s* thread_pointer_check = kernel_current_thread_pointer;
-	
 	// Do not allow any context switch when the scheduler is suspended
-	if (scheduler_status == SCHEDULER_STATUS_RUNNING)
+	if (likely(scheduler_status == SCHEDULER_STATUS_RUNNING))
 	{
+		
+		// This first part processes the thread that is done executing. This may involve
+		// placing the thread in another list i.e. suspend the thread, or deleting the
+		// thread if that is necessary. This part should also handler stack overflow and
+		// memory overflow. 
 		if (kernel_current_thread_pointer != kernel_idle_thread_pointer)
 		{
 			if (kernel_current_thread_pointer->next_list != NULL)
@@ -274,7 +286,7 @@ void round_robin_scheduler(void)
 			else
 			{
 				
-				if (kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING)
+				if (unlikely(kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING))
 				{
 					if (kernel_current_thread_pointer->ID == 6969)
 					{
@@ -299,44 +311,16 @@ void round_robin_scheduler(void)
 			}
 		}
 		
-		// Now we check if some delays has expired
-		if (likely(kernel_tick_to_wake <= kernel_tick))
+		// Now we check if some delays has expired. Is so, all the expired threads has to be
+		// moved to the running queue. This function will place the threads last in the running
+		// queue, such that the are run first. 
+		if (kernel_tick_to_wake <= kernel_tick)
 		{
-			list_node_s* list_iterator = delay_queue.first;
-			
-			check(((tcb_s *)(delay_queue.first->object))->tick_to_wake <= kernel_tick_to_wake);
-			
-			uint16_t  i;
-			
-			for (i = 0; i < delay_queue.size; i++)
-			{
-				if (((tcb_s *)(list_iterator->object))->tick_to_wake > kernel_tick_to_wake)
-				{
-					break;
-				}
-				list_iterator = list_iterator->next;
-			}
-			
-			for (uint16_t k = 0; k < i; k++)
-			{
-				list_node_s* tmp = delay_queue.first;
-				
-				list_remove_first(&delay_queue);
-				list_insert_last(tmp, &running_queue);
-			}
-			
-			if (list_iterator == NULL)
-			{
-				// No threads left in the queue
-				kernel_tick_to_wake = 0xffffffff;
-			}
-			else
-			{
-				kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
-			}
+			process_expired_delays();
 		}
 		
-		// Update the next thread to run
+		
+		// Here we choose the next thread to run. This is normally the last element in the running queue
 		if (running_queue.last == NULL)
 		{
 			kernel_next_thread_pointer = kernel_idle_thread_pointer;
@@ -352,10 +336,58 @@ void round_robin_scheduler(void)
 	{
 		// The scheduler is not running
 	}
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+static inline void process_expired_delays(void)
+{
+	list_node_s* list_iterator = delay_queue.first;
 	
-	// This function must leave the current thread pointer unchanged. If changed, the whole
-	// kernel will crash, and the result will be undefined.
-	check(thread_pointer_check == kernel_current_thread_pointer);
+	check(((tcb_s *)(delay_queue.first->object))->tick_to_wake <= kernel_tick_to_wake);
+	
+	uint16_t  i;
+	
+	for (i = 0; i < delay_queue.size; i++)
+	{
+		if (((tcb_s *)(list_iterator->object))->tick_to_wake > kernel_tick_to_wake)
+		{
+			break;
+		}
+		list_iterator = list_iterator->next;
+	}
+	
+	for (uint16_t k = 0; k < i; k++)
+	{
+		list_node_s* tmp = delay_queue.first;
+		
+		list_remove_first(&delay_queue);
+		list_insert_last(tmp, &running_queue);
+	}
+	
+	if (list_iterator == NULL)
+	{
+		// No threads left in the queue
+		kernel_tick_to_wake = 0xffffffffffffffff;
+	}
+	else
+	{
+		kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
+	}
 }
 
 
@@ -429,94 +461,6 @@ void thread_stack_overflow_event(char* data)
 	board_serial_print("Warning: Stack overflow on ");
 	board_serial_print(data);
 	board_serial_print(" thread\n");
-}
-
-
-//--------------------------------------------------------------------------------------------------//
-
-
-void print_running_queue(list_s* list)
-{
-	if (list->first == NULL)
-	{
-		board_serial_print("No elements in queue\n");
-	}
-	else
-	{
-		board_serial_print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
-		if (list == &running_queue)
-		{
-			board_serial_print("Running queue:\t\t\t");
-		}
-		else
-		{
-			board_serial_print("Delay queue:\t\t\t");
-		}
-		list_node_s* list_iterator = list->first;
-		board_serial_print("FIRST\t\t");
-		while (list_iterator != NULL)
-		{
-			board_serial_print("%s\t\t", ((tcb_s *)(list_iterator->object))->name);
-			
-			list_iterator = list_iterator->next;
-		}
-		board_serial_print("LAST\n");
-		board_serial_print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
-
-		list_iterator = list->first;
-		board_serial_print("Address\t\t\t\t\t");
-		while (list_iterator != NULL)
-		{
-			board_serial_print_address("", (uint32_t)list_iterator);
-			board_serial_print("\t");
-			list_iterator = list_iterator->next;
-		}
-		
-		
-		list_iterator = list->first;
-		board_serial_print("\n");
-		board_serial_print("Next\t\t\t\t");
-		board_serial_print_address("", (uint32_t)list->first);
-		board_serial_print("\t");
-		while (list_iterator != NULL)
-		{
-			board_serial_print_address("", (uint32_t)list_iterator->next);
-			board_serial_print("\t");
-			list_iterator = list_iterator->next;
-		}
-		
-		
-		list_iterator = list->first;
-		board_serial_print("\n");
-		board_serial_print("Previous\t\t\t\t\t");
-
-		while (list_iterator != NULL)
-		{
-			board_serial_print_address("", (uint32_t)list_iterator->prev);
-			board_serial_print("\t");
-			list_iterator = list_iterator->next;
-		}
-		board_serial_print("\t");
-		board_serial_print_address("", (uint32_t)list->last);
-		board_serial_print("\n");
-		
-		
-		list_iterator = list->first;
-		board_serial_print("\n");
-		board_serial_print("Previous\t\t\t\t\t");
-
-		while (list_iterator != NULL)
-		{
-			board_serial_print("%d\t", ((tcb_s *)(list_iterator->object))->tick_to_wake);
-			board_serial_print("\t");
-			list_iterator = list_iterator->next;
-		}
-		board_serial_print("\n");
-		
-		
-		board_serial_print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
-		board_serial_print("\n\n");
-	}
 }
 
 

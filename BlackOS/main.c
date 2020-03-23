@@ -88,7 +88,7 @@ void waveform_4(void* arg)
 	gpio_set_pin_direction_output(PIOB, 13);
 	while (1)
 	{
-		syscall_sleep(1);
+		syscall_sleep(2);
 		gpio_toogle_pin_value(PIOB, 13);
 	}
 }
@@ -131,6 +131,61 @@ void welcome_thread(void* arg)
 {
 	// Print a happy message to the screen
 	board_serial_print("Kernel successfully started\n\n");
+	
+	while (1)
+	{
+		asm volatile ("nop");
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void computing_1(void* arg)
+{
+	while (1)
+	{
+		asm volatile ("nop");
+
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void computing_2(void* arg)
+{
+	while (1)
+	{
+		asm volatile ("nop");
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void computing_3(void* arg)
+{
+	while (1)
+	{
+		asm volatile ("nop");
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
+void computing_4(void* arg)
+{
+	while (1)
+	{
+		asm volatile ("nop");
+
+	}
 }
 
 
@@ -154,6 +209,11 @@ int main(void)
 	thread_new("waveform", waveform_5, NULL, THREAD_PRIORITY_LOW, 100);
 	thread_new("waveform", waveform_6, NULL, THREAD_PRIORITY_LOW, 100);
 
+
+	thread_new("computing", computing_1, NULL, THREAD_PRIORITY_LOW, 100);
+	thread_new("computing", computing_2, NULL, THREAD_PRIORITY_LOW, 100);
+	thread_new("computing", computing_3, NULL, THREAD_PRIORITY_LOW, 100);
+	thread_new("computing", computing_4, NULL, THREAD_PRIORITY_LOW, 100);
 	
 	// Start the kernel
 	kernel_launch();
