@@ -131,11 +131,6 @@ void welcome_thread(void* arg)
 {
 	// Print a happy message to the screen
 	board_serial_print("Kernel successfully started\n\n");
-	
-	while (1)
-	{
-		asm volatile ("nop");
-	}
 }
 
 
@@ -210,10 +205,10 @@ int main(void)
 	thread_new("waveform", waveform_6, NULL, THREAD_PRIORITY_REAL_TIME, 100);
 
 
-	//thread_new("computing", computing_1, NULL, THREAD_PRIORITY_REAL_TIME, 100);
-	//thread_new("computing", computing_2, NULL, THREAD_PRIORITY_REAL_TIME, 100);
-	//thread_new("computing", computing_3, NULL, THREAD_PRIORITY_REAL_TIME, 100);
-	//thread_new("computing", computing_4, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+// 	thread_new("computing", computing_1, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+// 	thread_new("computing", computing_2, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+// 	thread_new("computing", computing_3, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+// 	thread_new("computing", computing_4, NULL, THREAD_PRIORITY_REAL_TIME, 100);
 	
 	// Start the kernel
 	kernel_launch();

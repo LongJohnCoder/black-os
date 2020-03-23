@@ -60,6 +60,7 @@ kernel_scheduler_status scheduler_status;
 // Some lists that the kernel will use for the threads
 list_s running_queue;
 list_s delay_queue;
+list_s serial_queue;
 list_s suspended_list;
 
 
@@ -238,7 +239,7 @@ void thread_delay(uint32_t ticks)
 	
 	// Write the value to the thread control block
 	current_thread->tick_to_wake = tmp;
-	current_thread->list.value = tmp;
+	current_thread->list_node.value = tmp;
 	
 	
 	// Update the next list to place the thread in
@@ -278,10 +279,14 @@ void round_robin_scheduler(void)
 				// Check which list the thread is going to be placed in
 				if (current_thread->next_list == &delay_queue)
 				{
-					list_insert_delay(&(current_thread->list), &delay_queue);
+					list_insert_delay(&(current_thread->list_node), &delay_queue);
 					
 					// Update the kernel tick to wake
 					kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
+				}
+				else
+				{
+					list_insert_first(&(current_thread->list_node), current_thread->next_list);
 				}
 				
 				current_thread->next_list = NULL;
@@ -309,7 +314,7 @@ void round_robin_scheduler(void)
 				}
 				else
 				{
-					list_insert_first(&(current_thread->list), &running_queue);
+					list_insert_first(&(current_thread->list_node), &running_queue);
 				}
 			}
 		}
@@ -347,7 +352,10 @@ void round_robin_scheduler(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-
+void scheduler_current_thread_to_queue(list_s* list)
+{
+	current_thread->next_list = list;
+}
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -410,20 +418,14 @@ void reset_runtime(void)
 		current_thread->thread_time.new_window_time = 0;
 	}
 	
-	if (running_queue.size != 0)
+	if (thread_list.size > 0)
 	{
-		for (list_node_s* i = running_queue.first; i != NULL; i = i->next)
+		list_node_s* list_node;
+		
+		list_iterate(list_node, &thread_list)
 		{
-			((tcb_s *)(i->object))->thread_time.window_time = ((tcb_s *)(i->object))->thread_time.new_window_time;
-			((tcb_s *)(i->object))->thread_time.new_window_time = 0;
-		}
-	}
-	if (delay_queue.size != 0)
-	{
-		for (list_node_s* i = delay_queue.first; i != NULL; i = i->next)
-		{
-			((tcb_s *)(i->object))->thread_time.window_time = ((tcb_s *)(i->object))->thread_time.new_window_time;
-			((tcb_s *)(i->object))->thread_time.new_window_time = 0;
+			((tcb_s *)(list_node->object))->thread_time.window_time = ((tcb_s *)(list_node->object))->thread_time.new_window_time;
+			((tcb_s *)(list_node->object))->thread_time.new_window_time = 0;
 		}
 	}
 }
@@ -480,7 +482,7 @@ void print_runtime_statistics(void)
 	
 	int32_t cpu_usage = 1000000 - idle_thread->thread_time.window_time;
 	char k = cpu_usage / 10000;
-	board_serial_programming_print("\t\t");
+	board_serial_programming_print("\t\t\t");
 	board_serial_programming_write_percent(k, cpu_usage / 1000 - (k * 10));
 	board_serial_programming_print(" : CPU");
 	

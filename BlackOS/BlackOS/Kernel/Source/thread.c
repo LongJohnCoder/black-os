@@ -113,10 +113,10 @@ tcb_s* thread_new(char* thread_name, thread_function thread_func, void* thread_p
 	{
 		new_thread->current_list = &running_queue;
 		new_thread->next_list = NULL;
-		new_thread->list.object = new_thread;
+		new_thread->list_node.object = new_thread;
 		new_thread->thread_list.object = new_thread;
 		
-		list_insert_first(&(new_thread->list), &running_queue);
+		list_insert_first(&(new_thread->list_node), &running_queue);
 		list_insert_first(&(new_thread->thread_list), &thread_list);
 	}
 	

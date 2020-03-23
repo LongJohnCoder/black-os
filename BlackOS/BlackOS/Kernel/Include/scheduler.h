@@ -99,7 +99,7 @@ typedef struct Tcb_s
 	
 	// The thread exist in two lists. The one used by the scheduler. And
 	// a list that contains all the tread in the system.
-	list_node_s					list;
+	list_node_s					list_node;
 	list_node_s					thread_list;
 	
 	
@@ -128,7 +128,7 @@ typedef struct Tcb_s
 	thread_time_s				thread_time;
 	
 	
-	uint64_t				context_switches;
+	uint64_t					context_switches;
 	
 	
 	// Store the name of the thread
@@ -161,6 +161,8 @@ void resume_scheduler(void);
 void suspend_scheduler(void);
 
 void scheduler_set_dynamic_loader_handler(void (*handler)(void));
+
+void scheduler_current_thread_to_queue(list_s* list);
 
 
 //--------------------------------------------------------------------------------------------------//
