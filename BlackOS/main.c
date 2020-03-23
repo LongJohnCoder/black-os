@@ -201,19 +201,19 @@ int main(void)
 	// Add some threads for test & debug purposes
 	thread_new("blink", blink_thread, NULL, THREAD_PRIORITY_NORMAL, 100);
 	thread_new("runtime", runtime_stats, NULL, THREAD_PRIORITY_NORMAL, 100);
-	thread_new("welcome", welcome_thread, NULL, THREAD_PRIORITY_LOW, 50);
-	thread_new("waveform", waveform_1, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("waveform", waveform_2, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("waveform", waveform_3, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("waveform", waveform_4, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("waveform", waveform_5, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("waveform", waveform_6, NULL, THREAD_PRIORITY_LOW, 100);
+	thread_new("welcome", welcome_thread, NULL, THREAD_PRIORITY_REAL_TIME, 50);
+	thread_new("waveform", waveform_1, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("waveform", waveform_2, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("waveform", waveform_3, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("waveform", waveform_4, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("waveform", waveform_5, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("waveform", waveform_6, NULL, THREAD_PRIORITY_REAL_TIME, 100);
 
 
-	thread_new("computing", computing_1, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("computing", computing_2, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("computing", computing_3, NULL, THREAD_PRIORITY_LOW, 100);
-	thread_new("computing", computing_4, NULL, THREAD_PRIORITY_LOW, 100);
+	thread_new("computing", computing_1, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("computing", computing_2, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("computing", computing_3, NULL, THREAD_PRIORITY_REAL_TIME, 100);
+	thread_new("computing", computing_4, NULL, THREAD_PRIORITY_REAL_TIME, 100);
 	
 	// Start the kernel
 	kernel_launch();

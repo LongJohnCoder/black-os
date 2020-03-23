@@ -28,12 +28,27 @@ typedef void (*thread_function)(void *);
 
 
 // Thread priorities
+//
+// Real time threads are scheduled with the highest priority. If not properly used
+// a real time thread may block the entire system. Real time threads might be video and
+// music streaming. 
+//
+// Interactive threads are scheduled with a lower priority than real time tasks. 
+// Nevertheless the will be fast serviced in order to maintain an interactive 
+// level. Interactive thread might wait on user input.
+//
+// Normal threads will be the most of the treads. The are scheduled fairly after 
+// real time and interactive threads has executed. 
+//
+// Bulk thread will have long response times. These are computationally heavy CPU
+// threads. Typical examples are background threads.
+
 typedef enum
 {
-	THREAD_PRIORITY_LOW,
+	THREAD_PRIORITY_REAL_TIME,
+	THREAD_PRIORITY_INTERACTIVE,
 	THREAD_PRIORITY_NORMAL,
-	THREAD_PRIORITY_HIGH,
-	THREAD_PRIORITY_EXTRA_HIGH
+	THREAD_PRIORITY_BULK
 } kernel_thread_priority;
 
 
@@ -82,9 +97,10 @@ typedef struct Tcb_s
 	struct Tcb_s*				next;
 	
 	
-	// We use the list interface
-	list_node_s					list_item;
-	list_node_s					total_node;
+	// The thread exist in two lists. The one used by the scheduler. And
+	// a list that contains all the tread in the system.
+	list_node_s					list;
+	list_node_s					thread_list;
 	
 	
 	struct List_s*				current_list;
@@ -104,15 +120,9 @@ typedef struct Tcb_s
 	uint64_t					tick_to_wake;
 	
 	
-	// These variables are used to calculate the runtime statistics
-	uint64_t					last_runtime;
-	uint64_t					runtime;
-	
-	
+	// State of the thread
 	thread_state				state;
 	
-	
-	// New section
 	
 	// This section deals with timing and stuff
 	thread_time_s				thread_time;

@@ -48,9 +48,9 @@ uint64_t kernel_statistics_timer;
 //		- The current pointer points to the current thread to be run
 //		- The next pointer is set by the scheduler and points to the next thread to run
 //
-tcb_s* kernel_current_thread_pointer;
-tcb_s* kernel_next_thread_pointer;
-tcb_s* kernel_idle_thread_pointer;
+tcb_s* current_thread;
+tcb_s* next_thread;
+tcb_s* idle_thread;
 
 
 // This variable will hold the current state of the scheduler
@@ -61,6 +61,9 @@ kernel_scheduler_status scheduler_status;
 list_s running_queue;
 list_s delay_queue;
 list_s suspended_list;
+
+
+// Holds all the threads in the system
 list_s thread_list;
 
 
@@ -125,13 +128,13 @@ void SysTick_Handler()
 		
 		kernel_tick += reschedule_runtime;
 		kernel_runtime_tick += reschedule_runtime;
-		kernel_current_thread_pointer->thread_time.new_window_time += reschedule_runtime;
+		current_thread->thread_time.new_window_time += reschedule_runtime;
 	}
 	else
 	{
 		kernel_tick += 1000;
 		kernel_runtime_tick += 1000;
-		kernel_current_thread_pointer->thread_time.new_window_time += 1000;
+		current_thread->thread_time.new_window_time += 1000;
 	}
 	
 	if (kernel_runtime_tick >= 1000000)
@@ -176,13 +179,13 @@ void kernel_launch(void)
 	// Set the current thread to point to the first thread to run
 	if (running_queue.last != NULL)
 	{
-		kernel_current_thread_pointer = running_queue.last->object;
+		current_thread = running_queue.last->object;
 		
 		list_remove_last(&running_queue);
 	}
 	else
 	{
-		kernel_current_thread_pointer = kernel_idle_thread_pointer;
+		current_thread = idle_thread;
 	}
 	
 	// Set the priorities for the SysTick and PendSV exception
@@ -234,12 +237,12 @@ void thread_delay(uint32_t ticks)
 	
 	
 	// Write the value to the thread control block
-	kernel_current_thread_pointer->tick_to_wake = tmp;
-	kernel_current_thread_pointer->list_item.value = tmp;
+	current_thread->tick_to_wake = tmp;
+	current_thread->list.value = tmp;
 	
 	
 	// Update the next list to place the thread in
-	kernel_current_thread_pointer->next_list = &delay_queue;
+	current_thread->next_list = &delay_queue;
 	
 	
 	// Let the scheduler start again
@@ -268,27 +271,27 @@ void round_robin_scheduler(void)
 		// placing the thread in another list i.e. suspend the thread, or deleting the
 		// thread if that is necessary. This part should also handler stack overflow and
 		// memory overflow. 
-		if (kernel_current_thread_pointer != kernel_idle_thread_pointer)
+		if (current_thread != idle_thread)
 		{
-			if (kernel_current_thread_pointer->next_list != NULL)
+			if (current_thread->next_list != NULL)
 			{
 				// Check which list the thread is going to be placed in
-				if (kernel_current_thread_pointer->next_list == &delay_queue)
+				if (current_thread->next_list == &delay_queue)
 				{
-					list_insert_delay(&(kernel_current_thread_pointer->list_item), &delay_queue);
+					list_insert_delay(&(current_thread->list), &delay_queue);
 					
 					// Update the kernel tick to wake
 					kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
 				}
 				
-				kernel_current_thread_pointer->next_list = NULL;
+				current_thread->next_list = NULL;
 			}
 			else
 			{
 				
-				if (unlikely(kernel_current_thread_pointer->state == THREAD_STATE_EXIT_PENDING))
+				if (unlikely(current_thread->state == THREAD_STATE_EXIT_PENDING))
 				{
-					if (kernel_current_thread_pointer->ID == 6969)
+					if (current_thread->ID == 6969)
 					{
 						// This thread belong to the fast programming interface. So we must
 						// delete the program memory buffer as well
@@ -298,15 +301,15 @@ void round_robin_scheduler(void)
 						}
 					}
 					
-					list_remove_item(&(kernel_current_thread_pointer->total_node), &thread_list);
+					list_remove_item(&(current_thread->thread_list), &thread_list);
 					
 					// Then we have to delete the memory resources
 					//dynamic_memory_free(kernel_current_thread_pointer->stack_base);
-					dynamic_memory_free(kernel_current_thread_pointer);
+					dynamic_memory_free(current_thread);
 				}
 				else
 				{
-					list_insert_first(&(kernel_current_thread_pointer->list_item), &running_queue);
+					list_insert_first(&(current_thread->list), &running_queue);
 				}
 			}
 		}
@@ -323,11 +326,11 @@ void round_robin_scheduler(void)
 		// Here we choose the next thread to run. This is normally the last element in the running queue
 		if (running_queue.last == NULL)
 		{
-			kernel_next_thread_pointer = kernel_idle_thread_pointer;
+			next_thread = idle_thread;
 		}
 		else
 		{
-			kernel_next_thread_pointer = running_queue.last->object;
+			next_thread = running_queue.last->object;
 			
 			list_remove_last(&running_queue);
 		}
@@ -396,13 +399,13 @@ static inline void process_expired_delays(void)
 
 void reset_runtime(void)
 {
-	kernel_idle_thread_pointer->thread_time.window_time = kernel_idle_thread_pointer->thread_time.new_window_time;
-	kernel_idle_thread_pointer->thread_time.new_window_time = 0;
+	idle_thread->thread_time.window_time = idle_thread->thread_time.new_window_time;
+	idle_thread->thread_time.new_window_time = 0;
 	
-	if (kernel_current_thread_pointer != kernel_idle_thread_pointer)
+	if (current_thread != idle_thread)
 	{
-		kernel_current_thread_pointer->thread_time.window_time = kernel_current_thread_pointer->thread_time.new_window_time;
-		kernel_current_thread_pointer->thread_time.new_window_time = 0;
+		current_thread->thread_time.window_time = current_thread->thread_time.new_window_time;
+		current_thread->thread_time.new_window_time = 0;
 	}
 	
 	if (running_queue.size != 0)
@@ -473,7 +476,7 @@ void print_runtime_statistics(void)
 	
 	board_serial_programming_print("Stack\tCPU\n");
 	
-	int32_t cpu_usage = 1000000 - kernel_idle_thread_pointer->thread_time.window_time;
+	int32_t cpu_usage = 1000000 - idle_thread->thread_time.window_time;
 	char k = cpu_usage / 10000;
 	board_serial_programming_print("\t");
 	board_serial_programming_write_percent(k, cpu_usage / 1000 - (k * 10));

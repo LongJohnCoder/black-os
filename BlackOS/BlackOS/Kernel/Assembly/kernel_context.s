@@ -29,8 +29,8 @@
 
 
 // Make the current thread pointer visible by declaring it extern
-.extern kernel_current_thread_pointer
-.extern kernel_next_thread_pointer
+.extern current_thread
+.extern next_thread
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -63,7 +63,7 @@ PendSV_Handler:
 
 	// Get the pointer to the current thread r1 will hold a pointer
 	// to the current thread structure
-	ldr					r3,					=kernel_current_thread_pointer
+	ldr					r3,					=current_thread
 	ldr					r1,					[r3]
 
 	// Store the stack pointer for the current running thread
@@ -71,7 +71,7 @@ PendSV_Handler:
 	str					r0,					[r1]
 
 	// Load the next thread into r1 and the next stack into r0
-	ldr					r2,					=kernel_next_thread_pointer
+	ldr					r2,					=next_thread
 	ldr					r1,					[r2]
 	ldr					r0,					[r1]
 
@@ -107,7 +107,7 @@ PendSV_Handler:
 scheduler_start:
 	
 	// The first line loads a pointer to kernel current thread into r0
-	ldr					r0,					=kernel_current_thread_pointer
+	ldr					r0,					=current_thread
 	ldr					r2,					[r0]
 	ldr					r3,					[r2]
 	

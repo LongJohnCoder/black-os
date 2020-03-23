@@ -21,9 +21,9 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-extern tcb_s* kernel_idle_thread_pointer;
+extern tcb_s* idle_thread;
 extern list_s running_queue;
-extern tcb_s* kernel_current_thread_pointer;
+extern tcb_s* current_thread;
 extern list_s thread_list;
 
 
@@ -102,22 +102,22 @@ tcb_s* thread_new(char* thread_name, thread_function thread_func, void* thread_p
 	
 	
 	// The first thread to be made is the IDLE thread
-	if (kernel_idle_thread_pointer == NULL)
+	if (idle_thread == NULL)
 	{
 		// Just loop that single thread
 		new_thread->next = new_thread;
 		
-		kernel_idle_thread_pointer = new_thread;
+		idle_thread = new_thread;
 	}
 	else
 	{
 		new_thread->current_list = &running_queue;
 		new_thread->next_list = NULL;
-		new_thread->list_item.object = new_thread;
-		new_thread->total_node.object = new_thread;
+		new_thread->list.object = new_thread;
+		new_thread->thread_list.object = new_thread;
 		
-		list_insert_first(&(new_thread->list_item), &running_queue);
-		list_insert_first(&(new_thread->total_node), &thread_list);
+		list_insert_first(&(new_thread->list), &running_queue);
+		list_insert_first(&(new_thread->thread_list), &thread_list);
 	}
 	
 	//cache_clean_addresses((uint32_t *)new_thread, sizeof(thread_s));
@@ -170,7 +170,7 @@ uint32_t* thread_stack_init(uint32_t* stack_pointer, thread_function thread_func
 
 static void kernel_delete_thread(void)
 {
-	kernel_current_thread_pointer->state = THREAD_STATE_EXIT_PENDING;
+	current_thread->state = THREAD_STATE_EXIT_PENDING;
 	
 	reschedule();
 	
