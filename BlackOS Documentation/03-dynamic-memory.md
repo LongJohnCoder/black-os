@@ -49,18 +49,37 @@ typedef enum
 
 ## Memory descriptor
 
-Before every memory block is a memory descriptor. The descriptor consists of 8 bytes, and contains information about the memory block. The first four bytes points to another memory descriptor. The last four bytes contains the size. Since the block size never will exceed a 32-bits number, we can use the upper bits to store aditional information. Bit 31 determines if the memory block is used or free. Bits [30:28] stores which memory section that is used. Since the memory free function only takes in a pointer to the memory, we have to determine from which memory section we should free the memory. Bit [30:28] tells us that. If a memory block is free, the memory descriptor will point to the next free block. If the memory block is used the memory descriptor will contain the NULL pointer. 
+Before every memory block is a memory descriptor. The descriptor consists of 8 bytes, and contains information about the memory block. The first four bytes points to another memory descriptor. The last four bytes contains the size. Since the block size never will exceed a 32-bits number, we can use the upper bits to store aditional information. Bit 31 determines if the memory block is used or free. Bits [30:28] stores which memory section that is used. Since the memory free function only takes in a pointer to the memory, we have to determine from which memory section we should free the memory. Bit [30:28] tells us that. If a memory block is free, the memory descriptor will point to the next free block. If the memory block is used the memory descriptor will contain the NULL pointer. The memory descriptors of *free* blocks form linked list which will be used by the code. An illistration can be found below
+
+<img src="https://github.com/bjornbrodtkorb/BlackOS/blob/master/BlackOS%20Graphics/list.png" width="1000">
 
 ## Configuration
 
-After reset the kernel initializes all memory sections. After the configuration all the sections should consist of one large free memory block. The start address and end address is first alligned with the preffered allignment. The whole memory section is then written to zero. The memory section descriptor should provide information about the memory. This includes a pointer to the first element in the linked list of free blocks.
+After reset the kernel initializes all memory sections. After the configuration all the sections should consist of one large free memory block. The start address and the end address is first aligned with the preffered alignment. The whole memory section is then written to zero. The memory section descriptor should provide information about the memory. This includes a pointer to the first element in the linked list of free blocks.
 
 ## Allocation
 
+Allocation of memory will conceptually remove blocks (or part of block) from the memory list. The list will be sorted in the same way the memory is sorted. That means that a block at address 0x90 will never point to a list item at address 0xFF. This way it is easy to iterate the list and find the first match. This list only contains free memory blocks. If memory is requested, the code iterated trough blocks in the list until it finds a block that is large enough to hold the memory. If the sizes are equal - perfect, but if the list block size are bigger than the requested memory, the remaining part has to be put back into the list. The block is then split, and the part not used it put back into the free list. This mechanism requires that the remaining block is large enough to hold both a memory descriptor + the minimum block size. 
+
+<img src="https://github.com/bjornbrodtkorb/BlackOS/blob/master/BlackOS%20Graphics/memory_layout.png" width="1000">
+
 ## Free
+
+Freeing of memory happend in somewhat the same manner as allocation, but instead of removing items from the list, we are adding. An inserted memory block is first validated. That includes
+
+- check if the next block pointer is NULL
+- check that the free-bit is cleared
+- retrieve the memory section information
+
+After the memory block is validated the code iterates through the list. When it finds a element with a lower address, it inserts the block after this element. When this block is inserted we have two scenarios
+
+- the previous block overlaps with the inserted block
+- the inserted block overlaps with the next block
+
+Let me rephrase overlaps. A memory block overlaps with another if the remaining "space" between them doesn't fit both a memory descriptor + a minimum block size. If blocks overlaps, the code will manipulate pointers and merge the block together, into a bigger block, thus reducing memory fregmentation. 
 
 ## Memory leaks
 
-Every memory block starts with 8 bytes of information. This is called a memory descriptor and contains the block size in number of bytes, and a pointer to another block. In order to speed up the allocation time, only free blocks are tracked. One of the features required by the kernel, is the ability to allocate memory in a spesific section. This is due to DRAM access rates being slow when accessing different banks. 
+Memory leaks happens when the dynamic memory interface allocates data, and the pointer to that data is lost. This will result in unusable sections inside the memory. Some problems occur when the operating system want to terminate an ongoing process. If this process has allocated memory, and the thread is terminated by force, the memory is lost. Idelly the operating system will request the appliction to close. The application may have a exit callback thats deletes all memory allocated. In this way the memory will be preserved. 
 
-In order to use the dynamic memory it must be configured first. The includes initialization of all the different memory sections (DRAM BANK0, DRAM BANK1, SRAM, osv.). The memory should be reset to zero, and the descriptors should be updated. More info later. After the configuration each memory section consists of one big block of free memory 
+If memory leaks has occured, the only way to restore the memory is by a soft / hard reset of the computer. If the memory is not full this will not be a problem.
