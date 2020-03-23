@@ -383,6 +383,9 @@
     <Compile Include="BlackOS\Kernel\Include\mutex.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="BlackOS\Kernel\Include\process.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="BlackOS\Kernel\Include\syscall.h">
       <SubType>compile</SubType>
     </Compile>
@@ -405,6 +408,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\mutex.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BlackOS\Kernel\Source\process.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="BlackOS\Kernel\Source\syscall.c">

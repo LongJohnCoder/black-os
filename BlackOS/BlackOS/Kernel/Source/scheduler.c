@@ -48,9 +48,9 @@ uint64_t kernel_statistics_timer;
 //		- The current pointer points to the current thread to be run
 //		- The next pointer is set by the scheduler and points to the next thread to run
 //
-tcb_s* current_thread;
-tcb_s* next_thread;
-tcb_s* idle_thread;
+thread_s* current_thread;
+thread_s* next_thread;
+thread_s* idle_thread;
 
 
 // This variable will hold the current state of the scheduler
@@ -282,7 +282,7 @@ void round_robin_scheduler(void)
 					list_insert_delay(&(current_thread->list_node), &delay_queue);
 					
 					// Update the kernel tick to wake
-					kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
+					kernel_tick_to_wake = ((thread_s *)(delay_queue.first->object))->tick_to_wake;
 				}
 				else
 				{
@@ -340,7 +340,7 @@ void round_robin_scheduler(void)
 			list_remove_last(&running_queue);
 		}
 		
-		next_thread->context_switches += (uint64_t)1;
+		next_thread->context_switches++;
 	}
 	else
 	{
@@ -371,13 +371,13 @@ static inline void process_expired_delays(void)
 {
 	list_node_s* list_iterator = delay_queue.first;
 	
-	check(((tcb_s *)(delay_queue.first->object))->tick_to_wake <= kernel_tick_to_wake);
+	check(((thread_s *)(delay_queue.first->object))->tick_to_wake <= kernel_tick_to_wake);
 	
 	uint16_t  i;
 	
 	for (i = 0; i < delay_queue.size; i++)
 	{
-		if (((tcb_s *)(list_iterator->object))->tick_to_wake > kernel_tick_to_wake)
+		if (((thread_s *)(list_iterator->object))->tick_to_wake > kernel_tick_to_wake)
 		{
 			break;
 		}
@@ -399,7 +399,7 @@ static inline void process_expired_delays(void)
 	}
 	else
 	{
-		kernel_tick_to_wake = ((tcb_s *)(delay_queue.first->object))->tick_to_wake;
+		kernel_tick_to_wake = ((thread_s *)(delay_queue.first->object))->tick_to_wake;
 	}
 }
 
@@ -424,8 +424,8 @@ void reset_runtime(void)
 		
 		list_iterate(list_node, &thread_list)
 		{
-			((tcb_s *)(list_node->object))->thread_time.window_time = ((tcb_s *)(list_node->object))->thread_time.new_window_time;
-			((tcb_s *)(list_node->object))->thread_time.new_window_time = 0;
+			((thread_s *)(list_node->object))->thread_time.window_time = ((thread_s *)(list_node->object))->thread_time.new_window_time;
+			((thread_s *)(list_node->object))->thread_time.new_window_time = 0;
 		}
 	}
 }
@@ -476,7 +476,7 @@ void thread_stack_overflow_event(char* data)
 
 void print_runtime_statistics(void)
 {
-	tcb_s* tmp_thread;
+	thread_s* tmp_thread;
 	
 	board_serial_programming_print("Runtimes\tStack\tCPU\n");
 	
@@ -528,7 +528,7 @@ void print_runtime_statistics(void)
 		
 		list_iterate(node, &thread_list)
 		{
-			tmp_thread = (tcb_s *)(node->object);
+			tmp_thread = (thread_s *)(node->object);
 			
 			board_serial_programming_print("%d\t\t", (uint32_t)tmp_thread->context_switches);
 			

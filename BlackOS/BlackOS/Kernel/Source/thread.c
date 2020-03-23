@@ -21,9 +21,9 @@
 //--------------------------------------------------------------------------------------------------//
 
 
-extern tcb_s* idle_thread;
+extern thread_s* idle_thread;
 extern list_s running_queue;
-extern tcb_s* current_thread;
+extern thread_s* current_thread;
 extern list_s thread_list;
 
 
@@ -53,17 +53,17 @@ void thread_config(void)
 //--------------------------------------------------------------------------------------------------//
 
 
-tcb_s* thread_new(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
+thread_s* thread_new(char* thread_name, thread_function thread_func, void* thread_parameter, kernel_thread_priority priority, uint32_t stack_size)
 {
 	// We do NOT want any scheduler interrupting inside here
 	suspend_scheduler();
 	
 	// First we have to allocate memory for the thread and
 	// for the stack that is going to be used by that thread
-	tcb_s* new_thread = (tcb_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(tcb_s) + stack_size * sizeof(uint32_t));
+	thread_s* new_thread = (thread_s*)dynamic_memory_new(DRAM_BANK_0, sizeof(thread_s) + stack_size * sizeof(uint32_t));
 	
 	// Allocate the stack
-	new_thread->stack_base = (uint32_t *)((uint8_t *)new_thread + sizeof(tcb_s));
+	new_thread->stack_base = (uint32_t *)((uint8_t *)new_thread + sizeof(thread_s));
 	
 
 	if ((new_thread == NULL) || (new_thread->stack_base == NULL))
@@ -94,11 +94,6 @@ tcb_s* thread_new(char* thread_name, thread_function thread_func, void* thread_p
 	new_thread->priority = priority;
 	new_thread->state = THREAD_STATE_RUNNING;
 	new_thread->stack_size = 4 * stack_size;
-	
-	
-	new_thread->context_switches = 57;
-	
-	
 	
 	
 	// The first thread to be made is the IDLE thread

@@ -71,7 +71,6 @@ void file_system_command_line_thread(void* args);
 static char command_line_argument[MAX_ARGUEMTNS][LENGTH_ARGUMENT];
 static char file_system_path[FILE_SYSTEM_MAX_PATH_LENGTH];
 static char file_system_tmp_path[FILE_SYSTEM_MAX_PATH_LENGTH];
-static char file_system_buffer[FILE_SYSTEM_BUFFER_SIZE];
 static char command_line_buffer[FILE_SYSTEM_COMMAND_BUFFER_SIZE];
 static uint16_t command_line_buffer_index = 0;
 static volatile uint8_t file_system_command_ready = 0;
@@ -81,7 +80,7 @@ directory_t directory;
 file_info_t file_info;
 
 
-tcb_s* file_thread;
+thread_s* file_thread;
 
 
 //--------------------------------------------------------------------------------------------------//
@@ -312,11 +311,14 @@ file_result_t file_system_command_line_cat(char* arg)
 		return res;
 	}
 
+	char* file_system_buffer = (char *)dynamic_memory_new(DRAM_BANK_1, 1024);
+
 	do
 	{
-		res = f_read(&file, file_system_buffer, FILE_SYSTEM_BUFFER_SIZE, &bytes_read);
+		res = f_read(&file, file_system_buffer, 1024, &bytes_read);
 		if (res != FR_OK)
 		{
+			dynamic_memory_free(file_system_buffer);
 			return res;
 		}
 		
@@ -328,8 +330,9 @@ file_result_t file_system_command_line_cat(char* arg)
 		board_serial_dma_print_size(file_system_buffer, bytes_read);
 
 
-	} while (bytes_read == FILE_SYSTEM_BUFFER_SIZE);
+	} while (bytes_read == 1024);
 
+	dynamic_memory_free(file_system_buffer);
 	res = f_close(&file);
 	if (res != FR_OK)
 	{
@@ -368,12 +371,15 @@ file_result_t file_system_command_line_hex(char* arg)
 	{
 		return res;
 	}
+	
+	char* file_system_buffer = (char *)dynamic_memory_new(DRAM_BANK_1, 1024);
 
 	do
 	{
-		res = f_read(&file, file_system_buffer, FILE_SYSTEM_BUFFER_SIZE, &bytes_read);
+		res = f_read(&file, file_system_buffer, 1024, &bytes_read);
 		if (res != FR_OK)
 		{
+			dynamic_memory_free(file_system_buffer);
 			return res;
 		}
 
@@ -388,8 +394,9 @@ file_result_t file_system_command_line_hex(char* arg)
 		}
 
 
-	} while (bytes_read == FILE_SYSTEM_BUFFER_SIZE);
+	} while (bytes_read == 1024);
 
+	dynamic_memory_free(file_system_buffer);
 	res = f_close(&file);
 	if (res != FR_OK)
 	{
@@ -463,12 +470,14 @@ file_result_t file_system_command_line_run(char* arg)
 
 	// Before we get the data we have to allocate space for it
 	uint8_t* application = (uint8_t *)dynamic_memory_new(SRAM, 2000);
+	char* file_system_buffer = (char *)dynamic_memory_new(DRAM_BANK_1, 1024);
 	uint8_t* application_iterator = application;
 	do
 	{
-		res = f_read(&file, file_system_buffer, FILE_SYSTEM_BUFFER_SIZE, &bytes_read);
+		res = f_read(&file, file_system_buffer, 1024, &bytes_read);
 		if (res != FR_OK)
 		{
+			dynamic_memory_free(file_system_buffer);
 			return res;
 		}
 
@@ -478,8 +487,9 @@ file_result_t file_system_command_line_run(char* arg)
 		}
 
 
-	} while (bytes_read == FILE_SYSTEM_BUFFER_SIZE);
+	} while (bytes_read == 1024);
 	
+	dynamic_memory_free(file_system_buffer);
 	res = f_close(&file);
 	if (res != FR_OK)
 	{

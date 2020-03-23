@@ -134,7 +134,7 @@ typedef struct Tcb_s
 	// Store the name of the thread
 	char						name[KERNEL_THREAD_MAX_NAME_LENGTH];
 	
-} tcb_s;
+} thread_s;
 
 
 //--------------------------------------------------------------------------------------------------//
