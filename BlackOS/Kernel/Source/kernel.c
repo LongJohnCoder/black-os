@@ -18,12 +18,10 @@
 #include "dynamic_memory.h"
 #include "kernel.h"
 #include "board_sd_card.h"
-#include "file_system_command_line.h"
+#include "command_line_interface.h"
 #include "file_system_fat.h"
-#include "graphics_driver.h"
 #include "dram.h"
 #include "dma.h"
-#include "board_uart.h"
 #include "thread.h"
 
 
@@ -94,7 +92,6 @@ void kernel_startup(void)
 	// The UART is used for mouse / keyboard interface until the USB stack is done
 	board_serial_config();
 	board_serial_programming_config();
-	board_uart_config();
 	
 	
 	// Configure the on board button

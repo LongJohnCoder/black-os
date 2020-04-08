@@ -123,16 +123,15 @@
     <ListValues>
       <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAME70_DFP\2.4.166\same70b\include</Value>
-      <Value>../BlackOS/Board packages/Include</Value>
-      <Value>../BlackOS/Drivers/Include</Value>
-      <Value>../BlackOS/File system/Include</Value>
-      <Value>../BlackOS/Graphics/Include</Value>
-      <Value>../BlackOS/Kernel/Include</Value>
-      <Value>../BlackOS/Memory/Include</Value>
-      <Value>../BlackOS/SD/Include</Value>
-      <Value>../BlackOS/Config</Value>
-      <Value>../BlackOS/USB/Include</Value>
-      <Value>../BlackOS/GUI/Include</Value>
+      <Value>../Board packages/Include</Value>
+      <Value>../Config</Value>
+      <Value>../Drivers/Include</Value>
+      <Value>../File system/Include</Value>
+      <Value>../Kernel/Include</Value>
+      <Value>../Memory/Include</Value>
+      <Value>../SD/Include</Value>
+      <Value>../USB/Include</Value>
+      <Value>../Command line interface/Include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize most (-O3)</armgcc.compiler.optimization.level>
@@ -170,289 +169,256 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="BlackOS\Board packages\Include\board_button.h">
+    <Compile Include="Board packages\Include\board_button.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Include\board_led.h">
+    <Compile Include="Board packages\Include\board_led.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Include\board_sd_card.h">
+    <Compile Include="Board packages\Include\board_sd_card.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Include\board_serial.h">
+    <Compile Include="Board packages\Include\board_serial.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Include\board_serial_programming.h">
+    <Compile Include="Board packages\Include\board_serial_programming.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Include\board_uart.h">
+    <Compile Include="Board packages\Source\board_button.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Source\board_button.c">
+    <Compile Include="Board packages\Source\board_led.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Source\board_led.c">
+    <Compile Include="Board packages\Source\board_sd_card.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Source\board_sd_card.c">
+    <Compile Include="Board packages\Source\board_serial.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Source\board_serial.c">
+    <Compile Include="Board packages\Source\board_serial_programming.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Source\board_serial_programming.c">
+    <Compile Include="Command line interface\Include\command_line_interface.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Board packages\Source\board_uart.c">
+    <Compile Include="Command line interface\Source\command_line_interface.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Config\config.h">
+    <Compile Include="Config\config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\cache.h">
+    <Compile Include="Drivers\Include\cache.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\check.h">
+    <Compile Include="Drivers\Include\check.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\clock.h">
+    <Compile Include="Drivers\Include\clock.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\core.h">
+    <Compile Include="Drivers\Include\core.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\dma.h">
+    <Compile Include="Drivers\Include\dma.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\dram.h">
+    <Compile Include="Drivers\Include\dram.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\flash.h">
+    <Compile Include="Drivers\Include\flash.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\gpio.h">
+    <Compile Include="Drivers\Include\gpio.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\hsmci.h">
+    <Compile Include="Drivers\Include\hsmci.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\interrupt.h">
+    <Compile Include="Drivers\Include\interrupt.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\matrix.h">
+    <Compile Include="Drivers\Include\matrix.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\spi.h">
+    <Compile Include="Drivers\Include\spi.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\systick.h">
+    <Compile Include="Drivers\Include\systick.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\text.h">
+    <Compile Include="Drivers\Include\text.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\timer.h">
+    <Compile Include="Drivers\Include\timer.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\uart.h">
+    <Compile Include="Drivers\Include\uart.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\usart.h">
+    <Compile Include="Drivers\Include\usart.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\usbhs.h">
+    <Compile Include="Drivers\Include\usbhs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Include\watchdog.h">
+    <Compile Include="Drivers\Include\watchdog.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\cache.c">
+    <Compile Include="Drivers\Source\cache.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\check.c">
+    <Compile Include="Drivers\Source\check.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\clock.c">
+    <Compile Include="Drivers\Source\clock.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\core.c">
+    <Compile Include="Drivers\Source\core.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\dma.c">
+    <Compile Include="Drivers\Source\dma.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\dram.c">
+    <Compile Include="Drivers\Source\dram.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\flash.c">
+    <Compile Include="Drivers\Source\flash.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\gpio.c">
+    <Compile Include="Drivers\Source\gpio.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\hsmci.c">
+    <Compile Include="Drivers\Source\hsmci.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\interrupt.c">
+    <Compile Include="Drivers\Source\interrupt.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\matrix.c">
+    <Compile Include="Drivers\Source\matrix.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\spi.c">
+    <Compile Include="Drivers\Source\spi.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\systick.c">
+    <Compile Include="Drivers\Source\systick.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\text.c">
+    <Compile Include="Drivers\Source\text.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\timer.c">
+    <Compile Include="Drivers\Source\timer.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\uart.c">
+    <Compile Include="Drivers\Source\uart.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\usart.c">
+    <Compile Include="Drivers\Source\usart.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\usbhs.c">
+    <Compile Include="Drivers\Source\usbhs.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Drivers\Source\watchdog.c">
+    <Compile Include="Drivers\Source\watchdog.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Include\file_system_command_line.h">
+    <Compile Include="File system\Include\file_system_config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Include\file_system_config.h">
+    <Compile Include="File system\Include\file_system_fat.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Include\file_system_fat.h">
+    <Compile Include="File system\Include\file_system_io.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Include\file_system_io.h">
+    <Compile Include="File system\Source\file_system_fat.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Source\file_system_command_line.c">
+    <Compile Include="File system\Source\file_system_io.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Source\file_system_fat.c">
+    <Compile Include="File system\Source\file_system_unicode.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Source\file_system_io.c">
+    <Compile Include="Kernel\Assembly\kernel_context.s">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\File system\Source\file_system_unicode.c">
+    <Compile Include="Kernel\Assembly\kernel_service_handler.s">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Graphics\Include\graphics_driver.h">
+    <Compile Include="Kernel\Include\atomic.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Graphics\Source\graphics_driver.c">
+    <Compile Include="Kernel\Include\compiler.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\GUI\Include\gui.h">
+    <Compile Include="Kernel\Include\dynamic_loader.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\GUI\Source\gui.c">
+    <Compile Include="Kernel\Include\fault.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Assembly\kernel_context.s">
+    <Compile Include="Kernel\Include\kernel.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Assembly\kernel_service_handler.s">
+    <Compile Include="Kernel\Include\list.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\atomic.h">
+    <Compile Include="Kernel\Include\mutex.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\compiler.h">
+    <Compile Include="Kernel\Include\process.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\kernel.h">
+    <Compile Include="Kernel\Include\scheduler.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\dynamic_loader.h">
+    <Compile Include="Kernel\Include\syscall.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\fault.h">
+    <Compile Include="Kernel\Include\thread.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\mutex.h">
+    <Compile Include="Kernel\Source\atomic.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\process.h">
+    <Compile Include="Kernel\Source\dynamic_loader.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\syscall.h">
+    <Compile Include="Kernel\Source\fault.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\scheduler.h">
+    <Compile Include="Kernel\Source\kernel.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\list.h">
+    <Compile Include="Kernel\Source\list.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Include\thread.h">
+    <Compile Include="Kernel\Source\mutex.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\atomic.c">
+    <Compile Include="Kernel\Source\process.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\dynamic_loader.c">
+    <Compile Include="Kernel\Source\scheduler.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\fault.c">
+    <Compile Include="Kernel\Source\syscall.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\mutex.c">
+    <Compile Include="Kernel\Source\thread.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\process.c">
+    <Compile Include="Memory\Include\dynamic_memory.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\syscall.c">
+    <Compile Include="Memory\Source\dynamic_memory.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\kernel.c">
+    <Compile Include="SD\Include\sd_protocol.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="BlackOS\Kernel\Source\scheduler.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\Kernel\Source\list.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\Kernel\Source\thread.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\Memory\Include\dynamic_memory.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\Memory\Source\dynamic_memory.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\SD\Include\sd_protocol.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\SD\Source\sd_protocol.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\USB\Include\usb.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\USB\Include\usb_descriptors.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\USB\Include\usb_host_core.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\USB\Include\usb_info.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BlackOS\USB\Source\usb_host_core.c">
+    <Compile Include="SD\Source\sd_protocol.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="System startup\startup.c">
@@ -461,39 +427,50 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="USB\Include\usb.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="USB\Include\usb_descriptors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="USB\Include\usb_host_core.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="USB\Include\usb_info.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="USB\Source\usb_host_core.c">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="BlackOS\" />
-    <Folder Include="BlackOS\Board packages\" />
-    <Folder Include="BlackOS\Board packages\Include\" />
-    <Folder Include="BlackOS\Board packages\Source\" />
-    <Folder Include="BlackOS\Config\" />
-    <Folder Include="BlackOS\Drivers\" />
-    <Folder Include="BlackOS\Drivers\Include\" />
-    <Folder Include="BlackOS\Drivers\Source\" />
-    <Folder Include="BlackOS\File system\" />
-    <Folder Include="BlackOS\File system\Include\" />
-    <Folder Include="BlackOS\File system\Source\" />
-    <Folder Include="BlackOS\Graphics\" />
-    <Folder Include="BlackOS\Graphics\Include\" />
-    <Folder Include="BlackOS\Graphics\Source\" />
-    <Folder Include="BlackOS\GUI\" />
-    <Folder Include="BlackOS\GUI\Include" />
-    <Folder Include="BlackOS\GUI\Source" />
-    <Folder Include="BlackOS\Kernel\" />
-    <Folder Include="BlackOS\Kernel\Include\" />
-    <Folder Include="BlackOS\Kernel\Assembly" />
-    <Folder Include="BlackOS\Kernel\Source\" />
-    <Folder Include="BlackOS\Memory\" />
-    <Folder Include="BlackOS\Memory\Include\" />
-    <Folder Include="BlackOS\Memory\Source\" />
-    <Folder Include="BlackOS\SD\" />
-    <Folder Include="BlackOS\SD\Include\" />
-    <Folder Include="BlackOS\SD\Source\" />
-    <Folder Include="BlackOS\USB" />
-    <Folder Include="BlackOS\USB\Include" />
-    <Folder Include="BlackOS\USB\Source" />
+    <Folder Include="Board packages\" />
+    <Folder Include="Board packages\Include\" />
+    <Folder Include="Board packages\Source\" />
+    <Folder Include="Command line interface\Include" />
+    <Folder Include="Command line interface\Source" />
+    <Folder Include="Config\" />
+    <Folder Include="Drivers\" />
+    <Folder Include="Drivers\Include\" />
+    <Folder Include="Drivers\Source\" />
+    <Folder Include="File system\" />
+    <Folder Include="File system\Include\" />
+    <Folder Include="File system\Source\" />
+    <Folder Include="Kernel\" />
+    <Folder Include="Kernel\Assembly\" />
+    <Folder Include="Kernel\Include\" />
+    <Folder Include="Kernel\Source\" />
+    <Folder Include="Memory\" />
+    <Folder Include="Memory\Include\" />
+    <Folder Include="Memory\Source\" />
+    <Folder Include="Command line interface" />
+    <Folder Include="SD\" />
+    <Folder Include="SD\Include\" />
+    <Folder Include="SD\Source\" />
     <Folder Include="System startup" />
+    <Folder Include="USB\" />
+    <Folder Include="USB\Include\" />
+    <Folder Include="USB\Source\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="System startup\flash.ld">

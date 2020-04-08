@@ -5,7 +5,6 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#include "file_system_command_line.h"
 #include "usart.h"
 #include "board_serial.h"
 #include "file_system_fat.h"

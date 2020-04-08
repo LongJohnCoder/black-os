@@ -5,26 +5,29 @@
 // software, if this copyright notice is included in all copies of
 // the software.
 
-#ifndef BOARD_UART_H
-#define BOARD_UART_H
+#ifndef COMMAND_LINE_INTERFACE_H
+#define COMMAND_LINE_INTERFACE_H
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
 #include "sam.h"
+#include "scheduler.h"
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void board_uart_config(void);
+extern thread_s* file_thread;
 
 
 //--------------------------------------------------------------------------------------------------//
 
 
-void board_uart_write(char* data);
+void file_system_command_line_config(void);
+
+void file_system_command_line_print_directory(void);
 
 
 //--------------------------------------------------------------------------------------------------//
