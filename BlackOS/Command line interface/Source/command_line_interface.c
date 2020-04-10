@@ -223,6 +223,40 @@ file_result_t file_system_command_line_ls(void)
 //--------------------------------------------------------------------------------------------------//
 
 
+file_result_t file_system_command_line_touch(char* arg)
+{
+	file_result_t res;
+	file_t file;
+	uint32_t bytes_read = 0;
+
+	if (strlen(file_system_path) + strlen(arg) + 2 > sizeof(file_system_tmp_path))
+	{
+
+	}
+
+	strcpy(file_system_tmp_path, file_system_path);
+
+	if (strcmp(file_system_tmp_path, "/"))
+	{
+		strcat(file_system_tmp_path, "/");
+	}
+
+	strcat(file_system_tmp_path, arg);
+
+	res = f_open(&file, file_system_tmp_path, FA_WRITE | FA_OPEN_ALWAYS);
+	
+	if (res == FR_OK)
+	{
+		f_close(&file);
+		return FR_OK;
+	}
+	return res;
+}
+
+
+//--------------------------------------------------------------------------------------------------//
+
+
 file_result_t file_system_command_line_cd(char* arg)
 {
 	if (strcmp(arg, ""))
@@ -575,6 +609,10 @@ void file_system_command_line_handler(void)
 	if (!strncmp(command_line_argument[0], "ls", 2))
 	{
 		file_system_command_line_ls();
+	}
+	else if (!strncmp(command_line_argument[0], "touch", 5))
+	{
+		file_system_command_line_touch(command_line_argument[1]);
 	}
 	else if (!strncmp(command_line_argument[0], "cd", 2))
 	{
