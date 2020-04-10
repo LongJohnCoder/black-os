@@ -114,7 +114,7 @@ void file_system_command_line_thread(void* args)
 		uint8_t retry_count = 0;
 		while (retry_count++ < 5)
 		{
-			if (f_mount(&cortex_file_system, "", 1) == FR_OK)
+			if (file_mount(&cortex_file_system, "", 1) == FR_OK)
 			{
 				file_system_command_line_print_directory();
 				break;
@@ -155,7 +155,7 @@ file_result_t file_system_command_line_ls(void)
 
 	uint16_t file_count = 0;
 
-	result = f_opendir(&directory, file_system_path);
+	result = file_opendir(&directory, file_system_path);
 
 	// Return if not successful
 	if (result != FR_OK)
@@ -166,7 +166,7 @@ file_result_t file_system_command_line_ls(void)
 
 	do
 	{
-		result = f_readdir(&directory, &file_info);
+		result = file_readdir(&directory, &file_info);
 
 		if (result != FR_OK)
 		{
@@ -243,11 +243,11 @@ file_result_t file_system_command_line_touch(char* arg)
 
 	strcat(file_system_tmp_path, arg);
 
-	res = f_open(&file, file_system_tmp_path, FA_WRITE | FA_OPEN_ALWAYS);
+	res = file_open(&file, file_system_tmp_path, FA_WRITE | FA_OPEN_ALWAYS);
 	
 	if (res == FR_OK)
 	{
-		f_close(&file);
+		file_close(&file);
 		return FR_OK;
 	}
 	return res;
@@ -302,7 +302,7 @@ file_result_t file_system_command_line_cd(char* arg)
 			}
 		}
 
-		file_result_t res = f_opendir(&directory, file_system_tmp_path);
+		file_result_t res = file_opendir(&directory, file_system_tmp_path);
 
 		if (res == FR_OK)
 		{
@@ -338,7 +338,7 @@ file_result_t file_system_command_line_cat(char* arg)
 
 	strcat(file_system_tmp_path, arg);
 
-	res = f_open(&file, file_system_tmp_path, FA_READ);
+	res = file_open(&file, file_system_tmp_path, FA_READ);
 	if (res != FR_OK)
 	{
 		return res;
@@ -348,7 +348,7 @@ file_result_t file_system_command_line_cat(char* arg)
 
 	do
 	{
-		res = f_read(&file, file_system_buffer, 1024, &bytes_read);
+		res = file_read(&file, file_system_buffer, 1024, &bytes_read);
 		if (res != FR_OK)
 		{
 			dynamic_memory_free(file_system_buffer);
@@ -366,7 +366,7 @@ file_result_t file_system_command_line_cat(char* arg)
 	} while (bytes_read == 1024);
 
 	dynamic_memory_free(file_system_buffer);
-	res = f_close(&file);
+	res = file_close(&file);
 	if (res != FR_OK)
 	{
 		return res;
@@ -399,7 +399,7 @@ file_result_t file_system_command_line_hex(char* arg)
 
 	strcat(file_system_tmp_path, arg);
 
-	res = f_open(&file, file_system_tmp_path, FA_READ);
+	res = file_open(&file, file_system_tmp_path, FA_READ);
 	if (res != FR_OK)
 	{
 		return res;
@@ -409,7 +409,7 @@ file_result_t file_system_command_line_hex(char* arg)
 
 	do
 	{
-		res = f_read(&file, file_system_buffer, 1024, &bytes_read);
+		res = file_read(&file, file_system_buffer, 1024, &bytes_read);
 		if (res != FR_OK)
 		{
 			dynamic_memory_free(file_system_buffer);
@@ -430,7 +430,7 @@ file_result_t file_system_command_line_hex(char* arg)
 	} while (bytes_read == 1024);
 
 	dynamic_memory_free(file_system_buffer);
-	res = f_close(&file);
+	res = file_close(&file);
 	if (res != FR_OK)
 	{
 		return res;
@@ -495,7 +495,7 @@ file_result_t file_system_command_line_run(char* arg)
 
 	strcat(file_system_tmp_path, arg);
 
-	res = f_open(&file, file_system_tmp_path, FA_READ);
+	res = file_open(&file, file_system_tmp_path, FA_READ);
 	if (res != FR_OK)
 	{
 		return res;
@@ -507,7 +507,7 @@ file_result_t file_system_command_line_run(char* arg)
 	uint8_t* application_iterator = application;
 	do
 	{
-		res = f_read(&file, file_system_buffer, 1024, &bytes_read);
+		res = file_read(&file, file_system_buffer, 1024, &bytes_read);
 		if (res != FR_OK)
 		{
 			dynamic_memory_free(file_system_buffer);
@@ -523,7 +523,7 @@ file_result_t file_system_command_line_run(char* arg)
 	} while (bytes_read == 1024);
 	
 	dynamic_memory_free(file_system_buffer);
-	res = f_close(&file);
+	res = file_close(&file);
 	if (res != FR_OK)
 	{
 		return res;

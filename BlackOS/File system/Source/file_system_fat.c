@@ -3640,7 +3640,7 @@ static FRESULT validate (	/* Returns FR_OK or FR_INVALID_OBJECT */
 /* Mount/Unmount a Logical Drive                                         */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_mount (
+FRESULT file_mount (
 	FATFS* fs,			/* Pointer to the filesystem object (NULL:unmount)*/
 	const TCHAR* path,	/* Logical drive number to be mounted/unmounted */
 	BYTE opt			/* Mode option 0:Do not mount (delayed mount), 1:Mount immediately */
@@ -3688,7 +3688,7 @@ FRESULT f_mount (
 /* Open or Create a File                                                 */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_open (
+FRESULT file_open (
 	FIL* fp,			/* Pointer to the blank file object */
 	const TCHAR* path,	/* Pointer to the file name */
 	BYTE mode			/* Access mode and file open mode flags */
@@ -3880,7 +3880,7 @@ FRESULT f_open (
 /* Read File                                                             */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_read (
+FRESULT file_read (
 	FIL* fp, 	/* Pointer to the file object */
 	void* buff,	/* Pointer to data buffer */
 	UINT btr,	/* Number of bytes to read */
@@ -3981,7 +3981,7 @@ FRESULT f_read (
 /* Write File                                                            */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_write (
+FRESULT file_write (
 	FIL* fp,			/* Pointer to the file object */
 	const void* buff,	/* Pointer to the data to be written */
 	UINT btw,			/* Number of bytes to write */
@@ -4103,7 +4103,7 @@ FRESULT f_write (
 /* Synchronize the File                                                  */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_sync (
+FRESULT file_sync (
 	FIL* fp		/* Pointer to the file object */
 )
 {
@@ -4184,7 +4184,7 @@ FRESULT f_sync (
 /* Close File                                                            */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_close (
+FRESULT file_close (
 	FIL* fp		/* Pointer to the file object to be closed */
 )
 {
@@ -4192,7 +4192,7 @@ FRESULT f_close (
 	FATFS *fs;
 
 #if !FF_FS_READONLY
-	res = f_sync(fp);					/* Flush cached data */
+	res = file_sync(fp);					/* Flush cached data */
 	if (res == FR_OK)
 #endif
 	{
@@ -4220,7 +4220,7 @@ FRESULT f_close (
 /* Change Current Directory or Current Drive, Get Current Directory      */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_chdrive (
+FRESULT file_chdrive (
 	const TCHAR* path		/* Drive number to set */
 )
 {
@@ -4237,7 +4237,7 @@ FRESULT f_chdrive (
 
 
 
-FRESULT f_chdir (
+FRESULT file_chdir (
 	const TCHAR* path	/* Pointer to the directory path */
 )
 {
@@ -4299,7 +4299,7 @@ FRESULT f_chdir (
 
 
 #if FF_FS_RPATH >= 2
-FRESULT f_getcwd (
+FRESULT file_getcwd (
 	TCHAR* buff,	/* Pointer to the directory path */
 	UINT len		/* Size of buff in unit of TCHAR */
 )
@@ -4399,7 +4399,7 @@ FRESULT f_getcwd (
 /* Seek File Read/Write Pointer                                          */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_lseek (
+FRESULT file_lseek (
 	FIL* fp,		/* Pointer to the file object */
 	FSIZE_t ofs		/* File pointer from top of file */
 )
@@ -4562,7 +4562,7 @@ FRESULT f_lseek (
 /* Create a Directory Object                                             */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_opendir (
+FRESULT file_opendir (
 	DIR* dp,			/* Pointer to directory object to create */
 	const TCHAR* path	/* Pointer to the directory path */
 )
@@ -4628,7 +4628,7 @@ FRESULT f_opendir (
 /* Close Directory                                                       */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_closedir (
+FRESULT file_closedir (
 	DIR *dp		/* Pointer to the directory object to be closed */
 )
 {
@@ -4658,7 +4658,7 @@ FRESULT f_closedir (
 /* Read Directory Entries in Sequence                                    */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_readdir (
+FRESULT file_readdir (
 	DIR* dp,			/* Pointer to the open directory object */
 	FILINFO* fno		/* Pointer to file information to return */
 )
@@ -4694,7 +4694,7 @@ FRESULT f_readdir (
 /* Find Next File                                                        */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_findnext (
+FRESULT file_findnext (
 	DIR* dp,		/* Pointer to the open directory object */
 	FILINFO* fno	/* Pointer to the file information structure */
 )
@@ -4703,7 +4703,7 @@ FRESULT f_findnext (
 
 
 	for (;;) {
-		res = f_readdir(dp, fno);		/* Get a directory item */
+		res = file_readdir(dp, fno);		/* Get a directory item */
 		if (res != FR_OK || !fno || !fno->fname[0]) break;	/* Terminate if any error or end of directory */
 		if (pattern_matching(dp->pat, fno->fname, 0, 0)) break;		/* Test for the file name */
 #if FF_USE_LFN && FF_USE_FIND == 2
@@ -4719,7 +4719,7 @@ FRESULT f_findnext (
 /* Find First File                                                       */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_findfirst (
+FRESULT file_findfirst (
 	DIR* dp,				/* Pointer to the blank directory object */
 	FILINFO* fno,			/* Pointer to the file information structure */
 	const TCHAR* path,		/* Pointer to the directory to open */
@@ -4730,9 +4730,9 @@ FRESULT f_findfirst (
 
 
 	dp->pat = pattern;		/* Save pointer to pattern string */
-	res = f_opendir(dp, path);		/* Open the target directory */
+	res = file_opendir(dp, path);		/* Open the target directory */
 	if (res == FR_OK) {
-		res = f_findnext(dp, fno);	/* Find the first item */
+		res = file_findnext(dp, fno);	/* Find the first item */
 	}
 	return res;
 }
@@ -4746,7 +4746,7 @@ FRESULT f_findfirst (
 /* Get File Status                                                       */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_stat (
+FRESULT file_stat (
 	const TCHAR* path,	/* Pointer to the file path */
 	FILINFO* fno		/* Pointer to file information to return */
 )
@@ -4781,7 +4781,7 @@ FRESULT f_stat (
 /* Get Number of Free Clusters                                           */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_getfree (
+FRESULT file_getfree (
 	const TCHAR* path,	/* Logical drive number */
 	DWORD* nclst,		/* Pointer to a variable to return number of free clusters */
 	FATFS** fatfs		/* Pointer to return pointer to corresponding filesystem object */
@@ -4871,7 +4871,7 @@ FRESULT f_getfree (
 /* Truncate File                                                         */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_truncate (
+FRESULT file_truncate (
 	FIL* fp		/* Pointer to the file object */
 )
 {
@@ -4921,7 +4921,7 @@ FRESULT f_truncate (
 /* Delete a File/Directory                                               */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_unlink (
+FRESULT file_unlink (
 	const TCHAR* path		/* Pointer to the file or directory path */
 )
 {
@@ -5015,7 +5015,7 @@ FRESULT f_unlink (
 /* Create a Directory                                                    */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_mkdir (
+FRESULT file_mkdir (
 	const TCHAR* path		/* Pointer to the directory path */
 )
 {
@@ -5099,7 +5099,7 @@ FRESULT f_mkdir (
 /* Rename a File/Directory                                               */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_rename (
+FRESULT file_rename (
 	const TCHAR* path_old,	/* Pointer to the object name to be renamed */
 	const TCHAR* path_new	/* Pointer to the new name */
 )
@@ -5209,7 +5209,7 @@ FRESULT f_rename (
 /* Change Attribute                                                      */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_chmod (
+FRESULT file_chmod (
 	const TCHAR* path,	/* Pointer to the file path */
 	BYTE attr,			/* Attribute bits */
 	BYTE mask			/* Attribute mask to change */
@@ -5256,7 +5256,7 @@ FRESULT f_chmod (
 /* Change Timestamp                                                      */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_utime (
+FRESULT file_utime (
 	const TCHAR* path,	/* Pointer to the file/directory name */
 	const FILINFO* fno	/* Pointer to the timestamp to be set */
 )
@@ -5303,7 +5303,7 @@ FRESULT f_utime (
 /* Get Volume Label                                                      */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_getlabel (
+FRESULT file_getlabel (
 	const TCHAR* path,	/* Logical drive number */
 	TCHAR* label,		/* Buffer to store the volume label */
 	DWORD* vsn			/* Variable to store the volume serial number */
@@ -5398,7 +5398,7 @@ FRESULT f_getlabel (
 /* Set Volume Label                                                      */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_setlabel (
+FRESULT file_setlabel (
 	const TCHAR* label	/* Volume label to set with heading logical drive number */
 )
 {
@@ -5518,7 +5518,7 @@ FRESULT f_setlabel (
 /* Allocate a Contiguous Blocks to the File                              */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_expand (
+FRESULT file_expand (
 	FIL* fp,		/* Pointer to the file object */
 	FSIZE_t fsz,	/* File size to be expanded to */
 	BYTE opt		/* Operation mode 0:Find and prepare or 1:Find and allocate */
@@ -5608,7 +5608,7 @@ FRESULT f_expand (
 /* Forward Data to the Stream Directly                                   */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_forward (
+FRESULT file_forward (
 	FIL* fp, 						/* Pointer to the file object */
 	UINT (*func)(const BYTE*,UINT),	/* Pointer to the streaming function */
 	UINT btf,						/* Number of bytes to forward */
@@ -5829,7 +5829,7 @@ static FRESULT create_partition (
 
 
 
-FRESULT f_mkfs (
+FRESULT file_mkfs (
 	const TCHAR* path,		/* Logical drive number */
 	const MKFS_PARM* opt,	/* Format options */
 	void* work,				/* Pointer to working buffer (null: use heap memory) */
@@ -6330,7 +6330,7 @@ FRESULT f_mkfs (
 /* Create Partition Table on the Physical Drive                          */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_fdisk (
+FRESULT file_fdisk (
 	BYTE pdrv,			/* Physical drive number */
 	const LBA_t ptbl[],	/* Pointer to the size table for each partitions */
 	void* work			/* Pointer to the working buffer (null: use heap memory) */
@@ -6365,7 +6365,7 @@ FRESULT f_fdisk (
 /* Get a String from the File                                            */
 /*-----------------------------------------------------------------------*/
 
-TCHAR* f_gets (
+TCHAR* file_gets (
 	TCHAR* buff,	/* Pointer to the buffer to store read string */
 	int len,		/* Size of string buffer (items) */
 	FIL* fp			/* Pointer to the file object */
@@ -6390,30 +6390,30 @@ TCHAR* f_gets (
 	if (FF_LFN_UNICODE == 3) len -= 1;
 	while (nc < len) {
 #if FF_STRF_ENCODE == 0				/* Read a character in ANSI/OEM */
-		f_read(fp, s, 1, &rc);		/* Get a code unit */
+		file_read(fp, s, 1, &rc);		/* Get a code unit */
 		if (rc != 1) break;			/* EOF? */
 		wc = s[0];
 		if (dbc_1st((BYTE)wc)) {	/* DBC 1st byte? */
-			f_read(fp, s, 1, &rc);	/* Get DBC 2nd byte */
+			file_read(fp, s, 1, &rc);	/* Get DBC 2nd byte */
 			if (rc != 1 || !dbc_2nd(s[0])) continue;	/* Wrong code? */
 			wc = wc << 8 | s[0];
 		}
 		dc = ff_oem2uni(wc, CODEPAGE);	/* OEM --> */
 		if (dc == 0) continue;
 #elif FF_STRF_ENCODE == 1 || FF_STRF_ENCODE == 2 	/* Read a character in UTF-16LE/BE */
-		f_read(fp, s, 2, &rc);		/* Get a code unit */
+		file_read(fp, s, 2, &rc);		/* Get a code unit */
 		if (rc != 2) break;			/* EOF? */
 		dc = (FF_STRF_ENCODE == 1) ? ld_word(s) : s[0] << 8 | s[1];
 		if (IsSurrogateL(dc)) continue;	/* Broken surrogate pair? */
 		if (IsSurrogateH(dc)) {		/* High surrogate? */
-			f_read(fp, s, 2, &rc);	/* Get low surrogate */
+			file_read(fp, s, 2, &rc);	/* Get low surrogate */
 			if (rc != 2) break;		/* EOF? */
 			wc = (FF_STRF_ENCODE == 1) ? ld_word(s) : s[0] << 8 | s[1];
 			if (!IsSurrogateL(wc)) continue;	/* Broken surrogate pair? */
 			dc = ((dc & 0x3FF) + 0x40) << 10 | (wc & 0x3FF);	/* Merge surrogate pair */
 		}
 #else	/* Read a character in UTF-8 */
-		f_read(fp, s, 1, &rc);		/* Get a code unit */
+		file_read(fp, s, 1, &rc);		/* Get a code unit */
 		if (rc != 1) break;			/* EOF? */
 		dc = s[0];
 		if (dc >= 0x80) {			/* Multi-byte sequence? */
@@ -6422,7 +6422,7 @@ TCHAR* f_gets (
 			if ((dc & 0xF0) == 0xE0) { dc &= 0x0F; ct = 2; }	/* 3-byte sequence? */
 			if ((dc & 0xF8) == 0xF0) { dc &= 0x07; ct = 3; }	/* 4-byte sequence? */
 			if (ct == 0) continue;
-			f_read(fp, s, ct, &rc);		/* Get trailing bytes */
+			file_read(fp, s, ct, &rc);		/* Get trailing bytes */
 			if (rc != ct) break;
 			rc = 0;
 			do {	/* Merge the byte sequence */
@@ -6473,7 +6473,7 @@ TCHAR* f_gets (
 #else			/* Byte-by-byte read without any conversion (ANSI/OEM API) */
 	len -= 1;	/* Make a room for the terminator */
 	while (nc < len) {
-		f_read(fp, s, 1, &rc);	/* Get a byte */
+		file_read(fp, s, 1, &rc);	/* Get a byte */
 		if (rc != 1) break;		/* EOF? */
 		dc = s[0];
 		if (FF_USE_STRFUNC == 2 && dc == '\r') continue;
@@ -6633,7 +6633,7 @@ static void putc_bfd (putbuff* pb, TCHAR c)
 #endif
 
 	if (i >= (int)(sizeof pb->buf) - 4) {	/* Write buffered characters to the file */
-		f_write(pb->fp, pb->buf, (UINT)i, &n);
+		file_write(pb->fp, pb->buf, (UINT)i, &n);
 		i = (n == (UINT)i) ? 0 : -1;
 	}
 	pb->idx = i;
@@ -6648,7 +6648,7 @@ static int putc_flush (putbuff* pb)
 	UINT nw;
 
 	if (   pb->idx >= 0	/* Flush buffered characters to the file */
-		&& f_write(pb->fp, pb->buf, (UINT)pb->idx, &nw) == FR_OK
+		&& file_write(pb->fp, pb->buf, (UINT)pb->idx, &nw) == FR_OK
 		&& (UINT)pb->idx == nw) return pb->nchr;
 	return EOF;
 }
@@ -6664,7 +6664,7 @@ static void putc_init (putbuff* pb, FIL* fp)
 
 
 
-int f_putc (
+int file_putc (
 	TCHAR c,	/* A character to be output */
 	FIL* fp		/* Pointer to the file object */
 )
@@ -6684,7 +6684,7 @@ int f_putc (
 /* Put a String to the File                                              */
 /*-----------------------------------------------------------------------*/
 
-int f_puts (
+int file_puts (
 	const TCHAR* str,	/* Pointer to the string to be output */
 	FIL* fp				/* Pointer to the file object */
 )
@@ -6704,7 +6704,7 @@ int f_puts (
 /* Put a Formatted String to the File                                    */
 /*-----------------------------------------------------------------------*/
 
-int f_printf (
+int file_printf (
 	FIL* fp,			/* Pointer to the file object */
 	const TCHAR* fmt,	/* Pointer to the format string */
 	...					/* Optional arguments... */
@@ -6822,7 +6822,7 @@ int f_printf (
 /* Set Active Codepage for the Path Name                                 */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_setcp (
+FRESULT file_setcp (
 	WORD cp		/* Value to be set as active code page */
 )
 {
